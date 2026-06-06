@@ -3,6 +3,7 @@ export interface IncomeSource {
   user_id: string;
   name: string;
   amount_cents: number;
+  currency: "ARS" | "USD";
   is_active: boolean;
   created_at: string;
 }
@@ -62,4 +63,11 @@ export interface MonthlySnapshot {
   total_fixed_cents: number;
   discretionary_pool_cents: number;
   month: string;
+}
+
+export interface BudgetCategoryWithStats extends BudgetCategory {
+  allocated_cents: number;
+  spent_cents: number;
+  remaining_cents: number;
+  spent_percentage: number;
 }

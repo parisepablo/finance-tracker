@@ -11,6 +11,7 @@ CREATE TABLE income_sources (
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   name text NOT NULL,
   amount_cents integer NOT NULL CHECK (amount_cents > 0),
+  currency text NOT NULL DEFAULT 'ARS' CHECK (currency IN ('ARS', 'USD')),
   is_active boolean DEFAULT true NOT NULL,
   created_at timestamptz DEFAULT now()
 );

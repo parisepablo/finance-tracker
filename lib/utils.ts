@@ -6,10 +6,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(cents: number, locale = "en-US"): string {
+export function formatCurrency(cents: number, currency = "ARS"): string {
+  const locale = currency === "USD" ? "en-US" : "es-AR";
   return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: "USD",
+    currency,
   }).format(cents / 100)
 }
 
@@ -30,7 +31,9 @@ export function getMonthlyEquivalent(
 }
 
 export function sumIncomeSources(sources: IncomeSource[]): number {
-  return sources.reduce((sum, source) => sum + source.amount_cents, 0)
+  return sources
+    .filter((source) => source.is_active)
+    .reduce((sum, source) => sum + source.amount_cents, 0)
 }
 
 export function sumFixedExpenses(expenses: FixedExpense[]): number {
