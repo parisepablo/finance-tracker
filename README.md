@@ -43,6 +43,7 @@ A personal finance web application to track monthly income, fixed recurring expe
    - `NEXT_PUBLIC_SUPABASE_URL` — Project Settings > API > Project URL
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Project Settings > API > anon public key
    - `SUPABASE_SERVICE_ROLE_KEY` — Project Settings > API > service role secret
+   - `CRON_SECRET` — Generate a random secret with `openssl rand -base64 32`
 
 4. Run the database migration in the Supabase SQL Editor:
 
@@ -65,6 +66,7 @@ A personal finance web application to track monthly income, fixed recurring expe
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
+   - `CRON_SECRET` — Vercel automatically passes this as the Authorization header to cron jobs
 5. Deploy.
 
 > Make sure the Supabase project is configured with the same database schema (run the migration SQL in the Supabase SQL Editor before using the app).

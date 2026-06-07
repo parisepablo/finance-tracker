@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { alertGenerators, AlertToCreate } from "@/lib/alerts";
 import {
   IncomeSource,
@@ -10,6 +9,7 @@ import {
   Alert,
 } from "@/lib/types";
 import { getCurrentMonth } from "@/lib/utils";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 interface FinancialData {
   incomeSources: IncomeSource[];
@@ -21,7 +21,7 @@ interface FinancialData {
 }
 
 async function fetchFinancialData(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: SupabaseClient,
   userId: string,
   currentMonth: string
 ): Promise<FinancialData> {
@@ -150,9 +150,10 @@ function getPayloadKey(
   return `${type}:${values}`;
 }
 
-export async function generateAlerts(userId: string): Promise<number> {
-  const supabase = await createClient();
-
+export async function generateAlerts(
+  userId: string,
+  supabase: SupabaseClient
+): Promise<number> {
   const currentMonth = getCurrentMonth();
   const today = new Date();
 

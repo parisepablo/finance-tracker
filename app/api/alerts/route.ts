@@ -16,7 +16,7 @@ export async function GET() {
 
   // Generate fresh alerts on every GET
   try {
-    await generateAlerts(user.id);
+    await generateAlerts(user.id, supabase);
   } catch (err) {
     console.error("Alert generation failed:", err);
   }

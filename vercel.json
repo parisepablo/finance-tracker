@@ -1,7 +1,8 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "buildCommand": "next build --webpack",
-  "installCommand": "npm install",
-  "regions": ["iad1"]
+  "crons": [
+    {
+      "path": "/api/cron/generate-alerts",
+      "schedule": "0 10 * * *"
+    }
+  ]
 }
