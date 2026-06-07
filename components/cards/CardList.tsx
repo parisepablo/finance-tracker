@@ -87,7 +87,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
       {cards.map((card) => (
         <div key={card.id} className="space-y-0 md:max-w-sm md:mx-auto">
           {/* Credit card visual */}
-          <div className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-indigo-900 via-violet-900 to-zinc-900 border border-white/[0.08] shadow-xl shadow-black/40" style={{ boxShadow: '0 0 40px rgba(99,102,241,0.15), 0 20px 40px rgba(0,0,0,0.4)' }}>
+          <div className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-indigo-900 via-violet-900 to-zinc-900 border border-white/[0.08] shadow-xl shadow-black/40" style={{ boxShadow: '0 0 40px rgba(99,102,241,0.09), 0 20px 40px rgba(0,0,0,0.4)' }}>
             <div className="relative z-10 flex flex-col gap-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">

@@ -15,6 +15,7 @@ function getMonthRange() {
   return {
     start: `${year}-${month}-01`,
     end: `${year}-${month}-${String(lastDay).padStart(2, "0")}`,
+    monthStr: `${year}-${month}`,
   };
 }
 
@@ -34,7 +35,7 @@ export default async function DashboardPage() {
     );
   }
 
-  const { start, end } = getMonthRange();
+  const { start, end, monthStr } = getMonthRange();
 
   const [
     incomeResult,
@@ -42,6 +43,7 @@ export default async function DashboardPage() {
     budgetResult,
     cardsResult,
     transactionsResult,
+    paymentsResult,
   ] = await Promise.all([
     supabase.from("income_sources").select("*").eq("user_id", user.id),
     supabase.from("fixed_expenses").select("*").eq("user_id", user.id),
@@ -61,6 +63,11 @@ export default async function DashboardPage() {
       .eq("user_id", user.id)
       .gte("date", start)
       .lte("date", end),
+    supabase
+      .from("expense_payments")
+      .select("fixed_expense_id")
+      .eq("user_id", user.id)
+      .eq("paid_month", monthStr),
   ]);
 
   const incomeSources = incomeResult.data ?? [];
@@ -136,6 +143,10 @@ export default async function DashboardPage() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const paidExpenseIds = new Set(
+    (paymentsResult.data ?? []).map((p) => p.fixed_expense_id)
+  );
+
   const upcomingExpenses = activeFixedExpenses
     .filter((exp) => exp.due_day)
     .map((exp) => {
@@ -191,6 +202,8 @@ export default async function DashboardPage() {
       budgets={budgets}
       cards={cards}
       upcomingExpenses={upcomingExpenses}
+      paidExpenseIds={Array.from(paidExpenseIds)}
+      currentMonth={monthStr}
       healthStatus={healthStatus}
     />
   );

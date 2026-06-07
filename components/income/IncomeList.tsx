@@ -85,6 +85,7 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
         <GlowCard
           key={source.id}
           color="indigo"
+          interactive
           className={!source.is_active ? "opacity-60" : undefined}
         >
           <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">

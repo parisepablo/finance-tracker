@@ -114,7 +114,7 @@ export function BudgetCategoryList({
                 <div className="flex items-center gap-3">
                   <div
                     className="h-3 w-3 rounded-full"
-                    style={{ backgroundColor: cat.color, boxShadow: `0 0 8px ${cat.color}40` }}
+                    style={{ backgroundColor: cat.color, boxShadow: `0 0 8px ${cat.color}26` }}
                   />
                   <span className="font-medium text-zinc-200">{cat.name}</span>
                   <span className="text-sm text-zinc-500 font-mono">
@@ -169,7 +169,7 @@ export function BudgetCategoryList({
                   style={{
                     width: `${barWidth}%`,
                     backgroundColor: barColor,
-                    boxShadow: `0 0 10px ${barColor}40`,
+                    boxShadow: `0 0 10px ${barColor}26`,
                   }}
                 />
               </div>

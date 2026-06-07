@@ -62,7 +62,7 @@ export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
     setError(null);
     try {
       const res = await fetch(
-        `/api/cards/${card.id}/monthly-summary?month=${month}`
+        `/api/cards/${card.id}?month=${month}`
       );
       const result = await res.json();
       if (!res.ok) {
@@ -121,7 +121,7 @@ export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
 
       {summary && (
         <>
-          <GlowCard color="emerald" hoverIntensity="strong">
+          <GlowCard color="emerald">
             <div className="p-5 space-y-2">
               <span className="text-xs font-medium uppercase tracking-widest text-emerald-400">
                 Total Due — {formatMonthLabel(month)}

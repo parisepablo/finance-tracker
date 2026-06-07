@@ -1,10 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreditCard, BudgetCategory } from "@/lib/types";
+import { formatCurrency } from "@/lib/utils";
 import { CardList } from "@/components/cards/CardList";
+import { CardDetail } from "@/components/cards/CardDetail";
 import { CreditCardForm } from "@/components/cards/CreditCardForm";
+import { AddChargeForm } from "@/components/cards/AddChargeForm";
 import { AmbientGlow } from "@/components/ui/ambient-glow";
+import { Button } from "@/components/ui/button";
+import { Wifi, CreditCardIcon, Pencil } from "lucide-react";
 
 interface CardsPageClientProps {
   cards: CreditCard[];
@@ -18,11 +24,168 @@ export function CardsPageClient({
   error,
 }: CardsPageClientProps) {
   const router = useRouter();
+  const [detailRefreshKey, setDetailRefreshKey] = useState(0);
 
   function handleRefresh() {
     router.refresh();
   }
 
+  if (cards.length === 0) {
+    return (
+      <div className="flex flex-1 flex-col gap-6 p-6 relative">
+        <AmbientGlow color="emerald" position="bottom-left" />
+        <div className="flex items-center justify-between relative z-10">
+          <div>
+            <h1 className="text-2xl font-semibold text-white">Credit Cards</h1>
+            <p className="text-sm text-zinc-500">
+              Track charges and installments
+            </p>
+          </div>
+          <CreditCardForm onSuccess={handleRefresh} />
+        </div>
+        {error ? (
+          <div className="relative z-10 rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+            Error loading credit cards: {error}
+          </div>
+        ) : (
+          <div className="relative z-10 flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800/60">
+              <CreditCardIcon className="h-6 w-6 text-zinc-600" />
+            </div>
+            <div className="space-y-1">
+              <p className="font-medium text-zinc-300">No credit cards yet</p>
+              <p className="text-sm text-zinc-500">
+                Add your first credit card to track charges.
+              </p>
+            </div>
+            <CreditCardForm onSuccess={handleRefresh} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Single card: show detail directly
+  if (cards.length === 1) {
+    const card = cards[0];
+    return (
+      <div className="flex flex-1 flex-col gap-6 p-6 relative">
+        <AmbientGlow color="emerald" position="bottom-left" />
+
+        <div className="flex items-center justify-between relative z-10">
+          <div>
+            <h1 className="text-2xl font-semibold text-white">Credit Cards</h1>
+            <p className="text-sm text-zinc-500">
+              Track charges and installments
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <CreditCardForm onSuccess={handleRefresh} />
+          </div>
+        </div>
+
+        {error && (
+          <div className="relative z-10 rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-4 relative z-10">
+          {/* Card visual */}
+          <div className="space-y-0 md:max-w-sm md:mx-auto">
+            <div
+              className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-indigo-900 via-violet-900 to-zinc-900 border border-white/[0.08]"
+              style={{
+                boxShadow:
+                  "0 0 40px rgba(99,102,241,0.09), 0 20px 40px rgba(0,0,0,0.4)",
+              }}
+            >
+              <div className="relative z-10 flex flex-col gap-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <Wifi className="h-5 w-5 text-white/60 rotate-90" />
+                  </div>
+                  <span className="text-xs font-medium text-white/50 uppercase tracking-wider">
+                    {card.name}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-10 items-center justify-center rounded-md bg-amber-400/20 border border-amber-400/30">
+                    <div className="h-4 w-6 rounded-sm bg-gradient-to-r from-amber-300/40 to-amber-500/40" />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-medium tracking-widest text-white/90 tabular-nums font-mono">
+                    •••• •••• •••• {card.last_four || "****"}
+                  </span>
+                </div>
+
+                <div className="flex items-end justify-between">
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] uppercase tracking-wider text-white/40">Limit</p>
+                    <p className="text-sm font-semibold text-white tabular-nums font-mono">
+                      {card.credit_limit_cents !== null
+                        ? formatCurrency(card.credit_limit_cents)
+                        : "—"}
+                    </p>
+                  </div>
+                  <div className="flex gap-4">
+                    {card.closing_day && (
+                      <div className="space-y-0.5 text-right">
+                        <p className="text-[10px] uppercase tracking-wider text-white/40">Closing</p>
+                        <p className="text-sm font-medium text-white font-mono">{card.closing_day}</p>
+                      </div>
+                    )}
+                    {card.due_day && (
+                      <div className="space-y-0.5 text-right">
+                        <p className="text-[10px] uppercase tracking-wider text-white/40">Due</p>
+                        <p className="text-sm font-medium text-white font-mono">{card.due_day}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card actions */}
+            <div className="flex items-center gap-1 px-1 pt-2">
+              <AddChargeForm
+                card={card}
+                budgetCategories={budgetCategories}
+                onSuccess={() => {
+                  setDetailRefreshKey((k) => k + 1);
+                  handleRefresh();
+                }}
+                trigger={
+                  <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+                    + Charge
+                  </Button>
+                }
+              />
+              <CreditCardForm
+                card={card}
+                onSuccess={handleRefresh}
+                trigger={
+                  <Button variant="ghost" size="icon" aria-label="Edit" className="text-zinc-500 hover:text-white hover:bg-zinc-800">
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                }
+              />
+            </div>
+          </div>
+
+          {/* Auto-opened detail */}
+          <div className="rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4">
+            <CardDetail card={card} refreshTrigger={detailRefreshKey} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Multiple cards: use existing list
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 relative">
       <AmbientGlow color="emerald" position="bottom-left" />

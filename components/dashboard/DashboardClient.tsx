@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { formatCurrency } from "@/lib/utils";
 import { GlowCard } from "@/components/ui/glow-card";
 import { AmbientGlow } from "@/components/ui/ambient-glow";
 import { useAnimatedNumber } from "@/hooks/use-animated-number";
+import { BudgetDonut } from "@/components/budgets/BudgetDonut";
 import { Badge } from "@/components/ui/badge";
 import {
   Wallet,
@@ -15,7 +17,11 @@ import {
   Info,
   CalendarDays,
   PieChart,
+  Check,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface DashboardBudgetItem {
   id: string;
@@ -57,6 +63,8 @@ interface DashboardClientProps {
   budgets: DashboardBudgetItem[];
   cards: DashboardCardItem[];
   upcomingExpenses: DashboardUpcomingExpense[];
+  paidExpenseIds: string[];
+  currentMonth: string;
   healthStatus: HealthStatus;
 }
 
@@ -99,12 +107,70 @@ export function DashboardClient({
   budgets,
   cards,
   upcomingExpenses,
+  paidExpenseIds,
+  currentMonth,
   healthStatus,
 }: DashboardClientProps) {
   const animatedIncome = useAnimatedNumber(totalIncomeCents, 800);
   const animatedFixed = useAnimatedNumber(totalFixedCents, 800);
   const animatedPool = useAnimatedNumber(discretionaryPoolCents, 800);
   const animatedCards = useAnimatedNumber(totalCardObligationsCents, 800);
+
+  const [paidIds, setPaidIds] = useState<Set<string>>(new Set(paidExpenseIds));
+  const [showPaid, setShowPaid] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  const unpaidExpenses = upcomingExpenses.filter((exp) => !paidIds.has(exp.id));
+  const paidExpenses = upcomingExpenses.filter((exp) => paidIds.has(exp.id));
+
+  async function togglePaid(expenseId: string, markPaid: boolean) {
+    if (togglingId === expenseId) return;
+    setTogglingId(expenseId);
+
+    // Optimistic update
+    setPaidIds((prev) => {
+      const next = new Set(prev);
+      if (markPaid) next.add(expenseId);
+      else next.delete(expenseId);
+      return next;
+    });
+
+    try {
+      if (markPaid) {
+        const res = await fetch("/api/expenses/payments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fixed_expense_id: expenseId, paid_month: currentMonth }),
+        });
+        if (!res.ok) {
+          const result = await res.json();
+          throw new Error(result.error || "Failed to mark as paid");
+        }
+        toast.success("Marked as paid");
+      } else {
+        const res = await fetch(
+          `/api/expenses/payments?fixed_expense_id=${expenseId}&paid_month=${currentMonth}`,
+          { method: "DELETE" }
+        );
+        if (!res.ok) {
+          const result = await res.json();
+          throw new Error(result.error || "Failed to unmark");
+        }
+        toast.success("Unmarked");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      // Revert optimistic update
+      setPaidIds((prev) => {
+        const next = new Set(prev);
+        if (markPaid) next.delete(expenseId);
+        else next.add(expenseId);
+        return next;
+      });
+    } finally {
+      setTogglingId(null);
+    }
+  }
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 relative">
@@ -153,7 +219,7 @@ export function DashboardClient({
           </div>
         </GlowCard>
 
-        <GlowCard color="indigo" hoverIntensity="strong">
+        <GlowCard color="indigo">
           <div className="p-5 space-y-2">
             <div className="flex flex-row items-center justify-between">
               <span className="text-xs font-medium uppercase tracking-widest text-indigo-400">
@@ -201,67 +267,20 @@ export function DashboardClient({
             </p>
           </div>
         ) : (
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {budgets.map((cat) => {
-              const barWidth = Math.min(cat.spentPercentage, 100);
-              let barColor = cat.color || "#10b981";
-              if (cat.spentPercentage >= 100) {
-                barColor = "#f43f5e";
-              } else if (cat.spentPercentage >= 80) {
-                barColor = "#f59e0b";
-              }
-
-              return (
-                <GlowCard key={cat.id} color="indigo">
-                  <div className="p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="h-2.5 w-2.5 rounded-full"
-                          style={{ backgroundColor: cat.color, boxShadow: `0 0 8px ${cat.color}40` }}
-                        />
-                        <span className="text-sm font-medium text-zinc-200">{cat.name}</span>
-                      </div>
-                      <span className="text-xs text-zinc-500 font-mono">
-                        {cat.spentPercentage}% spent
-                      </span>
-                    </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
-                      <div
-                        className="h-full rounded-full progress-shimmer animate-progress"
-                        style={{
-                          width: `${barWidth}%`,
-                          backgroundColor: barColor,
-                          boxShadow: `0 0 10px ${barColor}40`,
-                        }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-zinc-500">
-                      <span className="font-mono">
-                        {formatCurrency(cat.spentCents)} /{" "}
-                        {formatCurrency(cat.allocatedCents)}
-                      </span>
-                      <span
-                        className={
-                          cat.remainingCents < 0
-                            ? "text-rose-400 font-mono"
-                            : "font-mono"
-                        }
-                      >
-                        {cat.remainingCents < 0 ? "Over: " : "Left: "}
-                        <span className="font-mono">
-                          {formatCurrency(
-                            cat.remainingCents < 0
-                              ? -cat.remainingCents
-                              : cat.remainingCents
-                          )}
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                </GlowCard>
-              );
-            })}
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {budgets.map((cat) => (
+              <GlowCard key={cat.id} color="indigo">
+                <div className="p-4 flex flex-col items-center">
+                  <BudgetDonut
+                    spentPercentage={cat.spentPercentage}
+                    color={cat.color}
+                    name={cat.name}
+                    spentCents={cat.spentCents}
+                    allocatedCents={cat.allocatedCents}
+                  />
+                </div>
+              </GlowCard>
+            ))}
           </div>
         )}
       </div>
@@ -285,7 +304,7 @@ export function DashboardClient({
             {cards.map((card) => (
               <div
                 key={card.id}
-                className="group flex flex-col gap-2 rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4 sm:flex-row sm:items-center sm:justify-between hover:bg-zinc-800/50 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border-l-2 border-l-transparent hover:border-l-indigo-500/100"
+                className="flex flex-col gap-2 rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600/20 to-violet-600/20">
@@ -339,10 +358,11 @@ export function DashboardClient({
           </div>
         ) : (
           <div className="space-y-2">
-            {upcomingExpenses.map((exp) => (
+            {/* Unpaid items */}
+            {unpaidExpenses.map((exp) => (
               <div
                 key={exp.id}
-                className="group flex flex-col gap-2 rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4 sm:flex-row sm:items-center sm:justify-between hover:bg-zinc-800/50 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border-l-2 border-l-transparent hover:border-l-indigo-500/100"
+                className="group flex flex-col gap-2 rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800/60">
@@ -364,17 +384,80 @@ export function DashboardClient({
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-white tabular-nums font-mono">
-                    {formatCurrency(exp.amountCents)}
-                  </p>
-                  <p className="text-xs text-zinc-500 font-mono">
-                    Due in {exp.daysUntilDue} day
-                    {exp.daysUntilDue === 1 ? "" : "s"}
-                  </p>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="font-semibold text-white tabular-nums font-mono">
+                      {formatCurrency(exp.amountCents)}
+                    </p>
+                    <p className="text-xs text-zinc-500 font-mono">
+                      Due in {exp.daysUntilDue} day
+                      {exp.daysUntilDue === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => togglePaid(exp.id, true)}
+                    disabled={togglingId === exp.id}
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+                    aria-label="Mark as paid"
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             ))}
+
+            {/* Paid this month collapsible */}
+            {paidExpenses.length > 0 && (
+              <div className="rounded-xl border border-white/[0.06] bg-zinc-900/40 overflow-hidden">
+                <button
+                  onClick={() => setShowPaid((v) => !v)}
+                  className="flex w-full items-center justify-between px-4 py-3 text-sm text-zinc-400 hover:bg-zinc-800/40 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-emerald-400" />
+                    <span className="font-mono">{paidExpenses.length}</span> paid this month
+                  </span>
+                  {showPaid ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </button>
+                {showPaid && (
+                  <div className="space-y-1 px-4 pb-4">
+                    {paidExpenses.map((exp) => (
+                      <div
+                        key={exp.id}
+                        className="flex items-center justify-between rounded-lg bg-zinc-800/40 px-3 py-2"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Check className="h-4 w-4 text-emerald-400" />
+                          <span className="text-sm text-zinc-400 line-through">
+                            {exp.name}
+                          </span>
+                          <Badge variant="outline" className="text-[10px]">
+                            {exp.category}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-zinc-500 font-mono line-through">
+                            {formatCurrency(exp.amountCents)}
+                          </span>
+                          <button
+                            onClick={() => togglePaid(exp.id, false)}
+                            disabled={togglingId === exp.id}
+                            className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-rose-500/50 hover:text-rose-400 transition-colors"
+                            aria-label="Unmark as paid"
+                          >
+                            <span className="text-xs">×</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

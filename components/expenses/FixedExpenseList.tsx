@@ -20,11 +20,14 @@ import {
   CircleDot,
   Calendar,
   Receipt,
+  Check,
 } from "lucide-react";
 
 interface FixedExpenseListProps {
   expenses: FixedExpense[];
   creditCards: CreditCard[];
+  paidExpenseIds?: string[];
+  currentMonth?: string;
   onRefresh: () => void;
 }
 
@@ -49,12 +52,16 @@ const categoryOrder = [
 export function FixedExpenseList({
   expenses,
   creditCards,
+  paidExpenseIds = [],
+  currentMonth,
   onRefresh,
 }: FixedExpenseListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmItem, setConfirmItem] = useState<FixedExpense | null>(null);
+  const [paidIds, setPaidIds] = useState<Set<string>>(new Set(paidExpenseIds));
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   function openDeleteDialog(item: FixedExpense) {
     setConfirmItem(item);
@@ -87,6 +94,51 @@ export function FixedExpenseList({
       setError("Network error. Please try again.");
       toast.error("Network error. Please try again.");
       setDeletingId(null);
+    }
+  }
+
+  async function togglePaid(expenseId: string, markPaid: boolean) {
+    if (!currentMonth || togglingId === expenseId) return;
+    setTogglingId(expenseId);
+
+    setPaidIds((prev) => {
+      const next = new Set(prev);
+      if (markPaid) next.add(expenseId);
+      else next.delete(expenseId);
+      return next;
+    });
+
+    try {
+      if (markPaid) {
+        const res = await fetch("/api/expenses/payments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fixed_expense_id: expenseId, paid_month: currentMonth }),
+        });
+        if (!res.ok) {
+          const result = await res.json();
+          throw new Error(result.error || "Failed to mark as paid");
+        }
+      } else {
+        const res = await fetch(
+          `/api/expenses/payments?fixed_expense_id=${expenseId}&paid_month=${currentMonth}`,
+          { method: "DELETE" }
+        );
+        if (!res.ok) {
+          const result = await res.json();
+          throw new Error(result.error || "Failed to unmark");
+        }
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+      setPaidIds((prev) => {
+        const next = new Set(prev);
+        if (markPaid) next.delete(expenseId);
+        else next.add(expenseId);
+        return next;
+      });
+    } finally {
+      setTogglingId(null);
     }
   }
 
@@ -147,6 +199,7 @@ export function FixedExpenseList({
                     : expense.billing_cycle === "annual"
                       ? "Annual ÷12"
                       : "Monthly";
+                const isPaid = paidIds.has(expense.id);
 
                 return (
                   <GlowCard
@@ -171,6 +224,12 @@ export function FixedExpenseList({
                             >
                               {expense.is_active ? "Active" : "Paused"}
                             </Badge>
+                            {isPaid && (
+                              <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">
+                                <Check className="mr-1 h-3 w-3" />
+                                Paid
+                              </Badge>
+                            )}
                           </div>
                           <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
                             {expense.due_day && (
@@ -212,6 +271,20 @@ export function FixedExpenseList({
                           </p>
                         </div>
                         <div className="flex items-center gap-1">
+                          {currentMonth && (
+                            <button
+                              onClick={() => togglePaid(expense.id, !isPaid)}
+                              disabled={togglingId === expense.id}
+                              className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
+                                isPaid
+                                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-500/50"
+                                  : "border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400"
+                              }`}
+                              aria-label={isPaid ? "Unmark as paid" : "Mark as paid"}
+                            >
+                              <Check className="h-4 w-4" />
+                            </button>
+                          )}
                           <FixedExpenseForm
                             expense={expense}
                             creditCards={creditCards}

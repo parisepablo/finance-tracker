@@ -49,3 +49,8 @@ export function sumFixedExpenses(expenses: FixedExpense[]): number {
 export function getDiscretionaryPool(income: number, fixed: number): number {
   return Math.max(0, income - fixed)
 }
+
+export function getCurrentMonth(): string {
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+}

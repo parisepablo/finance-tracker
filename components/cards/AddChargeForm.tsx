@@ -194,7 +194,7 @@ export function AddChargeForm({
 
             <div className="grid gap-2">
               <Label>Purchase Date</Label>
-              <Popover>
+              <Popover modal={false}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"

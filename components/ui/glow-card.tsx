@@ -3,34 +3,34 @@ import { cn } from "@/lib/utils";
 
 const glowColors = {
   indigo: {
-    from: "rgba(99, 102, 241, 0.5)",
-    to: "rgba(139, 92, 246, 0.3)",
-    hoverFrom: "rgba(99, 102, 241, 0.5)",
-    hoverTo: "rgba(139, 92, 246, 0.5)",
+    from: "rgba(99, 102, 241, 0.3)",
+    to: "rgba(139, 92, 246, 0.18)",
+    hoverFrom: "rgba(99, 102, 241, 0.3)",
+    hoverTo: "rgba(139, 92, 246, 0.3)",
   },
   violet: {
-    from: "rgba(139, 92, 246, 0.5)",
-    to: "rgba(168, 85, 247, 0.3)",
-    hoverFrom: "rgba(139, 92, 246, 0.5)",
-    hoverTo: "rgba(168, 85, 247, 0.5)",
+    from: "rgba(139, 92, 246, 0.3)",
+    to: "rgba(168, 85, 247, 0.18)",
+    hoverFrom: "rgba(139, 92, 246, 0.3)",
+    hoverTo: "rgba(168, 85, 247, 0.3)",
   },
   emerald: {
-    from: "rgba(16, 185, 129, 0.5)",
-    to: "rgba(52, 211, 153, 0.3)",
-    hoverFrom: "rgba(16, 185, 129, 0.5)",
-    hoverTo: "rgba(52, 211, 153, 0.5)",
+    from: "rgba(16, 185, 129, 0.3)",
+    to: "rgba(52, 211, 153, 0.18)",
+    hoverFrom: "rgba(16, 185, 129, 0.3)",
+    hoverTo: "rgba(52, 211, 153, 0.3)",
   },
   amber: {
-    from: "rgba(245, 158, 11, 0.5)",
-    to: "rgba(251, 191, 36, 0.3)",
-    hoverFrom: "rgba(245, 158, 11, 0.5)",
-    hoverTo: "rgba(251, 191, 36, 0.5)",
+    from: "rgba(245, 158, 11, 0.3)",
+    to: "rgba(251, 191, 36, 0.18)",
+    hoverFrom: "rgba(245, 158, 11, 0.3)",
+    hoverTo: "rgba(251, 191, 36, 0.3)",
   },
   rose: {
-    from: "rgba(244, 63, 94, 0.5)",
-    to: "rgba(251, 113, 133, 0.3)",
-    hoverFrom: "rgba(244, 63, 94, 0.5)",
-    hoverTo: "rgba(251, 113, 133, 0.5)",
+    from: "rgba(244, 63, 94, 0.3)",
+    to: "rgba(251, 113, 133, 0.18)",
+    hoverFrom: "rgba(244, 63, 94, 0.3)",
+    hoverTo: "rgba(251, 113, 133, 0.3)",
   },
 };
 
@@ -39,12 +39,14 @@ type GlowColor = keyof typeof glowColors;
 interface GlowCardProps extends React.HTMLAttributes<HTMLDivElement> {
   color?: GlowColor;
   hoverIntensity?: "subtle" | "medium" | "strong";
+  interactive?: boolean;
   children: React.ReactNode;
 }
 
 export function GlowCard({
   color = "indigo",
   hoverIntensity = "medium",
+  interactive = false,
   children,
   className,
   ...props
@@ -52,9 +54,9 @@ export function GlowCard({
   const colors = glowColors[color];
 
   const intensityMap = {
-    subtle: { from: "8px", to: "16px" },
-    medium: { from: "20px", to: "40px" },
-    strong: { from: "30px", to: "60px" },
+    subtle: { from: "5px", to: "10px" },
+    medium: { from: "12px", to: "24px" },
+    strong: { from: "18px", to: "36px" },
   };
 
   const intensities = intensityMap[hoverIntensity];
@@ -63,7 +65,7 @@ export function GlowCard({
     <div
       className={cn(
         "group relative rounded-xl transition-all duration-300 ease-out",
-        "hover:-translate-y-0.5 cursor-pointer",
+        interactive && "hover:-translate-y-0.5 cursor-pointer",
         className
       )}
       style={{

@@ -7,11 +7,11 @@ interface AmbientGlowProps {
 }
 
 const colorMap = {
-  indigo: "rgba(99, 102, 241, 0.15)",
-  violet: "rgba(139, 92, 246, 0.15)",
-  emerald: "rgba(16, 185, 129, 0.15)",
-  amber: "rgba(245, 158, 11, 0.15)",
-  rose: "rgba(244, 63, 94, 0.15)",
+  indigo: "rgba(99, 102, 241, 0.08)",
+  violet: "rgba(139, 92, 246, 0.08)",
+  emerald: "rgba(16, 185, 129, 0.08)",
+  amber: "rgba(245, 158, 11, 0.08)",
+  rose: "rgba(244, 63, 94, 0.08)",
 };
 
 const positionMap = {

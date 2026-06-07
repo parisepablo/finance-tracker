@@ -65,6 +65,14 @@ export interface MonthlySnapshot {
   month: string;
 }
 
+export interface ExpensePayment {
+  id: string;
+  user_id: string;
+  fixed_expense_id: string;
+  paid_month: string;
+  paid_at: string;
+}
+
 export interface BudgetCategoryWithStats extends BudgetCategory {
   allocated_cents: number;
   spent_cents: number;

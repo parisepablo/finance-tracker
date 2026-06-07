@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { GlobalFab } from "@/components/GlobalFab";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -27,15 +28,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      className={`${inter.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col md:flex-row bg-background text-foreground">
         <Sidebar />
-        <main className="flex-1 flex flex-col pb-16 md:pb-0 relative">
+        <main className="flex-1 flex flex-col pb-24 md:pb-0 relative">
           <div className="animate-in fade-in duration-300 flex flex-col flex-1">
             {children}
           </div>
         </main>
+        <GlobalFab />
         <Toaster
           position="bottom-right"
           toastOptions={{
