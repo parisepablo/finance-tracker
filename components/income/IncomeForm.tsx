@@ -22,11 +22,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface IncomeFormProps {
   income?: IncomeSource;
   onSuccess: () => void;
   trigger?: React.ReactNode;
+}
+
+interface FormErrors {
+  name?: string;
+  amount?: string;
 }
 
 export function IncomeForm({ income, onSuccess, trigger }: IncomeFormProps) {
@@ -40,14 +46,14 @@ export function IncomeForm({ income, onSuccess, trigger }: IncomeFormProps) {
     income?.currency ?? "ARS"
   );
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const isEditing = !!income;
 
   useEffect(() => {
     if (!open) return;
     setLoading(false);
-    setError(null);
+    setErrors({});
     if (income) {
       setName(income.name);
       setAmount((income.amount_cents / 100).toString());
@@ -59,21 +65,32 @@ export function IncomeForm({ income, onSuccess, trigger }: IncomeFormProps) {
       setIsActive(true);
       setCurrency("ARS");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  function validate(): boolean {
+    const newErrors: FormErrors = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Name is required";
+    }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError("Amount must be a positive number");
-      setLoading(false);
-      return;
+      newErrors.amount = "Amount must be greater than 0";
     }
 
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setLoading(true);
+
+    const amountNum = parseFloat(amount);
     const amountCents = Math.round(amountNum * 100);
     const payload = {
       name: name.trim(),
@@ -95,11 +112,16 @@ export function IncomeForm({ income, onSuccess, trigger }: IncomeFormProps) {
       const result = await res.json();
 
       if (!res.ok) {
-        setError(result.error || "Something went wrong");
+        toast.error(result.error || "Something went wrong");
         setLoading(false);
         return;
       }
 
+      toast.success(
+        isEditing
+          ? `Income source "${payload.name}" updated successfully`
+          : `Income source "${payload.name}" created successfully`
+      );
       setOpen(false);
       setName("");
       setAmount("");
@@ -107,7 +129,7 @@ export function IncomeForm({ income, onSuccess, trigger }: IncomeFormProps) {
       setCurrency("ARS");
       onSuccess();
     } catch {
-      setError("Network error. Please try again.");
+      toast.error("Network error. Please try again.");
       setLoading(false);
     }
   }
@@ -133,21 +155,21 @@ export function IncomeForm({ income, onSuccess, trigger }: IncomeFormProps) {
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            {error && (
-              <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
-                {error}
-              </div>
-            )}
-
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                }}
                 placeholder="e.g. Salary, Freelance"
-                required
+                aria-invalid={!!errors.name}
               />
+              {errors.name && (
+                <p className="text-xs text-rose-400">{errors.name}</p>
+              )}
             </div>
 
             <div className="grid gap-2">
@@ -158,10 +180,17 @@ export function IncomeForm({ income, onSuccess, trigger }: IncomeFormProps) {
                 step="0.01"
                 min="0.01"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                className="font-mono"
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  if (errors.amount) setErrors((prev) => ({ ...prev, amount: undefined }));
+                }}
                 placeholder="0.00"
-                required
+                aria-invalid={!!errors.amount}
               />
+              {errors.amount && (
+                <p className="text-xs text-rose-400">{errors.amount}</p>
+              )}
             </div>
 
             <div className="grid gap-2">

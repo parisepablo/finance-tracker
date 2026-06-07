@@ -10,7 +10,7 @@ import {
 } from "@/lib/utils";
 import { FixedExpenseList } from "@/components/expenses/FixedExpenseList";
 import { FixedExpenseForm } from "@/components/expenses/FixedExpenseForm";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlowCard } from "@/components/ui/glow-card";
 import { AlertTriangle, Wallet, Percent, PiggyBank } from "lucide-react";
 
 interface FixedExpensesPageClientProps {
@@ -42,7 +42,12 @@ export function FixedExpensesPageClient({
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Fixed Expenses</h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-white">Fixed Expenses</h1>
+          <p className="text-sm text-zinc-500">
+            Manage your recurring costs
+          </p>
+        </div>
         <FixedExpenseForm
           creditCards={creditCards}
           onSuccess={handleRefresh}
@@ -50,67 +55,70 @@ export function FixedExpensesPageClient({
       </div>
 
       {overThreshold && (
-        <div className="flex items-center gap-2 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-700">
+        <div className="flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           <span>
-            Warning: Your fixed expenses consume {fixedPercentage}% of your
-            income. Consider reviewing your recurring costs to improve your
-            financial health.
+            Warning: Your fixed expenses consume <span className="font-mono">{fixedPercentage}%</span> of your
+            income. Consider reviewing your recurring costs.
           </span>
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Fixed / Month
-            </CardTitle>
-            <Wallet className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+      <div className="grid gap-4 md:grid-cols-3">
+        <GlowCard color="indigo">
+          <div className="p-5 space-y-2">
+            <div className="flex flex-row items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                Total Fixed / Month
+              </span>
+              <Wallet className="h-4 w-4 text-zinc-600" />
+            </div>
+            <div className="text-2xl font-bold text-white tabular-nums font-mono">
               {formatCurrency(totalFixed)}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-zinc-500 mt-1">
               Monthly equivalent of all active expenses
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </GlowCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">% of Income</CardTitle>
-            <Percent className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{fixedPercentage}%</div>
-            <p className="text-xs text-muted-foreground">
+        <GlowCard color="indigo">
+          <div className="p-5 space-y-2">
+            <div className="flex flex-row items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                % of Income
+              </span>
+              <Percent className="h-4 w-4 text-zinc-600" />
+            </div>
+            <div className="text-2xl font-bold text-white tabular-nums font-mono">
+              {fixedPercentage}%
+            </div>
+            <p className="text-xs text-zinc-500 mt-1">
               Of total monthly income
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </GlowCard>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Discretionary Pool
-            </CardTitle>
-            <PiggyBank className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+        <GlowCard color="indigo" hoverIntensity="strong">
+          <div className="p-5 space-y-2">
+            <div className="flex flex-row items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-widest text-indigo-400">
+                Discretionary Pool
+              </span>
+              <PiggyBank className="h-4 w-4 text-indigo-500/70" />
+            </div>
+            <div className="text-2xl font-bold text-white tabular-nums font-mono">
               {formatCurrency(discretionaryPool)}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-zinc-500 mt-1">
               Income left after fixed expenses
             </p>
-          </CardContent>
-        </Card>
+          </div>
+        </GlowCard>
       </div>
 
       {error ? (
-        <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
           Error loading expenses: {error}
         </div>
       ) : (

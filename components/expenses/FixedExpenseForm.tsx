@@ -22,12 +22,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface FixedExpenseFormProps {
   expense?: FixedExpense;
   creditCards: CreditCard[];
   onSuccess: () => void;
   trigger?: React.ReactNode;
+}
+
+interface FormErrors {
+  name?: string;
+  amount?: string;
+  dueDay?: string;
 }
 
 const categories = [
@@ -66,7 +73,7 @@ export function FixedExpenseForm({
   );
   const [isActive, setIsActive] = useState(expense?.is_active ?? true);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const isEditing = !!expense;
 
@@ -79,7 +86,7 @@ export function FixedExpenseForm({
   useEffect(() => {
     if (!open) return;
     setLoading(false);
-    setError(null);
+    setErrors({});
     if (expense) {
       setName(expense.name);
       setCategory(expense.category);
@@ -93,29 +100,42 @@ export function FixedExpenseForm({
     } else {
       resetForm();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  function validate(): boolean {
+    const newErrors: FormErrors = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Name is required";
+    }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError("Amount must be a positive number");
-      setLoading(false);
-      return;
+      newErrors.amount = "Amount must be greater than 0";
     }
 
+    if (dueDay) {
+      const dueDayNum = parseInt(dueDay, 10);
+      if (isNaN(dueDayNum) || dueDayNum < 1 || dueDayNum > 31) {
+        newErrors.dueDay = "Due day must be between 1 and 31";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setLoading(true);
+
+    const amountNum = parseFloat(amount);
     const amountCents = Math.round(amountNum * 100);
 
     const dueDayNum = dueDay ? parseInt(dueDay, 10) : undefined;
-    if (dueDayNum !== undefined && (isNaN(dueDayNum) || dueDayNum < 1 || dueDayNum > 31)) {
-      setError("Due day must be between 1 and 31");
-      setLoading(false);
-      return;
-    }
 
     const payload: Record<string, unknown> = {
       name: name.trim(),
@@ -150,16 +170,21 @@ export function FixedExpenseForm({
       const result = await res.json();
 
       if (!res.ok) {
-        setError(result.error || "Something went wrong");
+        toast.error(result.error || "Something went wrong");
         setLoading(false);
         return;
       }
 
+      toast.success(
+        isEditing
+          ? `Fixed expense "${payload.name}" updated successfully`
+          : `Fixed expense "${payload.name}" created successfully`
+      );
       setOpen(false);
       resetForm();
       onSuccess();
     } catch {
-      setError("Network error. Please try again.");
+      toast.error("Network error. Please try again.");
       setLoading(false);
     }
   }
@@ -180,9 +205,7 @@ export function FixedExpenseForm({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button>
-            {isEditing ? "Edit Expense" : "Add Fixed Expense"}
-          </Button>
+          <Button>{isEditing ? "Edit Expense" : "Add Fixed Expense"}</Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -199,21 +222,21 @@ export function FixedExpenseForm({
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            {error && (
-              <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
-                {error}
-              </div>
-            )}
-
             <div className="grid gap-2">
               <Label htmlFor="expense-name">Name</Label>
               <Input
                 id="expense-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                }}
                 placeholder="e.g. Rent, Netflix, Gym"
-                required
+                aria-invalid={!!errors.name}
               />
+              {errors.name && (
+                <p className="text-xs text-rose-400">{errors.name}</p>
+              )}
             </div>
 
             <div className="grid gap-2">
@@ -243,11 +266,18 @@ export function FixedExpenseForm({
                 step="0.01"
                 min="0.01"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                className="font-mono"
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  if (errors.amount) setErrors((prev) => ({ ...prev, amount: undefined }));
+                }}
                 placeholder="0.00"
-                required
+                aria-invalid={!!errors.amount}
               />
-              <p className="text-xs text-muted-foreground">
+              {errors.amount && (
+                <p className="text-xs text-rose-400">{errors.amount}</p>
+              )}
+              <p className="text-xs text-zinc-500">
                 Enter the full amount for the selected billing cycle.
               </p>
             </div>
@@ -279,9 +309,17 @@ export function FixedExpenseForm({
                 min={1}
                 max={31}
                 value={dueDay}
-                onChange={(e) => setDueDay(e.target.value)}
+                className="font-mono"
+                onChange={(e) => {
+                  setDueDay(e.target.value);
+                  if (errors.dueDay) setErrors((prev) => ({ ...prev, dueDay: undefined }));
+                }}
                 placeholder="e.g. 15"
+                aria-invalid={!!errors.dueDay}
               />
+              {errors.dueDay && (
+                <p className="text-xs text-rose-400">{errors.dueDay}</p>
+              )}
             </div>
 
             <div className="grid gap-2">
@@ -318,10 +356,12 @@ export function FixedExpenseForm({
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
                     {creditCards.map((card) => (
-                      <SelectItem key={card.id} value={card.id}>
-                        {card.name}
-                        {card.last_four ? ` •••• ${card.last_four}` : ""}
-                      </SelectItem>
+                    <SelectItem key={card.id} value={card.id}>
+                      {card.name}
+                      {card.last_four ? (
+                        <span className="font-mono">{` •••• ${card.last_four}`}</span>
+                      ) : ""}
+                    </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

@@ -15,12 +15,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrency } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface BudgetCategoryFormProps {
   category?: BudgetCategory;
   discretionaryPoolCents: number;
+  existingTotalPercentage?: number;
   onSuccess: () => void;
   trigger?: React.ReactNode;
+}
+
+interface FormErrors {
+  name?: string;
+  percentage?: string;
 }
 
 const PRESET_COLORS = [
@@ -39,6 +46,7 @@ const PRESET_COLORS = [
 export function BudgetCategoryForm({
   category,
   discretionaryPoolCents,
+  existingTotalPercentage = 0,
   onSuccess,
   trigger,
 }: BudgetCategoryFormProps) {
@@ -49,14 +57,14 @@ export function BudgetCategoryForm({
   );
   const [color, setColor] = useState(category?.color ?? PRESET_COLORS[7]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const isEditing = !!category;
 
   useEffect(() => {
     if (!open) return;
     setLoading(false);
-    setError(null);
+    setErrors({});
     if (category) {
       setName(category.name);
       setPercentage(category.percentage.toString());
@@ -71,21 +79,39 @@ export function BudgetCategoryForm({
 
   const previewAllocated =
     discretionaryPoolCents > 0 && percentage
-      ? Math.round((discretionaryPoolCents * parseInt(percentage || "0", 10)) / 100)
+      ? Math.round(
+          (discretionaryPoolCents * parseInt(percentage || "0", 10)) / 100
+        )
       : 0;
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  function validate(): boolean {
+    const newErrors: FormErrors = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Name is required";
+    }
 
     const pct = parseInt(percentage, 10);
     if (isNaN(pct) || pct < 1 || pct > 100) {
-      setError("Percentage must be between 1 and 100");
-      setLoading(false);
-      return;
+      newErrors.percentage = "Percentage must be between 1 and 100";
+    } else {
+      const projectedTotal = existingTotalPercentage + pct;
+      if (projectedTotal > 100) {
+        newErrors.percentage = `This would bring the total allocation to ${projectedTotal}%. The maximum is 100%.`;
+      }
     }
 
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setLoading(true);
+
+    const pct = parseInt(percentage, 10);
     const payload = {
       name: name.trim(),
       percentage: pct,
@@ -107,15 +133,20 @@ export function BudgetCategoryForm({
       const result = await res.json();
 
       if (!res.ok) {
-        setError(result.error || "Something went wrong");
+        toast.error(result.error || "Something went wrong");
         setLoading(false);
         return;
       }
 
+      toast.success(
+        isEditing
+          ? `Budget category "${payload.name}" updated successfully`
+          : `Budget category "${payload.name}" created successfully`
+      );
       setOpen(false);
       onSuccess();
     } catch {
-      setError("Network error. Please try again.");
+      toast.error("Network error. Please try again.");
       setLoading(false);
     }
   }
@@ -143,21 +174,21 @@ export function BudgetCategoryForm({
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            {error && (
-              <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
-                {error}
-              </div>
-            )}
-
             <div className="grid gap-2">
               <Label htmlFor="budget-name">Name</Label>
               <Input
                 id="budget-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                }}
                 placeholder="e.g. Groceries, Entertainment"
-                required
+                aria-invalid={!!errors.name}
               />
+              {errors.name && (
+                <p className="text-xs text-rose-400">{errors.name}</p>
+              )}
             </div>
 
             <div className="grid gap-2">
@@ -168,20 +199,30 @@ export function BudgetCategoryForm({
                 min={1}
                 max={100}
                 value={percentage}
-                onChange={(e) => setPercentage(e.target.value)}
+                className="font-mono"
+                onChange={(e) => {
+                  setPercentage(e.target.value);
+                  if (errors.percentage) setErrors((prev) => ({ ...prev, percentage: undefined }));
+                }}
                 placeholder="e.g. 20"
-                required
+                aria-invalid={!!errors.percentage}
               />
+              {errors.percentage && (
+                <p className="text-xs text-rose-400">{errors.percentage}</p>
+              )}
             </div>
 
-            {discretionaryPoolCents > 0 && percentage && !isNaN(parseInt(percentage, 10)) && (
+            {discretionaryPoolCents > 0 &&
+              percentage &&
+              !isNaN(parseInt(percentage, 10)) && (
               <p className="text-sm text-muted-foreground">
                 This gives you{" "}
-                <span className="font-medium text-foreground">
+                <span className="font-medium text-foreground font-mono">
                   {formatCurrency(previewAllocated)}
                 </span>{" "}
-                / month based on your current discretionary pool of{" "}
-                {formatCurrency(discretionaryPoolCents)}.
+                <span className="font-sans">/ month</span>{" "}
+                based on your current discretionary pool of{" "}
+                <span className="font-mono">{formatCurrency(discretionaryPoolCents)}</span>.
               </p>
             )}
 

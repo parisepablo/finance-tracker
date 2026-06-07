@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { IncomeSource } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
+import { GlowCard } from "@/components/ui/glow-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { IncomeForm } from "./IncomeForm";
-import { Pencil, Trash2 } from "lucide-react";
+import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
+import { toast } from "sonner";
+import { Pencil, Trash2, Banknote } from "lucide-react";
 
 interface IncomeListProps {
   incomeSources: IncomeSource[];
@@ -17,77 +19,99 @@ interface IncomeListProps {
 export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmItem, setConfirmItem] = useState<IncomeSource | null>(null);
 
-  async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this income source?")) {
-      return;
-    }
+  function openDeleteDialog(item: IncomeSource) {
+    setConfirmItem(item);
+    setConfirmOpen(true);
+    setError(null);
+  }
 
-    setDeletingId(id);
+  async function handleDelete() {
+    if (!confirmItem) return;
+
+    setDeletingId(confirmItem.id);
     setError(null);
 
     try {
-      const res = await fetch(`/api/income/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/income/${confirmItem.id}`, { method: "DELETE" });
       const result = await res.json();
 
       if (!res.ok) {
         setError(result.error || "Failed to delete income source");
+        toast.error(result.error || "Failed to delete income source");
         setDeletingId(null);
         return;
       }
 
+      toast.success(`Income source "${confirmItem.name}" deleted`);
+      setConfirmOpen(false);
+      setConfirmItem(null);
       onRefresh();
     } catch {
       setError("Network error. Please try again.");
+      toast.error("Network error. Please try again.");
       setDeletingId(null);
     }
   }
 
   if (incomeSources.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-        <p>No income sources yet.</p>
-        <p className="text-sm">Add your first income source to get started.</p>
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800/60">
+          <Banknote className="h-6 w-6 text-zinc-600" />
+        </div>
+        <div className="space-y-1">
+          <p className="font-medium text-zinc-300">No income sources yet</p>
+          <p className="text-sm text-zinc-500">
+            Add your first income source to get started.
+          </p>
+        </div>
+        <IncomeForm onSuccess={onRefresh} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {error && (
-        <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
           {error}
         </div>
       )}
 
       {incomeSources.map((source) => (
-        <Card
+        <GlowCard
           key={source.id}
-          className={!source.is_active ? "opacity-50" : undefined}
+          color="indigo"
+          className={!source.is_active ? "opacity-60" : undefined}
         >
-          <CardContent className="flex items-center justify-between p-4">
-            <div className="space-y-1">
+          <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="font-medium">{source.name}</span>
+                <span className="font-medium text-zinc-200">{source.name}</span>
                 <Badge variant={source.is_active ? "default" : "secondary"}>
                   {source.is_active ? "Active" : "Inactive"}
                 </Badge>
-                <Badge variant="outline">{source.currency}</Badge>
+                <Badge variant="outline" className="text-[10px]">
+                  {source.currency}
+                </Badge>
               </div>
-              <p className="text-lg font-semibold text-foreground">
+              <p className="text-lg font-semibold text-white tabular-nums font-mono">
                 {formatCurrency(source.amount_cents, source.currency)}
-                <span className="ml-1 text-sm font-normal text-muted-foreground">
+                <span className="ml-1 text-sm font-normal text-zinc-500 font-sans">
                   / month
                 </span>
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <IncomeForm
                 income={source}
                 onSuccess={onRefresh}
                 trigger={
-                  <Button variant="ghost" size="icon" aria-label="Edit">
+                  <Button variant="ghost" size="icon" aria-label="Edit" className="text-zinc-500 hover:text-white hover:bg-zinc-800">
                     <Pencil className="h-4 w-4" />
                   </Button>
                 }
@@ -97,14 +121,25 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
                 size="icon"
                 aria-label="Delete"
                 disabled={deletingId === source.id}
-                onClick={() => handleDelete(source.id)}
+                onClick={() => openDeleteDialog(source)}
+                className="text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
               >
-                <Trash2 className="h-4 w-4 text-red-500" />
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </GlowCard>
       ))}
+
+      <DeleteConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleDelete}
+        title="Delete Income Source"
+        description="This will permanently delete"
+        itemName={confirmItem?.name ?? ""}
+        isLoading={!!deletingId}
+      />
     </div>
   );
 }

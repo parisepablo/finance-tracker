@@ -48,19 +48,19 @@ export function AllocationBar({ categories }: AllocationBarProps) {
       {tooltip && (
         <div className="flex items-center gap-2 text-sm">
           <span className="font-medium">{tooltip.name}</span>
-          <span className="text-muted-foreground">{tooltip.percentage}%</span>
+          <span className="text-muted-foreground font-mono">{tooltip.percentage}%</span>
         </div>
       )}
 
       {unallocated > 0 && !tooltip && (
         <p className="text-xs text-muted-foreground">
-          {unallocated}% unallocated
+          <span className="font-mono">{unallocated}%</span> unallocated
         </p>
       )}
 
       {unallocated === 0 && !tooltip && (
         <p className="text-xs text-muted-foreground">
-          100% allocated
+          <span className="font-mono">100%</span> allocated
         </p>
       )}
     </div>

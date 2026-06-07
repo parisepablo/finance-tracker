@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { FixedExpense, CreditCard } from "@/lib/types";
 import { formatCurrency, getMonthlyEquivalent } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
+import { GlowCard } from "@/components/ui/glow-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FixedExpenseForm } from "./FixedExpenseForm";
+import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
+import { toast } from "sonner";
 import {
   Pencil,
   Trash2,
@@ -17,6 +19,7 @@ import {
   GraduationCap,
   CircleDot,
   Calendar,
+  Receipt,
 } from "lucide-react";
 
 interface FixedExpenseListProps {
@@ -50,52 +53,74 @@ export function FixedExpenseList({
 }: FixedExpenseListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmItem, setConfirmItem] = useState<FixedExpense | null>(null);
 
-  async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this fixed expense?")) {
-      return;
-    }
+  function openDeleteDialog(item: FixedExpense) {
+    setConfirmItem(item);
+    setConfirmOpen(true);
+    setError(null);
+  }
 
-    setDeletingId(id);
+  async function handleDelete() {
+    if (!confirmItem) return;
+
+    setDeletingId(confirmItem.id);
     setError(null);
 
     try {
-      const res = await fetch(`/api/expenses/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/expenses/${confirmItem.id}`, { method: "DELETE" });
       const result = await res.json();
 
       if (!res.ok) {
         setError(result.error || "Failed to delete fixed expense");
+        toast.error(result.error || "Failed to delete fixed expense");
         setDeletingId(null);
         return;
       }
 
+      toast.success(`Fixed expense "${confirmItem.name}" deleted`);
+      setConfirmOpen(false);
+      setConfirmItem(null);
       onRefresh();
     } catch {
       setError("Network error. Please try again.");
+      toast.error("Network error. Please try again.");
       setDeletingId(null);
     }
   }
 
   if (expenses.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-        <p>No fixed expenses yet.</p>
-        <p className="text-sm">Add your first fixed expense to get started.</p>
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800/60">
+          <Receipt className="h-6 w-6 text-zinc-600" />
+        </div>
+        <div className="space-y-1">
+          <p className="font-medium text-zinc-300">No fixed expenses yet</p>
+          <p className="text-sm text-zinc-500">
+            Add your first fixed expense to get started.
+          </p>
+        </div>
+        <FixedExpenseForm creditCards={creditCards} onSuccess={onRefresh} />
       </div>
     );
   }
 
-  const grouped = expenses.reduce<Record<string, FixedExpense[]>>((acc, expense) => {
-    const cat = expense.category;
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(expense);
-    return acc;
-  }, {});
+  const grouped = expenses.reduce<Record<string, FixedExpense[]>>(
+    (acc, expense) => {
+      const cat = expense.category;
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(expense);
+      return acc;
+    },
+    {}
+  );
 
   return (
     <div className="space-y-6">
       {error && (
-        <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
           {error}
         </div>
       )}
@@ -106,7 +131,7 @@ export function FixedExpenseList({
 
         return (
           <div key={category}>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-zinc-500">
               {categoryIcons[category] ?? <CircleDot className="h-4 w-4" />}
               <span>{category}</span>
             </div>
@@ -124,38 +149,41 @@ export function FixedExpenseList({
                       : "Monthly";
 
                 return (
-                  <Card
+                  <GlowCard
                     key={expense.id}
-                    className={!expense.is_active ? "opacity-50" : undefined}
+                    color="indigo"
+                    className={!expense.is_active ? "opacity-60" : undefined}
                   >
-                    <CardContent className="flex items-center justify-between p-4">
+                    <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex items-start gap-3">
-                        <div className="mt-0.5 text-muted-foreground">
+                        <div className="mt-0.5 text-zinc-600">
                           {categoryIcons[expense.category] ?? (
                             <CircleDot className="h-4 w-4" />
                           )}
                         </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{expense.name}</span>
+                        <div className="space-y-1.5">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-medium text-zinc-200">{expense.name}</span>
                             <Badge
-                              variant={expense.is_active ? "default" : "secondary"}
+                              variant={
+                                expense.is_active ? "default" : "secondary"
+                              }
                             >
                               {expense.is_active ? "Active" : "Paused"}
                             </Badge>
                           </div>
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
                             {expense.due_day && (
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                Due day {expense.due_day}
+                                Due day <span className="font-mono">{expense.due_day}</span>
                               </span>
                             )}
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-[10px]">
                               {cycleLabel}
                             </Badge>
                             {expense.payment_method === "credit_card" && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-[10px]">
                                 Credit Card
                               </Badge>
                             )}
@@ -165,16 +193,16 @@ export function FixedExpenseList({
 
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <p className="text-lg font-semibold text-foreground">
+                          <p className="text-lg font-semibold text-white tabular-nums font-mono">
                             {expense.is_estimated && (
-                              <span className="text-muted-foreground">~ </span>
+                              <span className="text-zinc-500">~ </span>
                             )}
                             {formatCurrency(monthlyCents)}
-                            <span className="ml-1 text-sm font-normal text-muted-foreground">
+                            <span className="ml-1 text-sm font-normal text-zinc-500 font-sans">
                               / mo
                             </span>
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-zinc-600 font-mono">
                             {formatCurrency(expense.amount_cents)}{" "}
                             {expense.billing_cycle === "monthly"
                               ? "/ mo"
@@ -193,6 +221,7 @@ export function FixedExpenseList({
                                 variant="ghost"
                                 size="icon"
                                 aria-label="Edit"
+                                className="text-zinc-500 hover:text-white hover:bg-zinc-800"
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -203,20 +232,31 @@ export function FixedExpenseList({
                             size="icon"
                             aria-label="Delete"
                             disabled={deletingId === expense.id}
-                            onClick={() => handleDelete(expense.id)}
+                            onClick={() => openDeleteDialog(expense)}
+                            className="text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
                           >
-                            <Trash2 className="h-4 w-4 text-red-500" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </GlowCard>
                 );
               })}
             </div>
           </div>
         );
       })}
+
+      <DeleteConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleDelete}
+        title="Delete Fixed Expense"
+        description="This will permanently delete"
+        itemName={confirmItem?.name ?? ""}
+        isLoading={!!deletingId}
+      />
     </div>
   );
 }
