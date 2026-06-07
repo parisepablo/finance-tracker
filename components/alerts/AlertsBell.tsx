@@ -10,19 +10,13 @@ export function AlertsBell() {
   const [hasCritical, setHasCritical] = useState(false);
   const [open, setOpen] = useState(false);
 
-  const fetchUnread = useCallback(async () => {
+  const fetchCount = useCallback(async () => {
     try {
-      const res = await fetch("/api/alerts");
+      const res = await fetch("/api/alerts/count");
       const result = await res.json();
       if (res.ok) {
-        const alerts = result.data ?? [];
-        setUnreadCount(alerts.filter((a: { is_read: boolean }) => !a.is_read).length);
-        setHasCritical(
-          alerts.some(
-            (a: { priority: string; is_read: boolean }) =>
-              a.priority === "critical" && !a.is_read
-          )
-        );
+        setUnreadCount(result.unread ?? 0);
+        setHasCritical(!!result.hasCritical);
       }
     } catch {
       // silent
@@ -30,16 +24,16 @@ export function AlertsBell() {
   }, []);
 
   useEffect(() => {
-    fetchUnread();
-  }, [fetchUnread]);
+    fetchCount();
+  }, [fetchCount]);
 
   useEffect(() => {
     function handleNavChange() {
-      fetchUnread();
+      fetchCount();
     }
     window.addEventListener("navigation-change", handleNavChange);
     return () => window.removeEventListener("navigation-change", handleNavChange);
-  }, [fetchUnread]);
+  }, [fetchCount]);
 
   return (
     <>

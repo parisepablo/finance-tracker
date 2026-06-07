@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { generateAlerts } from "@/lib/generate-alerts";
 
 export async function GET() {
   const supabase = await createClient();
@@ -14,18 +13,10 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Generate fresh alerts on every GET
-  try {
-    await generateAlerts(user.id, supabase);
-  } catch (err) {
-    console.error("Alert generation failed:", err);
-  }
-
   const { data, error } = await supabase
     .from("alerts")
     .select("*")
     .eq("user_id", user.id)
-    .eq("is_read", false)
     .order("priority", { ascending: false })
     .order("created_at", { ascending: false });
 

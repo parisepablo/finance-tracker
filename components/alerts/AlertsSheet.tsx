@@ -14,10 +14,29 @@ import {
 import { Bell, CheckCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AlertsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+function AlertSkeleton() {
+  return (
+    <div className="flex items-start gap-3 rounded-lg border border-zinc-800 p-3">
+      <Skeleton className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-zinc-700" />
+      <div className="flex-1 min-w-0 space-y-2">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-4 shrink-0 rounded bg-zinc-700" />
+          <Skeleton className="h-4 w-32 rounded bg-zinc-700" />
+        </div>
+        <Skeleton className="h-3 w-full rounded bg-zinc-800" />
+        <Skeleton className="h-3 w-3/4 rounded bg-zinc-800" />
+        <Skeleton className="h-2.5 w-16 rounded bg-zinc-800" />
+      </div>
+      <Skeleton className="h-6 w-6 shrink-0 rounded bg-zinc-800" />
+    </div>
+  );
 }
 
 export function AlertsSheet({ open, onOpenChange }: AlertsSheetProps) {
@@ -88,7 +107,7 @@ export function AlertsSheet({ open, onOpenChange }: AlertsSheetProps) {
         <SheetHeader className="pb-2">
           <div className="flex items-center justify-between">
             <SheetTitle>Notifications</SheetTitle>
-            {unreadCount > 0 && (
+            {unreadCount > 0 && !loading && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -101,15 +120,17 @@ export function AlertsSheet({ open, onOpenChange }: AlertsSheetProps) {
             )}
           </div>
           <SheetDescription>
-            {alerts.length === 0
+            {alerts.length === 0 && !loading
               ? "You're all caught up"
               : `${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}`}
           </SheetDescription>
         </SheetHeader>
 
         {loading ? (
-          <div className="py-8 text-center text-sm text-zinc-500">
-            Loading notifications...
+          <div className="space-y-2 py-2">
+            <AlertSkeleton />
+            <AlertSkeleton />
+            <AlertSkeleton />
           </div>
         ) : alerts.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-12">

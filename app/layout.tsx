@@ -52,6 +52,12 @@ export default function RootLayout({
       className={`${inter.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col md:flex-row bg-background text-foreground">
+        {/* Prefetch unread count on initial page load */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `fetch('/api/alerts/count').catch(() => {});`,
+          }}
+        />
         <Sidebar />
         <main className="flex-1 flex flex-col pb-24 md:pb-0 relative">
           {/* Mobile header with bell icon */}
