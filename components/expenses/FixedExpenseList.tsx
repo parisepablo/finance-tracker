@@ -298,35 +298,37 @@ export function FixedExpenseList({
                               <Check className="h-4 w-4" />
                             </button>
                           )}
-                          <FixedExpenseForm
-                            expense={expense}
-                            creditCards={creditCards}
-                            onSuccess={onRefresh}
-                            open={editingItem?.id === expense.id}
-                            onOpenChange={(open) => {
-                              if (!open) setEditingItem(null);
-                            }}
-                            trigger={
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                aria-label="Edit"
-                                className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            }
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="Delete"
-                            disabled={deletingId === expense.id}
-                            onClick={() => openDeleteDialog(expense)}
-                            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="hidden md:flex items-center gap-1">
+                            <FixedExpenseForm
+                              expense={expense}
+                              creditCards={creditCards}
+                              onSuccess={onRefresh}
+                              open={editingItem?.id === expense.id}
+                              onOpenChange={(open) => {
+                                if (!open) setEditingItem(null);
+                              }}
+                              trigger={
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  aria-label="Edit"
+                                  className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              }
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Delete"
+                              disabled={deletingId === expense.id}
+                              onClick={() => openDeleteDialog(expense)}
+                              className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>

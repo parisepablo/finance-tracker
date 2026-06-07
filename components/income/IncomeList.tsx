@@ -119,7 +119,7 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="hidden md:flex items-center gap-1">
                   <IncomeForm
                     income={source}
                     onSuccess={onRefresh}

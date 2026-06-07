@@ -140,11 +140,12 @@ export function SwipeableRow({
 
   return (
     <div
-      className={className}
+      className={`relative overflow-hidden ${className ?? ""}`}
       style={{ position: "relative", overflow: "hidden" }}
     >
       {/* Action buttons — always rendered, revealed by sliding row */}
       <div
+        className="md:hidden"
         style={{
           position: "absolute",
           right: 0,
@@ -211,10 +212,11 @@ export function SwipeableRow({
         style={{
           transform: `translateX(-${displayOffset}px)`,
           transition: isDragging ? "none" : "transform 0.2s ease",
-          backgroundColor: "inherit",
+          backgroundColor: "rgb(24, 24, 27)",
           position: "relative",
           zIndex: 1,
           touchAction: "pan-y",
+          boxShadow: "-4px 0 8px rgba(0,0,0,0.3)",
         }}
       >
         {children}
