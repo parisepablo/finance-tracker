@@ -99,7 +99,7 @@ export async function POST(
 
   const purchaseDate = new Date(body.date);
 
-  const rows = [];
+  const rows: Record<string, unknown>[] = [];
   for (let i = 0; i < totalInstallments; i++) {
     const date = new Date(purchaseDate);
     date.setMonth(date.getMonth() + i);
