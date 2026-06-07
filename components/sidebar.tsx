@@ -8,6 +8,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AlertsBell } from "@/components/alerts/AlertsBell";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -89,18 +90,21 @@ export function Sidebar() {
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 flex-col border-r border-white/[0.06] bg-zinc-900 backdrop-blur-xl p-4">
-        <div className="mb-8 px-3 flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15">
-            <Wallet className="h-4 w-4 text-indigo-400" />
+        <div className="mb-8 px-3 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15">
+              <Wallet className="h-4 w-4 text-indigo-400" />
+            </div>
+            <div>
+              <h1 className="text-sm font-semibold tracking-tight text-white">
+                Finance
+              </h1>
+              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">
+                Tracker
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-semibold tracking-tight text-white">
-              Finance
-            </h1>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider">
-              Tracker
-            </p>
-          </div>
+          <AlertsBell />
         </div>
         <nav className="flex flex-col gap-0.5">
           <DesktopNavLinks />

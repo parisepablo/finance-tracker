@@ -79,3 +79,27 @@ export interface BudgetCategoryWithStats extends BudgetCategory {
   remaining_cents: number;
   spent_percentage: number;
 }
+
+export type AlertPriority = "low" | "medium" | "high" | "critical";
+export type AlertType =
+  | "DUE_DATE_UPCOMING"
+  | "DUE_DATE_TODAY"
+  | "BUDGET_WARNING"
+  | "BUDGET_EXCEEDED"
+  | "CREDIT_CARD_CLOSING_SOON"
+  | "CREDIT_CARD_PAYMENT_DUE"
+  | "HIGH_FIXED_EXPENSE_RATIO"
+  | "UNLOGGED_ACTIVITY";
+
+export interface Alert {
+  id: string;
+  user_id: string;
+  type: AlertType;
+  title: string;
+  message: string;
+  payload: Record<string, unknown>;
+  is_read: boolean;
+  priority: AlertPriority;
+  created_at: string;
+  expires_at: string | null;
+}
