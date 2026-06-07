@@ -189,7 +189,7 @@ export function CardsPageClient({
 
           {/* Auto-opened detail */}
           <div className="rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4">
-            <CardDetail card={card} refreshTrigger={detailRefreshKey} />
+            <CardDetail card={card} budgetCategories={budgetCategories} refreshTrigger={detailRefreshKey} />
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { CreditCard } from "@/lib/types";
+import { CreditCard, BudgetCategory } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { GlowCard } from "@/components/ui/glow-card";
@@ -10,6 +10,9 @@ import { ChevronLeft, ChevronRight, Receipt, Package, Zap } from "lucide-react";
 import { SwipeableRow } from "@/components/ui/swipeable-row";
 import { SwipeableRowProvider } from "@/components/ui/swipeable-row-context";
 import { toast } from "sonner";
+import { EditChargeSheet } from "./EditChargeSheet";
+import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
+import { haptics } from "@/lib/haptics";
 
 interface MonthlySummaryItem {
   id: string;
@@ -28,6 +31,7 @@ interface MonthlySummary {
 
 interface CardDetailProps {
   card: CreditCard;
+  budgetCategories: BudgetCategory[];
   refreshTrigger?: number;
 }
 
@@ -54,11 +58,15 @@ function nextMonth(monthStr: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
-export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
+export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardDetailProps) {
   const [month, setMonth] = useState(getCurrentMonth());
   const [summary, setSummary] = useState<MonthlySummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [editChargeId, setEditChargeId] = useState<string | null>(null);
+  const [deleteChargeId, setDeleteChargeId] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -85,6 +93,41 @@ export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
   useEffect(() => {
     fetchSummary();
   }, [fetchSummary, refreshTrigger]);
+
+  async function handleDeleteConfirm() {
+    if (!deleteChargeId) return;
+    setDeleteLoading(true);
+    try {
+      const res = await fetch(
+        `/api/cards/${card.id}/charges/${deleteChargeId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      const result = await res.json();
+      if (!res.ok) {
+        toast.error(result.error || "Failed to delete charge");
+        setDeleteLoading(false);
+        return;
+      }
+      toast.success("Charge deleted successfully");
+      haptics.success();
+      setDeleteChargeId(null);
+      setSummary((prev) => {
+        if (!prev) return prev;
+        const removed = prev.breakdown.find((item) => item.id === deleteChargeId);
+        return {
+          ...prev,
+          breakdown: prev.breakdown.filter((item) => item.id !== deleteChargeId),
+          total_due_cents:
+            prev.total_due_cents - (removed?.amount_cents ?? 0),
+        };
+      });
+    } catch {
+      toast.error("Network error. Please try again.");
+      setDeleteLoading(false);
+    }
+  }
 
   return (
     <SwipeableRowProvider>
@@ -147,8 +190,11 @@ export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
               <SwipeableRow
                 key={item.id}
                 rowId={item.id}
-                onEdit={() => toast.info("Edit not available for charges")}
-                onDelete={() => toast.info("Delete not available for charges")}
+                onEdit={() => setEditChargeId(item.id)}
+                onDelete={() => {
+                  haptics.medium();
+                  setDeleteChargeId(item.id);
+                }}
               >
                 <div className="group flex items-center justify-between rounded-xl border border-white/[0.06] bg-zinc-900/40 p-3 hover:bg-zinc-900/70 transition-all duration-300 relative overflow-hidden">
                   <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-500/50 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
@@ -196,6 +242,31 @@ export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
           </div>
         </>
       )}
+      <EditChargeSheet
+        open={!!editChargeId}
+        onOpenChange={(open) => {
+          if (!open) setEditChargeId(null);
+        }}
+        cardId={card.id}
+        chargeId={editChargeId}
+        budgetCategories={budgetCategories}
+        onSuccess={() => {
+          setEditChargeId(null);
+          fetchSummary();
+        }}
+      />
+
+      <DeleteConfirmDialog
+        open={!!deleteChargeId}
+        onOpenChange={(open) => {
+          if (!open) setDeleteChargeId(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete charge"
+        description="Are you sure you want to delete this charge?"
+        itemName=""
+        isLoading={deleteLoading}
+      />
     </div>
     </SwipeableRowProvider>
   );

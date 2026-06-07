@@ -40,8 +40,16 @@ export function DeleteConfirmDialog({
           </div>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
-            {description}{" "}
-            <span className="font-medium text-zinc-200">{itemName}</span>.{" "}
+            {description}
+            {itemName ? (
+              <>
+                {" "}
+                <span className="font-medium text-zinc-200">{itemName}</span>
+                .{" "}
+              </>
+            ) : (
+              " "
+            )}
             This cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
