@@ -122,6 +122,15 @@
   background: #6366f1;
 }
 
+/* Safe area insets for PWA / iPhone notch */
+body {
+  padding-top: env(safe-area-inset-top);
+}
+
+.bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Selection color */
 ::selection {
   background: rgba(99, 102, 241, 0.3);

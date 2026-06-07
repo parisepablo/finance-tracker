@@ -55,7 +55,7 @@ function MobileBottomNav() {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800 bg-zinc-950">
-      <div className="flex items-center justify-around px-2 pb-4 pt-2">
+      <div className="flex items-center justify-around px-2 pt-2 bottom-nav">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =

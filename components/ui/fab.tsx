@@ -19,7 +19,8 @@ export function Fab({ onClick }: FabProps) {
       className={cn(
         "fixed z-40 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition-all duration-200 ease-out",
         "hover:bg-indigo-500 hover:scale-[1.08] active:scale-95",
-        "bottom-20 right-4 md:bottom-6 md:right-6"
+        "bottom-[calc(5rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))]",
+        "md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] md:right-[calc(1.5rem+env(safe-area-inset-right))]"
       )}
       style={{
         boxShadow: isHovered
