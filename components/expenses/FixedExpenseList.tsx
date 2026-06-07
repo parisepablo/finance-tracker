@@ -23,6 +23,8 @@ import {
   Check,
 } from "lucide-react";
 import { haptics } from "@/lib/haptics";
+import { SwipeableRow } from "@/components/ui/swipeable-row";
+import { SwipeableRowProvider } from "@/components/ui/swipeable-row-context";
 
 interface FixedExpenseListProps {
   expenses: FixedExpense[];
@@ -63,6 +65,7 @@ export function FixedExpenseList({
   const [confirmItem, setConfirmItem] = useState<FixedExpense | null>(null);
   const [paidIds, setPaidIds] = useState<Set<string>>(new Set(paidExpenseIds));
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<FixedExpense | null>(null);
 
   function openDeleteDialog(item: FixedExpense) {
     setConfirmItem(item);
@@ -174,25 +177,26 @@ export function FixedExpenseList({
   );
 
   return (
-    <div className="space-y-6">
-      {error && (
-        <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
-          {error}
-        </div>
-      )}
+    <SwipeableRowProvider>
+      <div className="space-y-6">
+        {error && (
+          <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+            {error}
+          </div>
+        )}
 
-      {categoryOrder.map((category) => {
-        const items = grouped[category];
-        if (!items || items.length === 0) return null;
+        {categoryOrder.map((category) => {
+          const items = grouped[category];
+          if (!items || items.length === 0) return null;
 
-        return (
-          <div key={category}>
-            <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-zinc-500">
-              {categoryIcons[category] ?? <CircleDot className="h-4 w-4" />}
-              <span>{category}</span>
-            </div>
-            <div className="space-y-2">
-              {items.map((expense) => {
+          return (
+            <div key={category}>
+              <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-zinc-500">
+                {categoryIcons[category] ?? <CircleDot className="h-4 w-4" />}
+                <span>{category}</span>
+              </div>
+              <div className="space-y-2">
+                {items.map((expense) => {
                 const monthlyCents = getMonthlyEquivalent(
                   expense.amount_cents,
                   expense.billing_cycle
@@ -206,8 +210,13 @@ export function FixedExpenseList({
                 const isPaid = paidIds.has(expense.id);
 
                 return (
-                  <GlowCard
+                  <SwipeableRow
                     key={expense.id}
+                    rowId={expense.id}
+                    onEdit={() => setEditingItem(expense)}
+                    onDelete={() => openDeleteDialog(expense)}
+                  >
+                  <GlowCard
                     color="indigo"
                     className={!expense.is_active ? "opacity-60" : undefined}
                   >
@@ -293,6 +302,10 @@ export function FixedExpenseList({
                             expense={expense}
                             creditCards={creditCards}
                             onSuccess={onRefresh}
+                            open={editingItem?.id === expense.id}
+                            onOpenChange={(open) => {
+                              if (!open) setEditingItem(null);
+                            }}
                             trigger={
                               <Button
                                 variant="ghost"
@@ -318,6 +331,7 @@ export function FixedExpenseList({
                       </div>
                     </div>
                   </GlowCard>
+                  </SwipeableRow>
                 );
               })}
             </div>
@@ -335,5 +349,6 @@ export function FixedExpenseList({
         isLoading={!!deletingId}
       />
     </div>
+    </SwipeableRowProvider>
   );
 }

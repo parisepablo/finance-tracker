@@ -29,6 +29,8 @@ interface FixedExpenseFormProps {
   creditCards: CreditCard[];
   onSuccess: () => void;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface FormErrors {
@@ -51,8 +53,18 @@ export function FixedExpenseForm({
   creditCards,
   onSuccess,
   trigger,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: FixedExpenseFormProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = (value: boolean) => {
+    if (controlledOnOpenChange) {
+      controlledOnOpenChange(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
   const [name, setName] = useState(expense?.name ?? "");
   const [category, setCategory] = useState(expense?.category ?? "Other");
   const [amount, setAmount] = useState(

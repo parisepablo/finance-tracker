@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { GlowCard } from "@/components/ui/glow-card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Receipt, Package, Zap } from "lucide-react";
+import { SwipeableRow } from "@/components/ui/swipeable-row";
+import { SwipeableRowProvider } from "@/components/ui/swipeable-row-context";
+import { toast } from "sonner";
 
 interface MonthlySummaryItem {
   id: string;
@@ -84,6 +87,7 @@ export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
   }, [fetchSummary, refreshTrigger]);
 
   return (
+    <SwipeableRowProvider>
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -140,54 +144,59 @@ export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
             )}
 
             {summary.breakdown.map((item) => (
-              <div
+              <SwipeableRow
                 key={item.id}
-                className="group flex items-center justify-between rounded-xl border border-white/[0.06] bg-zinc-900/40 p-3 hover:bg-zinc-900/70 transition-all duration-300 relative overflow-hidden"
+                rowId={item.id}
+                onEdit={() => toast.info("Edit not available for charges")}
+                onDelete={() => toast.info("Delete not available for charges")}
               >
-                <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-500/50 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
-                <div className="flex items-center gap-3 pl-1">
-                  {item.type === "fixed" && (
-                    <Receipt className="h-4 w-4 text-zinc-500" />
-                  )}
-                  {item.type === "installment" && (
-                    <Package className="h-4 w-4 text-zinc-500" />
-                  )}
-                  {item.type === "single" && (
-                    <Zap className="h-4 w-4 text-zinc-500" />
-                  )}
-                  <div>
-                    <p className="text-sm font-medium text-zinc-200">
-                      {item.type === "fixed"
-                        ? `Fixed — ${item.description}`
-                        : item.description}
-                    </p>
-                    <div className="flex items-center gap-1">
-                      <Badge variant="outline" className="text-[10px]">
+                <div className="group flex items-center justify-between rounded-xl border border-white/[0.06] bg-zinc-900/40 p-3 hover:bg-zinc-900/70 transition-all duration-300 relative overflow-hidden">
+                  <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-500/50 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
+                  <div className="flex items-center gap-3 pl-1">
+                    {item.type === "fixed" && (
+                      <Receipt className="h-4 w-4 text-zinc-500" />
+                    )}
+                    {item.type === "installment" && (
+                      <Package className="h-4 w-4 text-zinc-500" />
+                    )}
+                    {item.type === "single" && (
+                      <Zap className="h-4 w-4 text-zinc-500" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-zinc-200">
                         {item.type === "fixed"
-                          ? "Fixed Expense"
-                          : item.type === "installment"
-                            ? "Installment"
-                            : "One-time"}
-                      </Badge>
-                      {item.type === "installment" &&
-                        item.current_installment !== undefined &&
-                        item.total_installments !== undefined && (
-                          <span className="text-xs text-zinc-500 font-mono">
-                            installment {item.current_installment} of{" "}
-                            {item.total_installments}
-                          </span>
-                        )}
+                          ? `Fixed — ${item.description}`
+                          : item.description}
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <Badge variant="outline" className="text-[10px]">
+                          {item.type === "fixed"
+                            ? "Fixed Expense"
+                            : item.type === "installment"
+                              ? "Installment"
+                              : "One-time"}
+                        </Badge>
+                        {item.type === "installment" &&
+                          item.current_installment !== undefined &&
+                          item.total_installments !== undefined && (
+                            <span className="text-xs text-zinc-500 font-mono">
+                              installment {item.current_installment} of{" "}
+                              {item.total_installments}
+                            </span>
+                          )}
+                      </div>
                     </div>
                   </div>
+                  <span className="font-semibold text-white tabular-nums font-mono">
+                    {formatCurrency(item.amount_cents)}
+                  </span>
                 </div>
-                <span className="font-semibold text-white tabular-nums font-mono">
-                  {formatCurrency(item.amount_cents)}
-                </span>
-              </div>
+              </SwipeableRow>
             ))}
           </div>
         </>
       )}
     </div>
+    </SwipeableRowProvider>
   );
 }

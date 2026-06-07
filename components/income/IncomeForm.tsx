@@ -28,6 +28,8 @@ interface IncomeFormProps {
   income?: IncomeSource;
   onSuccess: () => void;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface FormErrors {
@@ -35,8 +37,16 @@ interface FormErrors {
   amount?: string;
 }
 
-export function IncomeForm({ income, onSuccess, trigger }: IncomeFormProps) {
-  const [open, setOpen] = useState(false);
+export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, onOpenChange: controlledOnOpenChange }: IncomeFormProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = (value: boolean) => {
+    if (controlledOnOpenChange) {
+      controlledOnOpenChange(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
   const [name, setName] = useState(income?.name ?? "");
   const [amount, setAmount] = useState(
     income ? (income.amount_cents / 100).toString() : ""

@@ -20,6 +20,8 @@ interface CreditCardFormProps {
   card?: CreditCard;
   onSuccess: () => void;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface FormErrors {
@@ -30,8 +32,16 @@ interface FormErrors {
   dueDay?: string;
 }
 
-export function CreditCardForm({ card, onSuccess, trigger }: CreditCardFormProps) {
-  const [open, setOpen] = useState(false);
+export function CreditCardForm({ card, onSuccess, trigger, open: controlledOpen, onOpenChange: controlledOnOpenChange }: CreditCardFormProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = (value: boolean) => {
+    if (controlledOnOpenChange) {
+      controlledOnOpenChange(value);
+    } else {
+      setInternalOpen(value);
+    }
+  };
   const [name, setName] = useState(card?.name ?? "");
   const [lastFour, setLastFour] = useState(card?.last_four ?? "");
   const [creditLimit, setCreditLimit] = useState(

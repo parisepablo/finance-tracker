@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import { useRef, useState, useCallback } from "react";
+import { useSwipeableRowContext } from "./swipeable-row-context";
 
 interface SwipeableRowProps {
+  rowId: string;
   children: React.ReactNode;
   onEdit: () => void;
   onDelete: () => void;
@@ -11,79 +12,152 @@ interface SwipeableRowProps {
 }
 
 export function SwipeableRow({
+  rowId,
   children,
   onEdit,
   onDelete,
   className,
 }: SwipeableRowProps) {
-  const [translateX, setTranslateX] = useState(0);
+  const { openRowId, setOpenRowId, closeAll } = useSwipeableRowContext();
+  const [offset, setOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const startXRef = useRef<number | null>(null);
-  const currentXRef = useRef<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const ACTION_WIDTH = 144; // 72px each for edit + delete
-  const THRESHOLD = 80;
+  const rowRef = useRef<HTMLDivElement>(null);
+  const startXRef = useRef<number>(0);
+  const startYRef = useRef<number>(0);
+  const currentXRef = useRef<number>(0);
+  const hasDecidedRef = useRef<boolean>(false);
+  const isHorizontalRef = useRef<boolean>(false);
+  const ACTION_WIDTH = 144;
+  const SNAP_THRESHOLD = 72;
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    startXRef.current = e.touches[0].clientX;
-    currentXRef.current = e.touches[0].clientX;
-    setIsDragging(true);
-  }, []);
+  const isOpen = openRowId === rowId;
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (startXRef.current === null) return;
-    currentXRef.current = e.touches[0].clientX;
-    const delta = startXRef.current - currentXRef.current;
-    if (delta > 0) {
-      setTranslateX(Math.min(delta, ACTION_WIDTH));
-    } else {
-      setTranslateX(Math.max(0, translateX + delta * 0.3));
-    }
-  }, [translateX]);
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      const el = rowRef.current;
+      if (!el) return;
 
-  const handleTouchEnd = useCallback(() => {
-    if (startXRef.current === null || currentXRef.current === null) {
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {
+        return;
+      }
+
+      startXRef.current = e.clientX;
+      startYRef.current = e.clientY;
+      currentXRef.current = e.clientX;
+      hasDecidedRef.current = false;
+      isHorizontalRef.current = false;
+      setIsDragging(true);
+
+      // Close any other open row
+      if (openRowId && openRowId !== rowId) {
+        closeAll();
+      }
+    },
+    [openRowId, closeAll, rowId]
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      const el = rowRef.current;
+      if (!el) return;
+
+      const deltaX = e.clientX - startXRef.current;
+      const deltaY = e.clientY - startYRef.current;
+      currentXRef.current = e.clientX;
+
+      if (!hasDecidedRef.current) {
+        const absDx = Math.abs(deltaX);
+        const absDy = Math.abs(deltaY);
+        if (absDx > 10 || absDy > 10) {
+          hasDecidedRef.current = true;
+          if (absDx > absDy) {
+            isHorizontalRef.current = true;
+          } else {
+            // Vertical scroll — release capture and let the browser handle it
+            isHorizontalRef.current = false;
+            try {
+              el.releasePointerCapture(e.pointerId);
+            } catch {
+              // ignore
+            }
+            setIsDragging(false);
+            return;
+          }
+        }
+      }
+
+      if (!isHorizontalRef.current) return;
+
+      // Only allow swiping left (negative deltaX)
+      let newOffset = -deltaX;
+      if (newOffset < 0) newOffset = 0;
+      if (newOffset > ACTION_WIDTH) newOffset = ACTION_WIDTH;
+      setOffset(newOffset);
+    },
+    []
+  );
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      const el = rowRef.current;
+      if (!el) return;
+
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch {
+        // ignore
+      }
+
       setIsDragging(false);
-      return;
-    }
-    const delta = startXRef.current - currentXRef.current;
-    startXRef.current = null;
-    currentXRef.current = null;
-    setIsDragging(false);
 
-    if (delta >= THRESHOLD) {
-      setTranslateX(ACTION_WIDTH);
-    } else {
-      setTranslateX(0);
-    }
-  }, []);
+      if (!isHorizontalRef.current) {
+        setOffset(0);
+        return;
+      }
 
-  const handleClickOutside = useCallback((e: MouseEvent | TouchEvent) => {
-    if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-      setTranslateX(0);
-    }
-  }, []);
+      const deltaX = startXRef.current - currentXRef.current;
+      if (deltaX > SNAP_THRESHOLD) {
+        setOffset(ACTION_WIDTH);
+        setOpenRowId(rowId);
+      } else {
+        setOffset(0);
+        if (openRowId === rowId) {
+          setOpenRowId(null);
+        }
+      }
+    },
+    [rowId, setOpenRowId, openRowId]
+  );
 
-  useEffect(() => {
-    document.addEventListener("click", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
-    };
-  }, [handleClickOutside]);
+  // Sync offset when row is opened/closed programmatically
+  const targetOffset = isOpen ? ACTION_WIDTH : 0;
+  const displayOffset = isDragging ? offset : targetOffset;
 
   return (
     <div
-      ref={containerRef}
-      className={cn("relative overflow-hidden md:overflow-visible", className)}
+      className={className}
+      style={{ position: "relative", overflow: "hidden" }}
     >
-      {/* Actions layer behind */}
-      <div className="absolute inset-y-0 right-0 flex md:hidden">
+      {/* Action buttons — always rendered, revealed by sliding row */}
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          top: 0,
+          bottom: 0,
+          display: "flex",
+          width: ACTION_WIDTH,
+        }}
+      >
         <button
           onClick={() => {
             onEdit();
-            setTranslateX(0);
+            setOpenRowId(null);
           }}
           className="flex w-[72px] items-center justify-center bg-indigo-600 text-white"
           aria-label="Edit"
@@ -105,7 +179,7 @@ export function SwipeableRow({
         <button
           onClick={() => {
             onDelete();
-            setTranslateX(0);
+            setOpenRowId(null);
           }}
           className="flex w-[72px] items-center justify-center bg-rose-600 text-white"
           aria-label="Delete"
@@ -128,16 +202,20 @@ export function SwipeableRow({
         </button>
       </div>
 
-      {/* Content layer */}
+      {/* The actual row content that slides */}
       <div
-        className="relative z-10 transition-transform duration-200 ease-out md:translate-x-0"
+        ref={rowRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
         style={{
-          transform: `translateX(-${translateX}px)`,
-          transition: isDragging ? "none" : "transform 200ms ease-out",
+          transform: `translateX(-${displayOffset}px)`,
+          transition: isDragging ? "none" : "transform 0.2s ease",
+          backgroundColor: "inherit",
+          position: "relative",
+          zIndex: 1,
+          touchAction: "pan-y",
         }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
         {children}
       </div>
