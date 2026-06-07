@@ -198,23 +198,23 @@ export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardD
               >
                 <div className="group flex items-center justify-between rounded-xl border border-white/[0.06] bg-zinc-900/40 p-3 hover:bg-zinc-900/70 transition-all duration-300 relative overflow-hidden">
                   <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-500/50 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
-                  <div className="flex items-center gap-3 pl-1">
+                  <div className="flex items-center gap-3 pl-1 min-w-0">
                     {item.type === "fixed" && (
-                      <Receipt className="h-4 w-4 text-zinc-500" />
+                      <Receipt className="h-4 w-4 shrink-0 text-zinc-500" />
                     )}
                     {item.type === "installment" && (
-                      <Package className="h-4 w-4 text-zinc-500" />
+                      <Package className="h-4 w-4 shrink-0 text-zinc-500" />
                     )}
                     {item.type === "single" && (
-                      <Zap className="h-4 w-4 text-zinc-500" />
+                      <Zap className="h-4 w-4 shrink-0 text-zinc-500" />
                     )}
-                    <div>
-                      <p className="text-sm font-medium text-zinc-200">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-zinc-200 break-words">
                         {item.type === "fixed"
                           ? `Fixed — ${item.description}`
                           : item.description}
                       </p>
-                      <div className="flex items-center gap-1">
+                      <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
                         <Badge variant="outline" className="text-[10px]">
                           {item.type === "fixed"
                             ? "Fixed Expense"
@@ -226,14 +226,14 @@ export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardD
                           item.current_installment !== undefined &&
                           item.total_installments !== undefined && (
                             <span className="text-xs text-zinc-500 font-mono">
-                              installment {item.current_installment} of{" "}
+                              {item.current_installment} of{" "}
                               {item.total_installments}
                             </span>
                           )}
                       </div>
                     </div>
                   </div>
-                  <span className="font-semibold text-white tabular-nums font-mono">
+                  <span className="shrink-0 ml-2 text-right font-semibold text-white tabular-nums font-mono">
                     {formatCurrency(item.amount_cents)}
                   </span>
                 </div>
