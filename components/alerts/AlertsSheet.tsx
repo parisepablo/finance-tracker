@@ -39,6 +39,19 @@ function AlertSkeleton() {
   );
 }
 
+function ReadDivider() {
+  return (
+    <div className="relative py-2">
+      <div className="absolute inset-0 flex items-center">
+        <div className="w-full border-t border-zinc-800" />
+      </div>
+      <div className="relative flex justify-center">
+        <span className="bg-zinc-900 px-2 text-xs text-zinc-600">Earlier</span>
+      </div>
+    </div>
+  );
+}
+
 export function AlertsSheet({ open, onOpenChange }: AlertsSheetProps) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(false);
@@ -89,6 +102,8 @@ export function AlertsSheet({ open, onOpenChange }: AlertsSheetProps) {
   }
 
   const unreadCount = alerts.filter((a) => !a.is_read).length;
+  const hasUnread = unreadCount > 0;
+  const hasRead = alerts.some((a) => a.is_read);
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const side = isMobile ? "bottom" : "right";
@@ -143,14 +158,26 @@ export function AlertsSheet({ open, onOpenChange }: AlertsSheetProps) {
           </div>
         ) : (
           <div className="space-y-2 overflow-y-auto py-2">
-            {alerts.map((alert) => (
-              <AlertItem
-                key={alert.id}
-                alert={alert}
-                onRead={handleRead}
-                onDismiss={handleDismiss}
-              />
-            ))}
+            {alerts.map((alert, index) => {
+              const prevAlert = alerts[index - 1];
+              const showDivider =
+                hasUnread &&
+                hasRead &&
+                prevAlert &&
+                !prevAlert.is_read &&
+                alert.is_read;
+
+              return (
+                <div key={alert.id} className="space-y-2">
+                  {showDivider && <ReadDivider />}
+                  <AlertItem
+                    alert={alert}
+                    onRead={handleRead}
+                    onDismiss={handleDismiss}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
       </SheetContent>

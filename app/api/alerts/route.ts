@@ -17,6 +17,7 @@ export async function GET() {
     .from("alerts")
     .select("*")
     .eq("user_id", user.id)
+    .order("is_read", { ascending: true })
     .order("priority", { ascending: false })
     .order("created_at", { ascending: false });
 

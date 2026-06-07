@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface AlertItemProps {
   alert: Alert;
@@ -20,23 +21,23 @@ interface AlertItemProps {
 const priorityConfig = {
   critical: {
     border: "border-l-rose-500",
+    borderRead: "border-l-rose-500/40",
     bg: "bg-rose-500/10",
-    dot: "bg-rose-500",
   },
   high: {
     border: "border-l-amber-500",
+    borderRead: "border-l-amber-500/40",
     bg: "bg-amber-500/10",
-    dot: "bg-amber-500",
   },
   medium: {
     border: "border-l-indigo-500",
+    borderRead: "border-l-indigo-500/40",
     bg: "bg-indigo-500/10",
-    dot: "bg-indigo-500",
   },
   low: {
     border: "border-l-zinc-600",
+    borderRead: "border-l-zinc-600/40",
     bg: "",
-    dot: "bg-zinc-600",
   },
 };
 
@@ -53,6 +54,7 @@ const typeIcons: Record<AlertType, React.ReactNode> = {
 
 export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
   const config = priorityConfig[alert.priority];
+  const isUnread = !alert.is_read;
 
   async function handleRead() {
     if (alert.is_read) return;
@@ -86,16 +88,17 @@ export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
   return (
     <button
       onClick={handleRead}
-      className={`group relative flex w-full items-start gap-3 rounded-lg border border-zinc-800 border-l-4 p-3 text-left transition-colors hover:bg-zinc-800/50 ${config.border} ${config.bg} ${
-        alert.is_read ? "opacity-60" : ""
-      }`}
-    >
-      {!alert.is_read && (
-        <span
-          className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${config.dot}`}
-        />
+      className={cn(
+        "group relative flex w-full items-start gap-3 rounded-lg border border-zinc-800 border-l-4 p-3 text-left transition-colors",
+        isUnread
+          ? ["opacity-100", config.border, config.bg, "hover:bg-zinc-800/50"]
+          : ["opacity-55", config.borderRead, "hover:bg-zinc-800/30"]
       )}
-      {alert.is_read && (
+    >
+      {isUnread && (
+        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-indigo-500" />
+      )}
+      {!isUnread && (
         <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-zinc-700" />
       )}
 
@@ -103,14 +106,20 @@ export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
         <div className="flex items-center gap-2">
           <span className="text-zinc-500">{typeIcons[alert.type]}</span>
           <p
-            className={`text-sm font-medium ${
-              alert.is_read ? "text-zinc-400" : "text-white"
-            }`}
+            className={cn(
+              "text-sm",
+              isUnread ? "font-medium text-white" : "font-normal text-zinc-400"
+            )}
           >
             {alert.title}
           </p>
         </div>
-        <p className="mt-0.5 text-sm text-zinc-400 leading-relaxed">
+        <p
+          className={cn(
+            "mt-0.5 leading-relaxed",
+            isUnread ? "text-sm text-zinc-400" : "text-sm text-zinc-500"
+          )}
+        >
           {alert.message}
         </p>
         <p className="mt-1 text-xs text-zinc-600">
