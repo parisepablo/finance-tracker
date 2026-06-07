@@ -263,7 +263,7 @@ export function FixedExpenseList({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 w-full justify-between sm:w-auto sm:justify-start">
                         <div className="hidden md:flex items-center gap-1">
                           <FixedExpenseForm
                             expense={expense}
