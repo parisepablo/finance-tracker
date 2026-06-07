@@ -264,6 +264,37 @@ export function FixedExpenseList({
                       </div>
 
                       <div className="flex items-center gap-3">
+                        <div className="hidden md:flex items-center gap-1">
+                          <FixedExpenseForm
+                            expense={expense}
+                            creditCards={creditCards}
+                            onSuccess={onRefresh}
+                            open={editingItem?.id === expense.id}
+                            onOpenChange={(open) => {
+                              if (!open) setEditingItem(null);
+                            }}
+                            trigger={
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label="Edit"
+                                className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            }
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Delete"
+                            disabled={deletingId === expense.id}
+                            onClick={() => openDeleteDialog(expense)}
+                            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                         <div className="text-right">
                           <p className="text-lg font-semibold text-white tabular-nums font-mono">
                             {expense.is_estimated && (
@@ -283,53 +314,20 @@ export function FixedExpenseList({
                                 : "/ yr"}
                           </p>
                         </div>
-                        <div className="flex items-center gap-1">
-                          {currentMonth && (
-                            <button
-                              onClick={() => togglePaid(expense.id, !isPaid)}
-                              disabled={togglingId === expense.id}
-                              className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-colors ${
-                                isPaid
-                                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-500/50"
-                                  : "border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400"
-                              }`}
-                              aria-label={isPaid ? "Unmark as paid" : "Mark as paid"}
-                            >
-                              <Check className="h-4 w-4" />
-                            </button>
-                          )}
-                          <div className="hidden md:flex items-center gap-1">
-                            <FixedExpenseForm
-                              expense={expense}
-                              creditCards={creditCards}
-                              onSuccess={onRefresh}
-                              open={editingItem?.id === expense.id}
-                              onOpenChange={(open) => {
-                                if (!open) setEditingItem(null);
-                              }}
-                              trigger={
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  aria-label="Edit"
-                                  className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </Button>
-                              }
-                            />
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              aria-label="Delete"
-                              disabled={deletingId === expense.id}
-                              onClick={() => openDeleteDialog(expense)}
-                              className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
+                        {currentMonth && (
+                          <button
+                            onClick={() => togglePaid(expense.id, !isPaid)}
+                            disabled={togglingId === expense.id}
+                            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-colors ${
+                              isPaid
+                                ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-500/50"
+                                : "border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400"
+                            }`}
+                            aria-label={isPaid ? "Unmark as paid" : "Mark as paid"}
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </GlowCard>

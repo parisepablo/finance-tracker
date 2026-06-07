@@ -398,7 +398,7 @@ export function DashboardClient({
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start sm:gap-3">
                   <div className="text-right">
                     <p className="font-semibold text-white tabular-nums font-mono">
                       {formatCurrency(exp.amountCents)}
@@ -453,7 +453,7 @@ export function DashboardClient({
                             {exp.category}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start sm:gap-3">
                           <span className="text-xs text-zinc-500 font-mono line-through">
                             {formatCurrency(exp.amountCents)}
                           </span>
