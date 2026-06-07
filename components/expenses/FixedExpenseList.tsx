@@ -22,6 +22,7 @@ import {
   Receipt,
   Check,
 } from "lucide-react";
+import { haptics } from "@/lib/haptics";
 
 interface FixedExpenseListProps {
   expenses: FixedExpense[];
@@ -67,6 +68,7 @@ export function FixedExpenseList({
     setConfirmItem(item);
     setConfirmOpen(true);
     setError(null);
+    haptics.medium();
   }
 
   async function handleDelete() {
@@ -87,6 +89,7 @@ export function FixedExpenseList({
       }
 
       toast.success(`Fixed expense "${confirmItem.name}" deleted`);
+      haptics.light();
       setConfirmOpen(false);
       setConfirmItem(null);
       onRefresh();
@@ -110,6 +113,7 @@ export function FixedExpenseList({
 
     try {
       if (markPaid) {
+        haptics.success();
         const res = await fetch("/api/expenses/payments", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -275,7 +279,7 @@ export function FixedExpenseList({
                             <button
                               onClick={() => togglePaid(expense.id, !isPaid)}
                               disabled={togglingId === expense.id}
-                              className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
+                              className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-colors ${
                                 isPaid
                                   ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-500/50"
                                   : "border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400"
@@ -294,7 +298,7 @@ export function FixedExpenseList({
                                 variant="ghost"
                                 size="icon"
                                 aria-label="Edit"
-                                className="text-zinc-500 hover:text-white hover:bg-zinc-800"
+                                className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -306,7 +310,7 @@ export function FixedExpenseList({
                             aria-label="Delete"
                             disabled={deletingId === expense.id}
                             onClick={() => openDeleteDialog(expense)}
-                            className="text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
+                            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

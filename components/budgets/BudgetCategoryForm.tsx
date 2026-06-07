@@ -195,9 +195,8 @@ export function BudgetCategoryForm({
               <Label htmlFor="budget-percentage">Percentage (1–100)</Label>
               <Input
                 id="budget-percentage"
-                type="number"
-                min={1}
-                max={100}
+                type="text"
+                inputMode="numeric"
                 value={percentage}
                 className="font-mono"
                 onChange={(e) => {

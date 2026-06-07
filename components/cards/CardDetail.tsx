@@ -91,7 +91,7 @@ export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
             variant="ghost"
             size="icon"
             onClick={() => setMonth((m) => prevMonth(m))}
-            className="text-zinc-500 hover:text-white hover:bg-zinc-800"
+            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -102,7 +102,7 @@ export function CardDetail({ card, refreshTrigger = 0 }: CardDetailProps) {
             variant="ghost"
             size="icon"
             onClick={() => setMonth((m) => nextMonth(m))}
-            className="text-zinc-500 hover:text-white hover:bg-zinc-800"
+            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

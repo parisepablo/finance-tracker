@@ -9,6 +9,8 @@ import { CardDetail } from "@/components/cards/CardDetail";
 import { CreditCardForm } from "@/components/cards/CreditCardForm";
 import { AddChargeForm } from "@/components/cards/AddChargeForm";
 import { AmbientGlow } from "@/components/ui/ambient-glow";
+import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Button } from "@/components/ui/button";
 import { Wifi, CreditCardIcon, Pencil } from "lucide-react";
 
@@ -25,6 +27,13 @@ export function CardsPageClient({
 }: CardsPageClientProps) {
   const router = useRouter();
   const [detailRefreshKey, setDetailRefreshKey] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const { pullProgress } = usePullToRefresh(() => {
+    setIsRefreshing(true);
+    router.refresh();
+    setTimeout(() => setIsRefreshing(false), 800);
+  }, isRefreshing);
 
   function handleRefresh() {
     router.refresh();
@@ -33,6 +42,7 @@ export function CardsPageClient({
   if (cards.length === 0) {
     return (
       <div className="flex flex-1 flex-col gap-6 p-6 relative">
+        <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} />
         <AmbientGlow color="emerald" position="bottom-left" />
         <div className="flex items-center justify-between relative z-10">
           <div>
@@ -70,6 +80,7 @@ export function CardsPageClient({
     const card = cards[0];
     return (
       <div className="flex flex-1 flex-col gap-6 p-6 relative">
+        <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} />
         <AmbientGlow color="emerald" position="bottom-left" />
 
         <div className="flex items-center justify-between relative z-10">
@@ -168,7 +179,7 @@ export function CardsPageClient({
                 card={card}
                 onSuccess={handleRefresh}
                 trigger={
-                  <Button variant="ghost" size="icon" aria-label="Edit" className="text-zinc-500 hover:text-white hover:bg-zinc-800">
+                  <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800">
                     <Pencil className="h-4 w-4" />
                   </Button>
                 }
@@ -188,6 +199,7 @@ export function CardsPageClient({
   // Multiple cards: use existing list
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 relative">
+      <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} />
       <AmbientGlow color="emerald" position="bottom-left" />
 
       <div className="flex items-center justify-between relative z-10">

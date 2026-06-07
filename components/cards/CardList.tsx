@@ -10,6 +10,7 @@ import { CardDetail } from "./CardDetail";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { toast } from "sonner";
 import { CreditCardIcon, Pencil, Trash2, Eye, Wifi } from "lucide-react";
+import { haptics } from "@/lib/haptics";
 
 interface CardListProps {
   cards: CreditCard[];
@@ -29,6 +30,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
     setConfirmItem(item);
     setConfirmOpen(true);
     setError(null);
+    haptics.medium();
   }
 
   async function handleDelete() {
@@ -49,6 +51,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
       }
 
       toast.success(`Credit card "${confirmItem.name}" deleted`);
+      haptics.light();
       setConfirmOpen(false);
       setConfirmItem(null);
       onRefresh();
@@ -157,7 +160,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
               card={card}
               onSuccess={onRefresh}
               trigger={
-                <Button variant="ghost" size="icon" aria-label="Edit" className="text-zinc-500 hover:text-white hover:bg-zinc-800">
+                <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800">
                   <Pencil className="h-4 w-4" />
                 </Button>
               }
@@ -168,7 +171,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
               aria-label="Delete"
               disabled={deletingId === card.id}
               onClick={() => openDeleteDialog(card)}
-              className="text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
+              className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -179,7 +182,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
               onClick={() =>
                 setExpandedId(expandedId === card.id ? null : card.id)
               }
-              className="text-zinc-500 hover:text-white hover:bg-zinc-800"
+              className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
             >
               <Eye className="h-4 w-4" />
             </Button>

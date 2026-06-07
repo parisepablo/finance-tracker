@@ -176,9 +176,8 @@ export function IncomeForm({ income, onSuccess, trigger }: IncomeFormProps) {
               <Label htmlFor="amount">Monthly Amount</Label>
               <Input
                 id="amount"
-                type="number"
-                step="0.01"
-                min="0.01"
+                type="text"
+                inputMode="decimal"
                 value={amount}
                 className="font-mono"
                 onChange={(e) => {

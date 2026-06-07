@@ -175,9 +175,8 @@ export function AddChargeForm({
               <Label htmlFor="charge-amount">Total Amount</Label>
               <Input
                 id="charge-amount"
-                type="number"
-                step="0.01"
-                min="0.01"
+                type="text"
+                inputMode="decimal"
                 value={totalAmount}
                 className="font-mono"
                 onChange={(e) => {
@@ -259,8 +258,8 @@ export function AddChargeForm({
                 <Label htmlFor="total-installments">Total Installments</Label>
                 <Input
                 id="total-installments"
-                type="number"
-                min={2}
+                type="text"
+                inputMode="numeric"
                 value={totalInstallments}
                 className="font-mono"
                   onChange={(e) => {

@@ -205,6 +205,8 @@ export function CreditCardForm({ card, onSuccess, trigger }: CreditCardFormProps
               <Label htmlFor="last-four">Last Four Digits</Label>
               <Input
                 id="last-four"
+                type="text"
+                inputMode="numeric"
                 value={lastFour}
                 className="font-mono"
                 onChange={(e) => {
@@ -224,9 +226,8 @@ export function CreditCardForm({ card, onSuccess, trigger }: CreditCardFormProps
               <Label htmlFor="credit-limit">Credit Limit</Label>
               <Input
                 id="credit-limit"
-                type="number"
-                step="0.01"
-                min="0.01"
+                type="text"
+                inputMode="decimal"
                 value={creditLimit}
                 className="font-mono"
                 onChange={(e) => {
@@ -246,9 +247,8 @@ export function CreditCardForm({ card, onSuccess, trigger }: CreditCardFormProps
                 <Label htmlFor="closing-day">Closing Day (1–31)</Label>
                 <Input
                 id="closing-day"
-                type="number"
-                min={1}
-                max={31}
+                type="text"
+                inputMode="numeric"
                 value={closingDay}
                 className="font-mono"
                   onChange={(e) => {
@@ -266,9 +266,8 @@ export function CreditCardForm({ card, onSuccess, trigger }: CreditCardFormProps
                 <Label htmlFor="due-day">Due Day (1–31)</Label>
                 <Input
                 id="due-day"
-                type="number"
-                min={1}
-                max={31}
+                type="text"
+                inputMode="numeric"
                 value={dueDay}
                 className="font-mono"
                   onChange={(e) => {

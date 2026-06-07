@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IncomeSource, FixedExpense, CreditCard, BudgetCategoryWithStats } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
@@ -12,6 +13,8 @@ import { BudgetCategoryForm } from "@/components/budgets/BudgetCategoryForm";
 import { BudgetDonut } from "@/components/budgets/BudgetDonut";
 import { AllocationBar } from "@/components/budgets/AllocationBar";
 import { GlowCard } from "@/components/ui/glow-card";
+import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import {
   Accordion,
   AccordionContent,
@@ -48,6 +51,13 @@ export function FinancesPageClient({
   error,
 }: FinancesPageClientProps) {
   const router = useRouter();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const { pullProgress } = usePullToRefresh(() => {
+    setIsRefreshing(true);
+    router.refresh();
+    setTimeout(() => setIsRefreshing(false), 800);
+  }, isRefreshing);
 
   function handleRefresh() {
     router.refresh();
@@ -60,6 +70,7 @@ export function FinancesPageClient({
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6">
+      <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} />
       <div>
         <h1 className="text-2xl font-semibold text-white">Finances</h1>
         <p className="text-sm text-zinc-500">

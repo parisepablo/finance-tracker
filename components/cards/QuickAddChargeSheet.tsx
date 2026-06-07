@@ -20,6 +20,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { CreditCard, BudgetCategory } from "@/lib/types";
+import { haptics } from "@/lib/haptics";
 
 interface QuickAddChargeSheetProps {
   open: boolean;
@@ -144,6 +145,7 @@ export function QuickAddChargeSheet({
       }
 
       toast.success(`Charge "${payload.description}" added`);
+      haptics.success();
       onOpenChange(false);
       onSuccess();
     } catch {
@@ -208,9 +210,8 @@ export function QuickAddChargeSheet({
             <Label htmlFor="quick-amount">Amount (ARS)</Label>
             <Input
               id="quick-amount"
-              type="number"
-              step="0.01"
-              min="0.01"
+              type="text"
+              inputMode="decimal"
               placeholder="0.00"
               value={totalAmount}
               className="font-mono"
@@ -323,8 +324,8 @@ export function QuickAddChargeSheet({
               <Label htmlFor="quick-installments">Installments</Label>
               <Input
                 id="quick-installments"
-                type="number"
-                min={2}
+                type="text"
+                inputMode="numeric"
                 placeholder="e.g. 6"
                 value={totalInstallments}
                 className="font-mono"

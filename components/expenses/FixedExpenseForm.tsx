@@ -262,9 +262,8 @@ export function FixedExpenseForm({
               <Label htmlFor="expense-amount">Amount</Label>
               <Input
                 id="expense-amount"
-                type="number"
-                step="0.01"
-                min="0.01"
+                type="text"
+                inputMode="decimal"
                 value={amount}
                 className="font-mono"
                 onChange={(e) => {
@@ -305,9 +304,8 @@ export function FixedExpenseForm({
               <Label htmlFor="due-day">Due Day (1–31)</Label>
               <Input
                 id="due-day"
-                type="number"
-                min={1}
-                max={31}
+                type="text"
+                inputMode="numeric"
                 value={dueDay}
                 className="font-mono"
                 onChange={(e) => {

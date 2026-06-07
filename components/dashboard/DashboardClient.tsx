@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
 import { GlowCard } from "@/components/ui/glow-card";
 import { AmbientGlow } from "@/components/ui/ambient-glow";
 import { useAnimatedNumber } from "@/hooks/use-animated-number";
 import { BudgetDonut } from "@/components/budgets/BudgetDonut";
 import { Badge } from "@/components/ui/badge";
+import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import {
   Wallet,
   Receipt,
@@ -22,6 +25,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
+import { haptics } from "@/lib/haptics";
 
 interface DashboardBudgetItem {
   id: string;
@@ -116,9 +120,17 @@ export function DashboardClient({
   const animatedPool = useAnimatedNumber(discretionaryPoolCents, 800);
   const animatedCards = useAnimatedNumber(totalCardObligationsCents, 800);
 
+  const router = useRouter();
   const [paidIds, setPaidIds] = useState<Set<string>>(new Set(paidExpenseIds));
   const [showPaid, setShowPaid] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const { pullProgress } = usePullToRefresh(() => {
+    setIsRefreshing(true);
+    router.refresh();
+    setTimeout(() => setIsRefreshing(false), 800);
+  }, isRefreshing);
 
   const unpaidExpenses = upcomingExpenses.filter((exp) => !paidIds.has(exp.id));
   const paidExpenses = upcomingExpenses.filter((exp) => paidIds.has(exp.id));
@@ -137,6 +149,7 @@ export function DashboardClient({
 
     try {
       if (markPaid) {
+        haptics.success();
         const res = await fetch("/api/expenses/payments", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -174,6 +187,7 @@ export function DashboardClient({
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 relative">
+      <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} />
       <AmbientGlow color="indigo" position="top-right" />
 
       <div className="flex items-center justify-between relative z-10">
@@ -397,7 +411,7 @@ export function DashboardClient({
                   <button
                     onClick={() => togglePaid(exp.id, true)}
                     disabled={togglingId === exp.id}
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
                     aria-label="Mark as paid"
                   >
                     <Check className="h-4 w-4" />
@@ -446,7 +460,7 @@ export function DashboardClient({
                           <button
                             onClick={() => togglePaid(exp.id, false)}
                             disabled={togglingId === exp.id}
-                            className="flex h-7 w-7 items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-rose-500/50 hover:text-rose-400 transition-colors"
+                            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-rose-500/50 hover:text-rose-400 transition-colors"
                             aria-label="Unmark as paid"
                           >
                             <span className="text-xs">×</span>
