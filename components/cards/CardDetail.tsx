@@ -196,7 +196,7 @@ export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardD
                   setDeleteChargeId(item.id);
                 }}
               >
-                <div className="group flex flex-col gap-1 rounded-xl border border-white/[0.06] bg-zinc-900/40 p-3 hover:bg-zinc-900/70 transition-all duration-300 relative overflow-hidden">
+                <div className="group flex flex-col gap-1 rounded-xl border border-zinc-800 bg-zinc-900 p-3 hover:bg-zinc-900/70 transition-all duration-300 relative overflow-hidden">
                   <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-500/50 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
                   {/* Title line */}
                   <div className="flex items-center gap-2 pl-1">

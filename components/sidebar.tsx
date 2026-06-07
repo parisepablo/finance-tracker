@@ -88,7 +88,7 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 flex-col border-r border-white/[0.06] bg-zinc-900/50 backdrop-blur-xl p-4">
+      <aside className="hidden md:flex w-64 flex-col border-r border-white/[0.06] bg-zinc-900 backdrop-blur-xl p-4">
         <div className="mb-8 px-3 flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15">
             <Wallet className="h-4 w-4 text-indigo-400" />

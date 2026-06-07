@@ -273,7 +273,7 @@ export function DashboardClient({
         </h2>
         {budgets.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-800 p-8 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/60">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
               <PieChart className="h-5 w-5 text-zinc-600" />
             </div>
             <p className="text-sm text-zinc-500">
@@ -306,7 +306,7 @@ export function DashboardClient({
         </h2>
         {cards.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-800 p-8 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/60">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
               <CreditCard className="h-5 w-5 text-zinc-600" />
             </div>
             <p className="text-sm text-zinc-500">
@@ -318,7 +318,7 @@ export function DashboardClient({
             {cards.map((card) => (
               <div
                 key={card.id}
-                className="flex flex-col gap-2 rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-2 rounded-xl border border-zinc-800 bg-zinc-900 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600/20 to-violet-600/20">
@@ -363,7 +363,7 @@ export function DashboardClient({
         </h2>
         {upcomingExpenses.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-800 p-8 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/60">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
               <CalendarDays className="h-5 w-5 text-zinc-600" />
             </div>
             <p className="text-sm text-zinc-500">
@@ -376,10 +376,10 @@ export function DashboardClient({
             {unpaidExpenses.map((exp) => (
               <div
                 key={exp.id}
-                className="group flex flex-col gap-2 rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="group flex flex-col gap-2 rounded-xl border border-zinc-800 bg-zinc-900 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800/60">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800">
                     <CalendarDays className="h-4 w-4 text-zinc-500" />
                   </div>
                   <div>
@@ -422,7 +422,7 @@ export function DashboardClient({
 
             {/* Paid this month collapsible */}
             {paidExpenses.length > 0 && (
-              <div className="rounded-xl border border-white/[0.06] bg-zinc-900/40 overflow-hidden">
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900 overflow-hidden">
                 <button
                   onClick={() => setShowPaid((v) => !v)}
                   className="flex w-full items-center justify-between px-4 py-3 text-sm text-zinc-400 hover:bg-zinc-800/40 transition-colors"
@@ -442,7 +442,7 @@ export function DashboardClient({
                     {paidExpenses.map((exp) => (
                       <div
                         key={exp.id}
-                        className="flex items-center justify-between rounded-lg bg-zinc-800/40 px-3 py-2"
+                        className="flex items-center justify-between rounded-lg bg-zinc-800 px-3 py-2"
                       >
                         <div className="flex items-center gap-3">
                           <Check className="h-4 w-4 text-emerald-400" />

@@ -224,8 +224,8 @@ export function EditChargeSheet({
         className={cn(
           "bg-zinc-900",
           isMobile
-            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-white/[0.06]"
-            : "w-full max-w-sm border-l border-white/[0.06]"
+            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-zinc-800"
+            : "w-full max-w-sm border-l border-zinc-800"
         )}
       >
         <SheetHeader className="pb-2">

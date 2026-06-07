@@ -65,7 +65,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
   if (cards.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800/60">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
           <CreditCardIcon className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
@@ -90,7 +90,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
       {cards.map((card) => (
         <div key={card.id} className="space-y-0 md:max-w-sm md:mx-auto">
           {/* Credit card visual */}
-          <div className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-indigo-900 via-violet-900 to-zinc-900 border border-white/[0.08] shadow-xl shadow-black/40" style={{ boxShadow: '0 0 40px rgba(99,102,241,0.09), 0 20px 40px rgba(0,0,0,0.4)' }}>
+          <div className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-indigo-900 via-violet-900 to-zinc-900 border border-zinc-800 shadow-xl shadow-black/40" style={{ boxShadow: '0 0 40px rgba(99,102,241,0.09), 0 20px 40px rgba(0,0,0,0.4)' }}>
             <div className="relative z-10 flex flex-col gap-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
@@ -189,7 +189,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
           </div>
 
           {expandedId === card.id && (
-            <div className="mt-3 rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4">
+            <div className="mt-3 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
               <CardDetail card={card} budgetCategories={budgetCategories} refreshTrigger={detailRefreshKey} />
             </div>
           )}

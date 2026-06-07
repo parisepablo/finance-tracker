@@ -59,7 +59,7 @@ export function CardsPageClient({
           </div>
         ) : (
           <div className="relative z-10 flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800/60">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
               <CreditCardIcon className="h-6 w-6 text-zinc-600" />
             </div>
             <div className="space-y-1">
@@ -105,7 +105,7 @@ export function CardsPageClient({
           {/* Card visual */}
           <div className="space-y-0 md:max-w-sm md:mx-auto">
             <div
-              className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-indigo-900 via-violet-900 to-zinc-900 border border-white/[0.08]"
+              className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-indigo-900 via-violet-900 to-zinc-900 border border-zinc-800"
               style={{
                 boxShadow:
                   "0 0 40px rgba(99,102,241,0.09), 0 20px 40px rgba(0,0,0,0.4)",
@@ -188,7 +188,7 @@ export function CardsPageClient({
           </div>
 
           {/* Auto-opened detail */}
-          <div className="rounded-xl border border-white/[0.06] bg-zinc-900/40 p-4">
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
             <CardDetail card={card} budgetCategories={budgetCategories} refreshTrigger={detailRefreshKey} />
           </div>
         </div>

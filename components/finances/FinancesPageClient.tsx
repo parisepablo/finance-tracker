@@ -264,7 +264,7 @@ export function FinancesPageClient({
 
               {categories.length === 0 ? (
                 <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-800 p-8 text-center">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800/60">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
                     <PieChart className="h-5 w-5 text-zinc-600" />
                   </div>
                   <p className="text-sm text-zinc-500">
