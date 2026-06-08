@@ -130,7 +130,7 @@ export function FinancesPageClient({
       {/* Summary flow bar */}
       <GlowCard color="indigo">
         <div className="p-5">
-          <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
+          <div className="flex flex-col items-start md:items-center gap-4 md:flex-row md:justify-between text-left md:text-center">
             {/* Total Income */}
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
@@ -218,7 +218,6 @@ export function FinancesPageClient({
       {/* Accordion sections */}
       <Accordion
         type="multiple"
-        defaultValue={["income", "expenses", "budgets"]}
         className="space-y-4"
       >
         {/* Income Sources */}
@@ -331,7 +330,7 @@ export function FinancesPageClient({
                           <DropdownMenuTrigger asChild>
                             <button
                               aria-label="Opciones"
-                              className="absolute top-2 right-2 p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                              className="absolute top-0 right-0 p-2 rounded-bl-md rounded-tr-md hover:bg-accent transition-colors"
                             >
                               <MoreVertical className="h-4 w-4" />
                             </button>
