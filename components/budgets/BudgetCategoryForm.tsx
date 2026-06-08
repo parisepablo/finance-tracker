@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatCurrency } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { toast } from "sonner";
 
 interface BudgetCategoryFormProps {
@@ -226,11 +227,11 @@ export function BudgetCategoryForm({
               <p className="text-sm text-muted-foreground">
                 This gives you{" "}
                 <span className="font-medium text-foreground font-mono">
-                  {formatCurrency(previewAllocated)}
+                  <Amount value={previewAllocated} className="font-mono" />
                 </span>{" "}
                 <span className="font-sans">/ month</span>{" "}
                 based on your current discretionary pool of{" "}
-                <span className="font-mono">{formatCurrency(discretionaryPoolCents)}</span>.
+                <span className="font-mono"><Amount value={discretionaryPoolCents} className="font-mono" /></span>.
               </p>
             )}
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { GlowCard } from "@/components/ui/glow-card";
 import { AmbientGlow } from "@/components/ui/ambient-glow";
 import { useAnimatedNumber } from "@/hooks/use-animated-number";
@@ -97,9 +98,9 @@ function HealthBadge({ status }: { status: HealthStatus }) {
   );
 }
 
-function AnimatedCurrency({ cents, currency = "ARS" }: { cents: number; currency?: string }) {
+function AnimatedCurrency({ cents, currency = "ARS" }: { cents: number; currency?: "ARS" | "USD" }) {
   const animated = useAnimatedNumber(cents, 800);
-  return <span className="font-mono">{formatCurrency(animated, currency)}</span>;
+  return <Amount value={animated} currency={currency} className="font-mono" />;
 }
 
 export function DashboardClient({
@@ -211,7 +212,7 @@ export function DashboardClient({
               <Wallet className="h-4 w-4 text-zinc-600" />
             </div>
             <div className="text-2xl font-bold text-white font-mono tabular-nums">
-              {formatCurrency(animatedIncome)}
+              <Amount value={animatedIncome} className="font-mono" />
             </div>
           </div>
         </GlowCard>
@@ -225,7 +226,7 @@ export function DashboardClient({
               <Receipt className="h-4 w-4 text-zinc-600" />
             </div>
             <div className="text-2xl font-bold text-white font-mono tabular-nums">
-              {formatCurrency(animatedFixed)}
+              <Amount value={animatedFixed} className="font-mono" />
             </div>
             <p className="text-xs text-zinc-500 mt-1 font-mono">
               {fixedPercentage}% of income
@@ -242,7 +243,7 @@ export function DashboardClient({
               <PiggyBank className="h-4 w-4 text-indigo-500/70" />
             </div>
             <div className="text-2xl font-bold text-white font-mono tabular-nums">
-              {formatCurrency(animatedPool)}
+              <Amount value={animatedPool} className="font-mono" />
             </div>
             <p className="text-xs text-zinc-500 mt-1">
               Income left after fixed expenses
@@ -259,7 +260,7 @@ export function DashboardClient({
               <CreditCard className="h-4 w-4 text-zinc-600" />
             </div>
             <div className="text-2xl font-bold text-white font-mono tabular-nums">
-              {formatCurrency(animatedCards)}
+              <Amount value={animatedCards} className="font-mono" />
             </div>
             <p className="text-xs text-zinc-500 mt-1">This month</p>
           </div>
@@ -342,7 +343,7 @@ export function DashboardClient({
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-white tabular-nums font-mono">
-                    {formatCurrency(card.totalDueCents)}
+                    <Amount value={card.totalDueCents} className="font-mono" />
                   </p>
                   {card.exceeds30Percent && (
                     <p className="text-xs text-amber-400">
@@ -401,7 +402,7 @@ export function DashboardClient({
                 <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start sm:gap-3">
                   <div className="text-right">
                     <p className="font-semibold text-white tabular-nums font-mono">
-                      {formatCurrency(exp.amountCents)}
+                      <Amount value={exp.amountCents} className="font-mono" />
                     </p>
                     <p className="text-xs text-zinc-500 font-mono">
                       Due in {exp.daysUntilDue} day
@@ -455,7 +456,7 @@ export function DashboardClient({
                         </div>
                         <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start sm:gap-3">
                           <span className="text-xs text-zinc-500 font-mono line-through">
-                            {formatCurrency(exp.amountCents)}
+                            <Amount value={exp.amountCents} className="font-mono line-through" />
                           </span>
                           <button
                             onClick={() => togglePaid(exp.id, false)}

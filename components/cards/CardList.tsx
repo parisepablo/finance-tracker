@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CreditCard, BudgetCategory } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { Button } from "@/components/ui/button";
 import { CreditCardForm } from "./CreditCardForm";
 import { AddChargeForm } from "./AddChargeForm";
@@ -118,7 +119,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
                   <p className="text-[10px] uppercase tracking-wider text-white/40">Limit</p>
                   <p className="text-sm font-semibold text-white tabular-nums font-mono">
                     {card.credit_limit_cents !== null
-                      ? formatCurrency(card.credit_limit_cents)
+                      ? <Amount value={card.credit_limit_cents} className="font-mono" />
                       : "—"}
                   </p>
                 </div>

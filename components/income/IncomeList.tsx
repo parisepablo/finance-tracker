@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { IncomeSource } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { GlowCard } from "@/components/ui/glow-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -112,7 +113,7 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
                     </Badge>
                   </div>
                   <p className="text-lg font-semibold text-white tabular-nums font-mono">
-                    {formatCurrency(source.amount_cents, source.currency)}
+                    <Amount value={source.amount_cents} currency={source.currency} className="font-mono" />
                     <span className="ml-1 text-sm font-normal text-zinc-500 font-sans">
                       / month
                     </span>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FixedExpense, CreditCard } from "@/lib/types";
 import { formatCurrency, getMonthlyEquivalent } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { GlowCard } from "@/components/ui/glow-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -300,13 +301,13 @@ export function FixedExpenseList({
                             {expense.is_estimated && (
                               <span className="text-zinc-500">~ </span>
                             )}
-                            {formatCurrency(monthlyCents)}
+                            <Amount value={monthlyCents} className="font-mono" />
                             <span className="ml-1 text-sm font-normal text-zinc-500 font-sans">
                               / mo
                             </span>
                           </p>
                           <p className="text-xs text-zinc-600 font-mono">
-                            {formatCurrency(expense.amount_cents)}{" "}
+                            <Amount value={expense.amount_cents} className="font-mono" />{" "}
                             {expense.billing_cycle === "monthly"
                               ? "/ mo"
                               : expense.billing_cycle === "quarterly"

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { BudgetCategoryWithStats } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { BudgetCategoryList } from "@/components/budgets/BudgetCategoryList";
 import { BudgetCategoryForm } from "@/components/budgets/BudgetCategoryForm";
 import { AllocationBar } from "@/components/budgets/AllocationBar";
@@ -83,7 +84,7 @@ export function BudgetsPageClient({
             <Wallet className="h-4 w-4 text-indigo-500/70" />
           </div>
           <div className="text-2xl font-bold text-white tabular-nums font-mono">
-            {formatCurrency(discretionaryPoolCents)}
+            <Amount value={discretionaryPoolCents} className="font-mono" />
           </div>
           <p className="text-xs text-zinc-500 mt-1">
             Income left after fixed expenses

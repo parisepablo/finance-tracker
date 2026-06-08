@@ -8,6 +8,7 @@ import {
   sumFixedExpenses,
   getDiscretionaryPool,
 } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { FixedExpenseList } from "@/components/expenses/FixedExpenseList";
 import { FixedExpenseForm } from "@/components/expenses/FixedExpenseForm";
 import { GlowCard } from "@/components/ui/glow-card";
@@ -74,7 +75,7 @@ export function FixedExpensesPageClient({
               <Wallet className="h-4 w-4 text-zinc-600" />
             </div>
             <div className="text-2xl font-bold text-white tabular-nums font-mono">
-              {formatCurrency(totalFixed)}
+              <Amount value={totalFixed} className="font-mono" />
             </div>
             <p className="text-xs text-zinc-500 mt-1">
               Monthly equivalent of all active expenses
@@ -108,7 +109,7 @@ export function FixedExpensesPageClient({
               <PiggyBank className="h-4 w-4 text-indigo-500/70" />
             </div>
             <div className="text-2xl font-bold text-white tabular-nums font-mono">
-              {formatCurrency(discretionaryPool)}
+              <Amount value={discretionaryPool} className="font-mono" />
             </div>
             <p className="text-xs text-zinc-500 mt-1">
               Income left after fixed expenses

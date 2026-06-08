@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IncomeSource, FixedExpense, CreditCard, BudgetCategoryWithStats } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { IncomeList } from "@/components/income/IncomeList";
 import { IncomeForm } from "@/components/income/IncomeForm";
 import { FixedExpenseList } from "@/components/expenses/FixedExpenseList";
@@ -140,7 +141,7 @@ export function FinancesPageClient({
                   Total Income
                 </p>
                 <p className="text-xl font-bold text-white tabular-nums font-mono">
-                  {formatCurrency(totalIncomeCents)}
+                  <Amount value={totalIncomeCents} className="font-mono" />
                 </p>
               </div>
             </div>
@@ -163,7 +164,7 @@ export function FinancesPageClient({
                   Fixed Expenses
                 </p>
                 <p className="text-xl font-bold text-white tabular-nums font-mono">
-                  {formatCurrency(totalFixedCents)}
+                  <Amount value={totalFixedCents} className="font-mono" />
                 </p>
                 {totalIncomeCents > 0 && (
                   <p className="text-xs text-zinc-500 font-mono">{fixedPercentage}% of income</p>
@@ -189,7 +190,7 @@ export function FinancesPageClient({
                   Discretionary Pool
                 </p>
                 <p className="text-xl font-bold text-white tabular-nums font-mono">
-                  {formatCurrency(discretionaryPoolCents)}
+                  <Amount value={discretionaryPoolCents} className="font-mono" />
                 </p>
               </div>
             </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { CreditCard, BudgetCategory } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { Button } from "@/components/ui/button";
 import { GlowCard } from "@/components/ui/glow-card";
 import { Badge } from "@/components/ui/badge";
@@ -174,7 +175,7 @@ export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardD
                 Total Due — {formatMonthLabel(month)}
               </span>
               <div className="text-3xl font-bold text-white tabular-nums font-mono">
-                {formatCurrency(summary.total_due_cents)}
+                <Amount value={summary.total_due_cents} className="font-mono" />
               </div>
             </div>
           </GlowCard>
@@ -238,7 +239,7 @@ export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardD
                         )}
                     </div>
                     <span className="shrink-0 ml-2 text-right font-semibold text-white tabular-nums font-mono">
-                      {formatCurrency(item.amount_cents)}
+                      <Amount value={item.amount_cents} className="font-mono" />
                     </span>
                   </div>
                 </div>

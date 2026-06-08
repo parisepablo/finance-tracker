@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AlertsBell } from "@/components/alerts/AlertsBell";
+import { useVisibility } from "@/components/visibility-provider";
+import { Eye, EyeOff } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -85,6 +87,19 @@ function MobileBottomNav() {
   );
 }
 
+function VisibilityToggle() {
+  const { valuesVisible, toggleVisibility } = useVisibility();
+  return (
+    <button
+      onClick={toggleVisibility}
+      className="p-2 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+      aria-label={valuesVisible ? "Hide values" : "Show values"}
+    >
+      {valuesVisible ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+    </button>
+  );
+}
+
 export function Sidebar() {
   return (
     <>
@@ -104,7 +119,10 @@ export function Sidebar() {
               </p>
             </div>
           </div>
-          <AlertsBell />
+          <div className="flex items-center gap-1">
+            <VisibilityToggle />
+            <AlertsBell />
+          </div>
         </div>
         <nav className="flex flex-col gap-0.5">
           <DesktopNavLinks />

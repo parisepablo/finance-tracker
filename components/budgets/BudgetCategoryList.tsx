@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { BudgetCategoryWithStats } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { GlowCard } from "@/components/ui/glow-card";
 import { Button } from "@/components/ui/button";
 import { BudgetCategoryForm } from "./BudgetCategoryForm";
@@ -170,7 +171,7 @@ export function BudgetCategoryList({
 
               <div className="flex items-center justify-between text-sm">
                 <span className="text-zinc-500 font-mono">
-                  Allocated: {formatCurrency(cat.allocated_cents)}
+                  Allocated: <Amount value={cat.allocated_cents} className="font-mono" />
                 </span>
                 <span className="text-zinc-500 font-mono">
                   {cat.spent_percentage}% spent
@@ -189,7 +190,7 @@ export function BudgetCategoryList({
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <span className="text-zinc-400 font-mono">Spent: {formatCurrency(cat.spent_cents)}</span>
+                <span className="text-zinc-400 font-mono">Spent: <Amount value={cat.spent_cents} className="font-mono" /></span>
                 <span
                   className={
                     cat.remaining_cents < 0
@@ -197,7 +198,7 @@ export function BudgetCategoryList({
                       : "text-zinc-500 font-mono"
                   }
                 >
-                  Remaining: {formatCurrency(cat.remaining_cents)}
+                  Remaining: <Amount value={cat.remaining_cents} className="font-mono" />
                 </span>
               </div>
             </div>

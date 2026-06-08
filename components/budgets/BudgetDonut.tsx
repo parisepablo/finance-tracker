@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell } from "recharts";
 import { formatCurrency } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 
 interface BudgetDonutProps {
   spentPercentage: number;
@@ -55,7 +56,7 @@ export function BudgetDonut({
       </div>
       <span className="text-xs text-zinc-400 text-center">{name}</span>
       <span className="text-xs text-zinc-500 font-mono">
-        {formatCurrency(spentCents)} / {formatCurrency(allocatedCents)}
+        <Amount value={spentCents} className="font-mono" /> / <Amount value={allocatedCents} className="font-mono" />
       </span>
     </div>
   );

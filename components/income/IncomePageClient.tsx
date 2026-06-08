@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { IncomeSource } from "@/lib/types";
 import { formatCurrency, sumIncomeSources } from "@/lib/utils";
+import { Amount } from "@/components/ui/amount";
 import { IncomeList } from "@/components/income/IncomeList";
 import { IncomeForm } from "@/components/income/IncomeForm";
 import { GlowCard } from "@/components/ui/glow-card";
@@ -43,7 +44,7 @@ export function IncomePageClient({ incomeSources, error }: IncomePageClientProps
             <DollarSign className="h-4 w-4 text-zinc-600" />
           </div>
           <div className="text-2xl font-bold text-white tabular-nums font-mono">
-            {formatCurrency(totalCents)}
+            <Amount value={totalCents} className="font-mono" />
           </div>
           <p className="text-xs text-zinc-500 mt-1">
             From <span className="font-mono">{activeCount}</span> active source
