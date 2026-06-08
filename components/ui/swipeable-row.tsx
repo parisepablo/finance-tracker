@@ -2,6 +2,7 @@
 
 import { useRef, useState, useCallback } from "react";
 import { useSwipeableRowContext } from "./swipeable-row-context";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface SwipeableRowProps {
   rowId: string;
@@ -206,6 +207,7 @@ export function SwipeableRow({
       {/* The actual row content that slides */}
       <div
         ref={rowRef}
+        className="group"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -220,6 +222,30 @@ export function SwipeableRow({
         }}
       >
         {children}
+
+        {/* Desktop action buttons */}
+        <div className="hidden md:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-1/2 -translate-y-1/2 z-10">
+          <button
+            onClick={() => {
+              onEdit();
+              setOpenRowId(null);
+            }}
+            className="p-2 rounded-md hover:bg-accent transition-colors"
+            aria-label="Edit"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => {
+              onDelete();
+              setOpenRowId(null);
+            }}
+            className="p-2 rounded-md hover:bg-destructive/10 text-destructive transition-colors"
+            aria-label="Delete"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
