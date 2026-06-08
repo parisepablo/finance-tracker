@@ -23,6 +23,8 @@ interface BudgetCategoryFormProps {
   existingTotalPercentage?: number;
   onSuccess: () => void;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface FormErrors {
@@ -49,8 +51,14 @@ export function BudgetCategoryForm({
   existingTotalPercentage = 0,
   onSuccess,
   trigger,
+  open,
+  onOpenChange,
 }: BudgetCategoryFormProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = open !== undefined && onOpenChange !== undefined;
+  const dialogOpen = isControlled ? open : internalOpen;
+  const setDialogOpen = isControlled ? onOpenChange : setInternalOpen;
+
   const [name, setName] = useState(category?.name ?? "");
   const [percentage, setPercentage] = useState(
     category?.percentage ? category.percentage.toString() : ""
@@ -62,7 +70,7 @@ export function BudgetCategoryForm({
   const isEditing = !!category;
 
   useEffect(() => {
-    if (!open) return;
+    if (!dialogOpen) return;
     setLoading(false);
     setErrors({});
     if (category) {
@@ -74,8 +82,7 @@ export function BudgetCategoryForm({
       setPercentage("");
       setColor(PRESET_COLORS[7]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [dialogOpen, category?.id]);
 
   const previewAllocated =
     discretionaryPoolCents > 0 && percentage
@@ -133,43 +140,45 @@ export function BudgetCategoryForm({
       const result = await res.json();
 
       if (!res.ok) {
-        toast.error(result.error || "Something went wrong");
+        toast.error(result.error || "Failed to save budget");
         setLoading(false);
         return;
       }
 
       toast.success(
         isEditing
-          ? `Budget category "${payload.name}" updated successfully`
-          : `Budget category "${payload.name}" created successfully`
+          ? "Budget updated"
+          : "Budget created"
       );
-      setOpen(false);
+      setDialogOpen(false);
       onSuccess();
     } catch {
-      toast.error("Network error. Please try again.");
+      toast.error("Failed to save budget");
       setLoading(false);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger ?? (
-          <Button>
-            {isEditing ? "Edit Category" : "Add Budget Category"}
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {trigger !== null && (
+        <DialogTrigger asChild>
+          {trigger ?? (
+            <Button>
+              {isEditing ? "Edit Budget" : "New Budget"}
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? "Edit Budget Category" : "Add Budget Category"}
+              {isEditing ? "Edit Budget" : "New Budget"}
             </DialogTitle>
             <DialogDescription>
               {isEditing
                 ? "Update this budget category."
-                : "Create a new variable budget category as a percentage of your discretionary pool."}
+                : "Create a new budget category as a percentage of your discretionary pool."}
             </DialogDescription>
           </DialogHeader>
 

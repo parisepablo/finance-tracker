@@ -12,6 +12,7 @@ import { BudgetCategoryList } from "@/components/budgets/BudgetCategoryList";
 import { BudgetCategoryForm } from "@/components/budgets/BudgetCategoryForm";
 import { BudgetDonut } from "@/components/budgets/BudgetDonut";
 import { AllocationBar } from "@/components/budgets/AllocationBar";
+import { Button } from "@/components/ui/button";
 import { GlowCard } from "@/components/ui/glow-card";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -21,7 +22,24 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { AlertTriangle, Minus, Equal, Wallet, Banknote, Receipt, PieChart } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { AlertTriangle, Minus, Equal, Wallet, Banknote, Receipt, PieChart, Pencil, Trash2, MoreVertical } from "lucide-react";
+import { toast } from "sonner";
 
 interface FinancesPageClientProps {
   incomeSources: IncomeSource[];
@@ -52,6 +70,10 @@ export function FinancesPageClient({
 }: FinancesPageClientProps) {
   const router = useRouter();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [editingBudget, setEditingBudget] = useState<BudgetCategoryWithStats | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [deletingBudget, setDeletingBudget] = useState<BudgetCategoryWithStats | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { pullProgress } = usePullToRefresh(() => {
     setIsRefreshing(true);
@@ -61,6 +83,26 @@ export function FinancesPageClient({
 
   function handleRefresh() {
     router.refresh();
+  }
+
+  async function handleDelete() {
+    if (!deletingBudget) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/budgets/${deletingBudget.id}`, { method: "DELETE" });
+      const result = await res.json();
+      if (!res.ok) {
+        toast.error(result.error || "Failed to delete budget");
+        setIsDeleting(false);
+        return;
+      }
+      toast.success("Budget deleted");
+      setDeletingBudget(null);
+      handleRefresh();
+    } catch {
+      toast.error("Failed to delete budget");
+      setIsDeleting(false);
+    }
   }
 
   const totalPercentage = categories.reduce((sum, cat) => sum + cat.percentage, 0);
@@ -274,8 +316,36 @@ export function FinancesPageClient({
               ) : (
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {categories.map((cat) => (
-                    <GlowCard key={cat.id} color="indigo">
+                    <GlowCard key={cat.id} color="indigo" className="relative">
                       <div className="p-4 flex flex-col items-center">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              aria-label="Opciones"
+                              className="absolute top-2 right-2 p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setEditingBudget(cat);
+                                setFormOpen(true);
+                              }}
+                            >
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => setDeletingBudget(cat)}
+                              className="text-rose-400 focus:text-rose-400 focus:bg-rose-500/10"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <BudgetDonut
                           spentPercentage={cat.spent_percentage}
                           color={cat.color}
@@ -292,6 +362,44 @@ export function FinancesPageClient({
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      <BudgetCategoryForm
+        category={editingBudget ?? undefined}
+        discretionaryPoolCents={discretionaryPoolCents}
+        existingTotalPercentage={
+          editingBudget
+            ? categories.reduce((sum, c) => sum + (c.id === editingBudget.id ? 0 : c.percentage), 0)
+            : totalPercentage
+        }
+        onSuccess={handleRefresh}
+        open={formOpen}
+        onOpenChange={(open) => {
+          setFormOpen(open);
+          if (!open) setEditingBudget(null);
+        }}
+        trigger={null}
+      />
+
+      <AlertDialog open={!!deletingBudget} onOpenChange={(open) => { if (!open) setDeletingBudget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete budget?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The budget &quot;{deletingBudget?.name}&quot; will be permanently deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeletingBudget(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-rose-600 text-white hover:bg-rose-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

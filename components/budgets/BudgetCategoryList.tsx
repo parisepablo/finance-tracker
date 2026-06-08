@@ -6,9 +6,24 @@ import { formatCurrency } from "@/lib/utils";
 import { GlowCard } from "@/components/ui/glow-card";
 import { Button } from "@/components/ui/button";
 import { BudgetCategoryForm } from "./BudgetCategoryForm";
-import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { toast } from "sonner";
-import { Pencil, Trash2, PieChart } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Pencil, Trash2, PieChart, MoreVertical } from "lucide-react";
 import { haptics } from "@/lib/haptics";
 
 interface BudgetCategoryListProps {
@@ -32,44 +47,33 @@ export function BudgetCategoryList({
   discretionaryPoolCents,
   onRefresh,
 }: BudgetCategoryListProps) {
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmItem, setConfirmItem] = useState<BudgetCategoryWithStats | null>(null);
-
-  function openDeleteDialog(item: BudgetCategoryWithStats) {
-    setConfirmItem(item);
-    setConfirmOpen(true);
-    setError(null);
-    haptics.medium();
-  }
+  const [editingBudget, setEditingBudget] = useState<BudgetCategoryWithStats | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [deletingBudget, setDeletingBudget] = useState<BudgetCategoryWithStats | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDelete() {
-    if (!confirmItem) return;
-
-    setDeletingId(confirmItem.id);
+    if (!deletingBudget) return;
+    setIsDeleting(true);
     setError(null);
-
     try {
-      const res = await fetch(`/api/budgets/${confirmItem.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/budgets/${deletingBudget.id}`, { method: "DELETE" });
       const result = await res.json();
-
       if (!res.ok) {
-        setError(result.error || "Failed to delete category");
-        toast.error(result.error || "Failed to delete category");
-        setDeletingId(null);
+        setError(result.error || "Failed to delete budget");
+        toast.error(result.error || "Failed to delete budget");
+        setIsDeleting(false);
         return;
       }
-
-      toast.success(`Budget category "${confirmItem.name}" deleted`);
+      toast.success("Budget deleted");
       haptics.light();
-      setConfirmOpen(false);
-      setConfirmItem(null);
+      setDeletingBudget(null);
       onRefresh();
     } catch {
-      setError("Network error. Please try again.");
-      toast.error("Network error. Please try again.");
-      setDeletingId(null);
+      setError("Failed to delete budget");
+      toast.error("Failed to delete budget");
+      setIsDeleting(false);
     }
   }
 
@@ -85,10 +89,15 @@ export function BudgetCategoryList({
             Add your first category to start tracking your variable spending.
           </p>
         </div>
-        <BudgetCategoryForm
-          discretionaryPoolCents={discretionaryPoolCents}
-          onSuccess={onRefresh}
-        />
+        <Button
+          onClick={() => {
+            setEditingBudget(null);
+            setFormOpen(true);
+          }}
+          className="min-h-[44px]"
+        >
+          New Budget
+        </Button>
       </div>
     );
   }
@@ -125,35 +134,37 @@ export function BudgetCategoryList({
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <BudgetCategoryForm
-                    category={cat}
-                    discretionaryPoolCents={discretionaryPoolCents}
-                    existingTotalPercentage={getExistingTotalForEdit(
-                      categories,
-                      cat.id
-                    )}
-                    onSuccess={onRefresh}
-                    trigger={
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Edit"
-                        className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        aria-label="Opciones"
+                        className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                       >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    }
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Delete"
-                    disabled={deletingId === cat.id}
-                    onClick={() => openDeleteDialog(cat)}
-                    className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                        <MoreVertical className="h-4 w-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setEditingBudget(cat);
+                          setFormOpen(true);
+                        }}
+                      >
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setDeletingBudget(cat);
+                          haptics.medium();
+                        }}
+                        className="text-rose-400 focus:text-rose-400 focus:bg-rose-500/10"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
 
@@ -194,15 +205,43 @@ export function BudgetCategoryList({
         );
       })}
 
-      <DeleteConfirmDialog
-        open={confirmOpen}
-        onOpenChange={setConfirmOpen}
-        onConfirm={handleDelete}
-        title="Delete Budget Category"
-        description="This will permanently delete"
-        itemName={confirmItem?.name ?? ""}
-        isLoading={!!deletingId}
+      <BudgetCategoryForm
+        category={editingBudget ?? undefined}
+        discretionaryPoolCents={discretionaryPoolCents}
+        existingTotalPercentage={
+          editingBudget
+            ? getExistingTotalForEdit(categories, editingBudget.id)
+            : categories.reduce((sum, cat) => sum + cat.percentage, 0)
+        }
+        onSuccess={onRefresh}
+        open={formOpen}
+        onOpenChange={(open) => {
+          setFormOpen(open);
+          if (!open) setEditingBudget(null);
+        }}
+        trigger={null}
       />
+
+      <AlertDialog open={!!deletingBudget} onOpenChange={(open) => { if (!open) setDeletingBudget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete budget?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The budget &quot;{deletingBudget?.name}&quot; will be permanently deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeletingBudget(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-rose-600 text-white hover:bg-rose-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
