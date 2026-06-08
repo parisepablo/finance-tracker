@@ -9,8 +9,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AlertsBell } from "@/components/alerts/AlertsBell";
-import { useVisibility } from "@/components/visibility-provider";
-import { Eye, EyeOff } from "lucide-react";
+import { VisibilityToggle } from "@/components/visibility-toggle";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -87,39 +86,26 @@ function MobileBottomNav() {
   );
 }
 
-function VisibilityToggle() {
-  const { valuesVisible, toggleVisibility } = useVisibility();
-  return (
-    <button
-      onClick={toggleVisibility}
-      className="p-2 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
-      aria-label={valuesVisible ? "Hide values" : "Show values"}
-    >
-      {valuesVisible ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-    </button>
-  );
-}
-
 export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-64 flex-col border-r border-white/[0.06] bg-zinc-900 backdrop-blur-xl p-4">
-        <div className="mb-8 px-3 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/15">
+        <div className="mb-8 px-3 flex items-center justify-between overflow-hidden">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
               <Wallet className="h-4 w-4 text-indigo-400" />
             </div>
-            <div>
-              <h1 className="text-sm font-semibold tracking-tight text-white">
+            <div className="min-w-0">
+              <h1 className="text-sm font-semibold tracking-tight text-white truncate">
                 Finance
               </h1>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider">
+              <p className="text-[10px] text-zinc-500 uppercase tracking-wider truncate">
                 Tracker
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <VisibilityToggle />
             <AlertsBell />
           </div>

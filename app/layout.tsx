@@ -7,6 +7,7 @@ import { GlobalFab } from "@/components/GlobalFab";
 import { AlertsBell } from "@/components/alerts/AlertsBell";
 import { NavigationEvents } from "@/components/alerts/NavigationEvents";
 import { VisibilityProvider } from "@/components/visibility-provider";
+import { VisibilityToggle } from "@/components/visibility-toggle";
 import { Wallet } from "lucide-react";
 
 const inter = Inter({
@@ -62,15 +63,18 @@ export default function RootLayout({
           />
           <Sidebar />
           <main className="flex-1 flex flex-col pb-24 md:pb-0 relative">
-            {/* Mobile header with bell icon */}
-            <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-950">
-              <div className="flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/15">
+            {/* Mobile header */}
+            <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-950 overflow-hidden">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
                   <Wallet className="h-3.5 w-3.5 text-indigo-400" />
                 </div>
-                <span className="text-sm font-semibold text-white">Finance</span>
+                <span className="text-sm font-semibold text-white truncate">Finance Tracker</span>
               </div>
-              <AlertsBell />
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <VisibilityToggle />
+                <AlertsBell />
+              </div>
             </div>
             <div className="animate-in fade-in duration-300 flex flex-col flex-1">
               {children}
