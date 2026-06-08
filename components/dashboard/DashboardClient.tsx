@@ -62,6 +62,8 @@ type HealthStatus = "healthy" | "warning" | "danger";
 interface DashboardClientProps {
   totalIncomeCents: number;
   totalFixedCents: number;
+  essentialFixedCents: number;
+  optionalFixedCents: number;
   fixedPercentage: number;
   discretionaryPoolCents: number;
   totalCardObligationsCents: number;
@@ -106,6 +108,8 @@ function AnimatedCurrency({ cents, currency = "ARS" }: { cents: number; currency
 export function DashboardClient({
   totalIncomeCents,
   totalFixedCents,
+  essentialFixedCents,
+  optionalFixedCents,
   fixedPercentage,
   discretionaryPoolCents,
   totalCardObligationsCents,
@@ -118,6 +122,8 @@ export function DashboardClient({
 }: DashboardClientProps) {
   const animatedIncome = useAnimatedNumber(totalIncomeCents, 800);
   const animatedFixed = useAnimatedNumber(totalFixedCents, 800);
+  const animatedEssential = useAnimatedNumber(essentialFixedCents, 800);
+  const animatedOptional = useAnimatedNumber(optionalFixedCents, 800);
   const animatedPool = useAnimatedNumber(discretionaryPoolCents, 800);
   const animatedCards = useAnimatedNumber(totalCardObligationsCents, 800);
 
@@ -227,6 +233,14 @@ export function DashboardClient({
             </div>
             <div className="text-2xl font-bold text-white font-mono tabular-nums">
               <Amount value={animatedFixed} className="font-mono" />
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-xs text-zinc-400 font-mono">
+                Essential: <Amount value={animatedEssential} className="font-mono" />
+              </p>
+              <p className="text-xs text-zinc-400 font-mono">
+                Optional: <Amount value={animatedOptional} className="font-mono" />
+              </p>
             </div>
             <p className="text-xs text-zinc-500 mt-1 font-mono">
               {fixedPercentage}% of income

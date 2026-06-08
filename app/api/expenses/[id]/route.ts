@@ -118,6 +118,16 @@ export async function PATCH(
     updates.is_active = body.is_active;
   }
 
+  if (body.is_essential !== undefined) {
+    if (typeof body.is_essential !== "boolean") {
+      return NextResponse.json(
+        { error: "is_essential must be a boolean" },
+        { status: 400 }
+      );
+    }
+    updates.is_essential = body.is_essential;
+  }
+
   if (body.credit_card_id !== undefined) {
     if (body.credit_card_id === null) {
       updates.credit_card_id = null;

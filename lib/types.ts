@@ -19,6 +19,7 @@ export interface FixedExpense {
   billing_cycle: "monthly" | "quarterly" | "annual";
   payment_method: "cash" | "debit" | "credit_card";
   credit_card_id: string | null;
+  is_essential: boolean;
   is_active: boolean;
   created_at: string;
 }

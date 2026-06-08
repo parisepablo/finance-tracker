@@ -78,6 +78,12 @@ export default async function DashboardPage() {
 
   const totalIncome = sumIncomeSources(incomeSources);
   const totalFixed = sumFixedExpenses(fixedExpenses);
+  const essentialFixed = sumFixedExpenses(
+    fixedExpenses.filter((e) => e.is_essential)
+  );
+  const optionalFixed = sumFixedExpenses(
+    fixedExpenses.filter((e) => !e.is_essential)
+  );
   const discretionaryPool = getDiscretionaryPool(totalIncome, totalFixed);
   const fixedPercentage =
     totalIncome > 0 ? Math.round((totalFixed / totalIncome) * 100) : 0;
@@ -196,6 +202,8 @@ export default async function DashboardPage() {
     <DashboardClient
       totalIncomeCents={totalIncome}
       totalFixedCents={totalFixed}
+      essentialFixedCents={essentialFixed}
+      optionalFixedCents={optionalFixed}
       fixedPercentage={fixedPercentage}
       discretionaryPoolCents={discretionaryPool}
       totalCardObligationsCents={totalCardObligations}

@@ -83,6 +83,7 @@ export function FixedExpenseForm({
   const [creditCardId, setCreditCardId] = useState(
     expense?.credit_card_id ?? ""
   );
+  const [isEssential, setIsEssential] = useState(expense?.is_essential ?? true);
   const [isActive, setIsActive] = useState(expense?.is_active ?? true);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -108,6 +109,7 @@ export function FixedExpenseForm({
       setBillingCycle(expense.billing_cycle);
       setPaymentMethod(expense.payment_method);
       setCreditCardId(expense.credit_card_id ?? "");
+      setIsEssential(expense.is_essential);
       setIsActive(expense.is_active);
     } else {
       resetForm();
@@ -156,6 +158,7 @@ export function FixedExpenseForm({
       is_estimated: isEstimated,
       billing_cycle: billingCycle,
       payment_method: paymentMethod,
+      is_essential: isEssential,
       is_active: isActive,
     };
 
@@ -210,6 +213,7 @@ export function FixedExpenseForm({
     setBillingCycle("monthly");
     setPaymentMethod("debit");
     setCreditCardId("");
+    setIsEssential(true);
     setIsActive(true);
   }
 
@@ -377,6 +381,22 @@ export function FixedExpenseForm({
                 </Select>
               </div>
             )}
+
+            <div className="flex items-start gap-3">
+              <Switch
+                id="is_essential"
+                checked={isEssential}
+                onCheckedChange={setIsEssential}
+              />
+              <div className="grid gap-1 leading-none">
+                <Label htmlFor="is_essential" className="cursor-pointer">
+                  Essential expense
+                </Label>
+                <p className="text-xs text-zinc-500">
+                  Required monthly payment (rent, utilities, insurance)
+                </p>
+              </div>
+            </div>
 
             <div className="flex items-center gap-2">
               <Switch

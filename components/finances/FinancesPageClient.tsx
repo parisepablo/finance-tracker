@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IncomeSource, FixedExpense, CreditCard, BudgetCategoryWithStats } from "@/lib/types";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getMonthlyEquivalent } from "@/lib/utils";
 import { Amount } from "@/components/ui/amount";
 import { IncomeList } from "@/components/income/IncomeList";
 import { IncomeForm } from "@/components/income/IncomeForm";
@@ -169,6 +169,14 @@ export function FinancesPageClient({
                 {totalIncomeCents > 0 && (
                   <p className="text-xs text-zinc-500 font-mono">{fixedPercentage}% of income</p>
                 )}
+                <div className="mt-1 space-y-0.5">
+                  <p className="text-[10px] text-zinc-400 font-mono">
+                    Essential: <Amount value={expenses.filter((e) => e.is_essential).reduce((s, e) => s + getMonthlyEquivalent(e.amount_cents, e.billing_cycle), 0)} className="font-mono" />
+                  </p>
+                  <p className="text-[10px] text-zinc-400 font-mono">
+                    Optional: <Amount value={expenses.filter((e) => !e.is_essential).reduce((s, e) => s + getMonthlyEquivalent(e.amount_cents, e.billing_cycle), 0)} className="font-mono" />
+                  </p>
+                </div>
               </div>
             </div>
 

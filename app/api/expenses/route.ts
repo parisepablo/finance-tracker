@@ -132,6 +132,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (
+    body.is_essential !== undefined &&
+    typeof body.is_essential !== "boolean"
+  ) {
+    return NextResponse.json(
+      { error: "is_essential must be a boolean" },
+      { status: 400 }
+    );
+  }
+
   const insertData: Record<string, unknown> = {
     user_id: user.id,
     name: body.name.trim(),
@@ -140,6 +150,7 @@ export async function POST(request: NextRequest) {
     billing_cycle: body.billing_cycle ?? "monthly",
     payment_method: body.payment_method ?? "debit",
     is_estimated: body.is_estimated ?? false,
+    is_essential: body.is_essential ?? true,
     is_active: body.is_active ?? true,
   };
 

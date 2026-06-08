@@ -7,6 +7,7 @@ import { Amount } from "@/components/ui/amount";
 import { GlowCard } from "@/components/ui/glow-card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FixedExpenseForm } from "./FixedExpenseForm";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { toast } from "sonner";
@@ -67,6 +68,7 @@ export function FixedExpenseList({
   const [paidIds, setPaidIds] = useState<Set<string>>(new Set(paidExpenseIds));
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<FixedExpense | null>(null);
+  const [filter, setFilter] = useState<"all" | "essential" | "optional">("all");
 
   function openDeleteDialog(item: FixedExpense) {
     setConfirmItem(item);
@@ -177,6 +179,19 @@ export function FixedExpenseList({
     {}
   );
 
+  const filteredGrouped = categoryOrder.map((category) => {
+    const items = grouped[category];
+    if (!items) return null;
+    const filtered =
+      filter === "all"
+        ? items
+        : filter === "essential"
+          ? items.filter((e) => e.is_essential)
+          : items.filter((e) => !e.is_essential);
+    if (filtered.length === 0) return null;
+    return { category, items: filtered };
+  }).filter(Boolean);
+
   return (
     <SwipeableRowProvider>
       <div className="space-y-6">
@@ -186,9 +201,17 @@ export function FixedExpenseList({
           </div>
         )}
 
-        {categoryOrder.map((category) => {
-          const items = grouped[category];
-          if (!items || items.length === 0) return null;
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as "all" | "essential" | "optional")}>
+          <TabsList>
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="essential">Essential</TabsTrigger>
+            <TabsTrigger value="optional">Optional</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {filteredGrouped.map((group) => {
+          if (!group) return null;
+          const { category, items } = group;
 
           return (
             <div key={category}>
@@ -231,6 +254,12 @@ export function FixedExpenseList({
                         <div className="space-y-1.5">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium text-zinc-200">{expense.name}</span>
+                            <Badge
+                              variant={expense.is_essential ? "destructive" : "secondary"}
+                              className="text-xs"
+                            >
+                              {expense.is_essential ? "Essential" : "Optional"}
+                            </Badge>
                             <Badge
                               variant={
                                 expense.is_active ? "default" : "secondary"
