@@ -18,20 +18,6 @@ export async function PATCH(
 
   const { id: cardId, chargeId } = await params;
 
-  const { data: card, error: cardError } = await supabase
-    .from("credit_cards")
-    .select("id")
-    .eq("id", cardId)
-    .eq("user_id", user.id)
-    .single();
-
-  if (cardError || !card) {
-    return NextResponse.json(
-      { error: "Credit card not found" },
-      { status: 404 }
-    );
-  }
-
   const { data: transaction, error: txError } = await supabase
     .from("transactions")
     .select("*")
@@ -44,6 +30,23 @@ export async function PATCH(
       { error: "Transaction not found" },
       { status: 404 }
     );
+  }
+
+  // Only validate the credit card if this charge belongs to one
+  if (transaction.credit_card_id) {
+    const { data: card, error: cardError } = await supabase
+      .from("credit_cards")
+      .select("id")
+      .eq("id", cardId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (cardError || !card) {
+      return NextResponse.json(
+        { error: "Credit card not found" },
+        { status: 404 }
+      );
+    }
   }
 
   const body = await request.json();
@@ -155,7 +158,7 @@ export async function PATCH(
           amount_cents: amount,
           date: date.toISOString().split("T")[0],
           budget_category_id: body.budget_category_id ?? null,
-          credit_card_id: cardId,
+          credit_card_id: transaction.credit_card_id,
           payment_source_id: null,
           fixed_expense_id: null,
           is_installment: true,
@@ -248,7 +251,7 @@ export async function PATCH(
         amount_cents: amount,
         date: date.toISOString().split("T")[0],
         budget_category_id: body.budget_category_id ?? null,
-        credit_card_id: cardId,
+        credit_card_id: transaction.credit_card_id,
         payment_source_id: null,
         fixed_expense_id: null,
         is_installment: true,
@@ -318,23 +321,9 @@ export async function DELETE(
 
   const { id: cardId, chargeId } = await params;
 
-  const { data: card, error: cardError } = await supabase
-    .from("credit_cards")
-    .select("id")
-    .eq("id", cardId)
-    .eq("user_id", user.id)
-    .single();
-
-  if (cardError || !card) {
-    return NextResponse.json(
-      { error: "Credit card not found" },
-      { status: 404 }
-    );
-  }
-
   const { data: transaction, error: txError } = await supabase
     .from("transactions")
-    .select("id")
+    .select("id, credit_card_id, payment_source_id")
     .eq("id", chargeId)
     .eq("user_id", user.id)
     .single();
@@ -344,6 +333,23 @@ export async function DELETE(
       { error: "Transaction not found" },
       { status: 404 }
     );
+  }
+
+  // Only validate the credit card if this charge belongs to one
+  if (transaction.credit_card_id) {
+    const { data: card, error: cardError } = await supabase
+      .from("credit_cards")
+      .select("id")
+      .eq("id", cardId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (cardError || !card) {
+      return NextResponse.json(
+        { error: "Credit card not found" },
+        { status: 404 }
+      );
+    }
   }
 
   const { error } = await supabase
