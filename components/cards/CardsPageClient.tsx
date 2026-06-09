@@ -51,17 +51,11 @@ export function CardsPageClient({
       <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} />
       <AmbientGlow color="emerald" position="bottom-left" />
 
-      <div className="flex items-center justify-between relative z-10">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Cards &amp; Wallets</h1>
-          <p className="text-sm text-zinc-500">
-            Track cards, wallets and charges
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <CreditCardForm onSuccess={handleRefresh} />
-          <PaymentSourceForm onSuccess={handleRefresh} />
-        </div>
+      <div className="relative z-10">
+        <h1 className="text-2xl font-semibold text-white">Cards &amp; Wallets</h1>
+        <p className="text-sm text-zinc-500">
+          Track cards, wallets and charges
+        </p>
       </div>
 
       {error && (
@@ -71,36 +65,44 @@ export function CardsPageClient({
       )}
 
       {/* Credit Cards section */}
-      {hasCards ? (
-        cards.length === 1 ? (
-          <SingleCardView
-            card={cards[0]}
-            budgetCategories={budgetCategories}
-            detailRefreshKey={detailRefreshKey}
-            onRefresh={handleRefresh}
-            onDetailRefresh={() => setDetailRefreshKey((k) => k + 1)}
-          />
-        ) : (
-          <CardList
-            cards={cards}
-            budgetCategories={budgetCategories}
-            onRefresh={handleRefresh}
-          />
-        )
-      ) : (
-        <div className="relative z-10 flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
-            <CreditCardIcon className="h-6 w-6 text-zinc-600" />
-          </div>
-          <div className="space-y-1">
-            <p className="font-medium text-zinc-300">No cards yet</p>
-            <p className="text-sm text-zinc-500">
-              Add your first card to track charges.
-            </p>
-          </div>
+      <div className="relative z-10 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+            Credit Cards
+          </h2>
           <CreditCardForm onSuccess={handleRefresh} />
         </div>
-      )}
+        {hasCards ? (
+          cards.length === 1 ? (
+            <SingleCardView
+              card={cards[0]}
+              budgetCategories={budgetCategories}
+              detailRefreshKey={detailRefreshKey}
+              onRefresh={handleRefresh}
+              onDetailRefresh={() => setDetailRefreshKey((k) => k + 1)}
+            />
+          ) : (
+            <CardList
+              cards={cards}
+              budgetCategories={budgetCategories}
+              onRefresh={handleRefresh}
+            />
+          )
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
+              <CreditCardIcon className="h-6 w-6 text-zinc-600" />
+            </div>
+            <div className="space-y-1">
+              <p className="font-medium text-zinc-300">No cards yet</p>
+              <p className="text-sm text-zinc-500">
+                Add your first card to track charges.
+              </p>
+            </div>
+            <CreditCardForm onSuccess={handleRefresh} />
+          </div>
+        )}
+      </div>
 
       {/* Payment Sources section */}
       <div className="relative z-10 space-y-4">
