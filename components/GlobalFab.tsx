@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Fab } from "@/components/ui/fab";
 import { QuickAddChargeSheet } from "@/components/cards/QuickAddChargeSheet";
-import { CreditCard, BudgetCategory } from "@/lib/types";
+import { CreditCard, BudgetCategory, PaymentSource } from "@/lib/types";
+import { getPaymentSources } from "@/lib/actions/payment-sources";
 
 export function GlobalFab() {
   const pathname = usePathname();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [cards, setCards] = useState<CreditCard[]>([]);
+  const [paymentSources, setPaymentSources] = useState<PaymentSource[]>([]);
   const [budgetCategories, setBudgetCategories] = useState<BudgetCategory[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -20,17 +22,27 @@ export function GlobalFab() {
 
     async function fetchData() {
       try {
-        const res = await fetch("/api/cards");
-        if (!res.ok) return;
-        const cardData = await res.json();
-        setCards(cardData.data ?? []);
+        const [cardRes, catRes, sourceResult] = await Promise.all([
+          fetch("/api/cards"),
+          fetch("/api/budgets"),
+          getPaymentSources(),
+        ]);
 
-        const catRes = await fetch("/api/budgets");
-        if (!catRes.ok) return;
-        const catData = await catRes.json();
-        setBudgetCategories((catData.data ?? []) as BudgetCategory[]);
+        if (cardRes.ok) {
+          const cardData = await cardRes.json();
+          setCards(cardData.data ?? []);
+        }
+
+        if (catRes.ok) {
+          const catData = await catRes.json();
+          setBudgetCategories((catData.data ?? []) as BudgetCategory[]);
+        }
+
+        if (sourceResult.data) {
+          setPaymentSources(sourceResult.data);
+        }
       } catch {
-        // Silently fail — FAB won't show if no cards
+        // Silently fail — FAB won't show if no payment methods
       } finally {
         setLoaded(true);
       }
@@ -41,7 +53,7 @@ export function GlobalFab() {
 
   if (isLoginPage) return null;
   if (!loaded) return null;
-  if (cards.length === 0) return null;
+  if (cards.length === 0 && paymentSources.length === 0) return null;
 
   return (
     <>
@@ -50,6 +62,7 @@ export function GlobalFab() {
         open={sheetOpen}
         onOpenChange={setSheetOpen}
         cards={cards}
+        paymentSources={paymentSources}
         budgetCategories={budgetCategories}
         onSuccess={() => {
           // Trigger a soft refresh if possible, otherwise just close

@@ -49,20 +49,6 @@ export async function POST(
 
   const { id: cardId } = await params;
 
-  const { data: card, error: cardError } = await supabase
-    .from("credit_cards")
-    .select("id")
-    .eq("id", cardId)
-    .eq("user_id", user.id)
-    .single();
-
-  if (cardError || !card) {
-    return NextResponse.json(
-      { error: "Credit card not found" },
-      { status: 404 }
-    );
-  }
-
   const body = await request.json();
 
   if (!body.description || typeof body.description !== "string" || body.description.trim() === "") {
@@ -78,6 +64,61 @@ export async function POST(
 
   if (!body.date || typeof body.date !== "string") {
     return NextResponse.json({ error: "Purchase date is required" }, { status: 400 });
+  }
+
+  const isPaymentSource = !!body.payment_source_id;
+
+  if (isPaymentSource) {
+    const { data: source, error: sourceError } = await supabase
+      .from("payment_sources")
+      .select("id")
+      .eq("id", body.payment_source_id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (sourceError || !source) {
+      return NextResponse.json(
+        { error: "Payment source not found" },
+        { status: 404 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("transactions")
+      .insert({
+        user_id: user.id,
+        description: body.description.trim(),
+        amount_cents: body.total_amount_cents,
+        date: body.date,
+        budget_category_id: body.budget_category_id ?? null,
+        credit_card_id: null,
+        payment_source_id: body.payment_source_id,
+        fixed_expense_id: null,
+        is_installment: false,
+        total_installments: null,
+        current_installment: null,
+      })
+      .select();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ data }, { status: 201 });
+  }
+
+  const { data: card, error: cardError } = await supabase
+    .from("credit_cards")
+    .select("id")
+    .eq("id", cardId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (cardError || !card) {
+    return NextResponse.json(
+      { error: "Credit card not found" },
+      { status: 404 }
+    );
   }
 
   const isInstallment = !!body.is_installment;
@@ -116,6 +157,7 @@ export async function POST(
       date: date.toISOString().split("T")[0],
       budget_category_id: body.budget_category_id ?? null,
       credit_card_id: cardId,
+      payment_source_id: null,
       fixed_expense_id: null,
       is_installment: isInstallment,
       total_installments: isInstallment ? totalInstallments : null,

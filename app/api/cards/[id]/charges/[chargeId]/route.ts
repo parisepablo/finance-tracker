@@ -37,7 +37,6 @@ export async function PATCH(
     .select("*")
     .eq("id", chargeId)
     .eq("user_id", user.id)
-    .eq("credit_card_id", cardId)
     .single();
 
   if (txError || !transaction) {
@@ -95,16 +94,22 @@ export async function PATCH(
   // using its original description and total_installments.
   let relatedIds: string[] = [];
   if (transaction.is_installment) {
-    const { data: related } = await supabase
+    const query = supabase
       .from("transactions")
       .select("id")
       .eq("user_id", user.id)
-      .eq("credit_card_id", cardId)
       .eq("is_installment", true)
       .eq("description", transaction.description)
       .eq("total_installments", transaction.total_installments)
       .order("date", { ascending: true });
 
+    if (transaction.credit_card_id) {
+      query.eq("credit_card_id", transaction.credit_card_id);
+    } else if (transaction.payment_source_id) {
+      query.eq("payment_source_id", transaction.payment_source_id);
+    }
+
+    const { data: related } = await query;
     relatedIds = (related ?? []).map((t) => t.id);
   }
 
@@ -151,6 +156,7 @@ export async function PATCH(
           date: date.toISOString().split("T")[0],
           budget_category_id: body.budget_category_id ?? null,
           credit_card_id: cardId,
+          payment_source_id: null,
           fixed_expense_id: null,
           is_installment: true,
           total_installments: totalInstallments,
@@ -174,6 +180,7 @@ export async function PATCH(
     }
 
     // Changed from installment to single
+    const isPaymentSource = !!body.payment_source_id;
     const { data, error: insertError } = await supabase
       .from("transactions")
       .insert({
@@ -182,7 +189,8 @@ export async function PATCH(
         amount_cents: body.total_amount_cents,
         date: body.date,
         budget_category_id: body.budget_category_id ?? null,
-        credit_card_id: cardId,
+        credit_card_id: isPaymentSource ? null : cardId,
+        payment_source_id: isPaymentSource ? body.payment_source_id : null,
         fixed_expense_id: null,
         is_installment: false,
         total_installments: null,
@@ -241,6 +249,7 @@ export async function PATCH(
         date: date.toISOString().split("T")[0],
         budget_category_id: body.budget_category_id ?? null,
         credit_card_id: cardId,
+        payment_source_id: null,
         fixed_expense_id: null,
         is_installment: true,
         total_installments: totalInstallments,
@@ -264,11 +273,14 @@ export async function PATCH(
   }
 
   // Simple update
+  const isPaymentSource = !!body.payment_source_id;
   const updates: Record<string, unknown> = {
     description: body.description.trim(),
     amount_cents: body.total_amount_cents,
     date: body.date,
     budget_category_id: body.budget_category_id ?? null,
+    credit_card_id: isPaymentSource ? null : cardId,
+    payment_source_id: isPaymentSource ? body.payment_source_id : null,
   };
 
   const { data, error: updateError } = await supabase
@@ -325,7 +337,6 @@ export async function DELETE(
     .select("id")
     .eq("id", chargeId)
     .eq("user_id", user.id)
-    .eq("credit_card_id", cardId)
     .single();
 
   if (txError || !transaction) {

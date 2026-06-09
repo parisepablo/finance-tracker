@@ -314,10 +314,10 @@ export function DashboardClient({
         )}
       </div>
 
-      {/* Credit card overview */}
+      {/* Cards & Wallets overview */}
       <div className="space-y-3 relative z-10">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-          Credit Card Overview
+          Cards &amp; Wallets Overview
         </h2>
         {cards.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-800 p-8 text-center">
@@ -325,7 +325,7 @@ export function DashboardClient({
               <CreditCard className="h-5 w-5 text-zinc-600" />
             </div>
             <p className="text-sm text-zinc-500">
-              No credit cards yet.
+              No cards or wallets yet.
             </p>
           </div>
         ) : (

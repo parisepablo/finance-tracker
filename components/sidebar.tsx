@@ -14,7 +14,7 @@ import { VisibilityToggle } from "@/components/visibility-toggle";
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/finances", label: "Finances", icon: Wallet },
-  { href: "/cards", label: "Cards", icon: CreditCard },
+  { href: "/cards", label: "Cards & Wallets", icon: CreditCard },
 ];
 
 function DesktopNavLinks() {

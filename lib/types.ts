@@ -44,6 +44,15 @@ export interface CreditCard {
   created_at: string;
 }
 
+export interface PaymentSource {
+  id: string;
+  user_id: string;
+  name: string;
+  type: "digital" | "cash";
+  color: string;
+  created_at: string;
+}
+
 export interface Transaction {
   id: string;
   user_id: string;
@@ -52,6 +61,7 @@ export interface Transaction {
   date: string;
   budget_category_id: string | null;
   credit_card_id: string | null;
+  payment_source_id: string | null;
   fixed_expense_id: string | null;
   is_installment: boolean;
   total_installments: number | null;

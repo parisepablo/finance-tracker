@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CreditCard, BudgetCategory } from "@/lib/types";
+import { PaymentSource, BudgetCategory } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -28,8 +27,8 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
-interface AddChargeFormProps {
-  card: CreditCard;
+interface AddPaymentSourceChargeFormProps {
+  source: PaymentSource;
   budgetCategories: BudgetCategory[];
   onSuccess: () => void;
   trigger?: React.ReactNode;
@@ -39,21 +38,18 @@ interface FormErrors {
   description?: string;
   totalAmount?: string;
   date?: string;
-  totalInstallments?: string;
 }
 
-export function AddChargeForm({
-  card,
+export function AddPaymentSourceChargeForm({
+  source,
   budgetCategories,
   onSuccess,
   trigger,
-}: AddChargeFormProps) {
+}: AddPaymentSourceChargeFormProps) {
   const [open, setOpen] = useState(false);
   const [description, setDescription] = useState("");
   const [totalAmount, setTotalAmount] = useState("");
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [isInstallment, setIsInstallment] = useState(false);
-  const [totalInstallments, setTotalInstallments] = useState("");
   const [budgetCategoryId, setBudgetCategoryId] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -65,10 +61,7 @@ export function AddChargeForm({
     setDescription("");
     setTotalAmount("");
     setDate(new Date());
-    setIsInstallment(false);
-    setTotalInstallments("");
     setBudgetCategoryId("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   function validate(): boolean {
@@ -87,13 +80,6 @@ export function AddChargeForm({
       newErrors.date = "Purchase date is required";
     }
 
-    if (isInstallment) {
-      const installments = parseInt(totalInstallments, 10);
-      if (isNaN(installments) || installments < 2) {
-        newErrors.totalInstallments = "Total installments must be at least 2";
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -110,13 +96,15 @@ export function AddChargeForm({
       description: description.trim(),
       total_amount_cents: Math.round(amountNum * 100),
       date: date!.toISOString().split("T")[0],
-      is_installment: isInstallment,
-      total_installments: isInstallment ? parseInt(totalInstallments, 10) : undefined,
+      is_installment: false,
       budget_category_id: budgetCategoryId || undefined,
+      payment_source_id: source.id,
     };
 
     try {
-      const res = await fetch(`/api/cards/${card.id}/charges`, {
+      // Use a fallback card ID since the backend ignores it when payment_source_id is present
+      const fallbackCardId = "00000000-0000-0000-0000-000000000000";
+      const res = await fetch(`/api/cards/${fallbackCardId}/charges`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -142,28 +130,32 @@ export function AddChargeForm({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger ?? <Button>Add Charge</Button>}
+        {trigger ?? <Button>+ Charge</Button>}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="bg-zinc-900 border-zinc-800">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add Charge to {card.name}</DialogTitle>
+            <DialogTitle>Add Charge to {source.name}</DialogTitle>
             <DialogDescription>
-              Record a new purchase or installment plan on this card.
+              Record a new purchase using this payment source.
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 px-3 py-4">
+            <div className="rounded-lg border border-zinc-800 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-300">
+              Payment source: <span className="font-medium text-white">{source.name}</span>
+            </div>
+
             <div className="grid gap-2">
-              <Label htmlFor="charge-desc">Description</Label>
+              <Label htmlFor="ps-charge-desc">Description</Label>
               <Input
-                id="charge-desc"
+                id="ps-charge-desc"
                 value={description}
                 onChange={(e) => {
                   setDescription(e.target.value);
                   if (errors.description) setErrors((prev) => ({ ...prev, description: undefined }));
                 }}
-                placeholder="e.g. TV, Flight tickets"
+                placeholder="e.g. Groceries, Netflix"
                 aria-invalid={!!errors.description}
               />
               {errors.description && (
@@ -172,9 +164,9 @@ export function AddChargeForm({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="charge-amount">Total Amount</Label>
+              <Label htmlFor="ps-charge-amount">Total Amount</Label>
               <Input
-                id="charge-amount"
+                id="ps-charge-amount"
                 type="text"
                 inputMode="decimal"
                 value={totalAmount}
@@ -221,14 +213,14 @@ export function AddChargeForm({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="budget-category">Budget Category</Label>
+              <Label htmlFor="ps-budget-category">Budget Category</Label>
               <Select
                 value={budgetCategoryId || "none"}
                 onValueChange={(value) =>
                   setBudgetCategoryId(value === "none" ? "" : value)
                 }
               >
-                <SelectTrigger id="budget-category">
+                <SelectTrigger id="ps-budget-category">
                   <SelectValue placeholder="Select budget category (optional)" />
                 </SelectTrigger>
                 <SelectContent>
@@ -241,40 +233,6 @@ export function AddChargeForm({
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="flex items-center gap-2">
-              <Switch
-                id="is_installment"
-                checked={isInstallment}
-                onCheckedChange={setIsInstallment}
-              />
-              <Label htmlFor="is_installment" className="cursor-pointer">
-                This is an installment purchase
-              </Label>
-            </div>
-
-            {isInstallment && (
-              <div className="grid gap-2">
-                <Label htmlFor="total-installments">Total Installments</Label>
-                <Input
-                id="total-installments"
-                type="text"
-                inputMode="numeric"
-                value={totalInstallments}
-                className="font-mono"
-                  onChange={(e) => {
-                    setTotalInstallments(e.target.value);
-                    if (errors.totalInstallments) setErrors((prev) => ({ ...prev, totalInstallments: undefined }));
-                  }}
-                  placeholder="e.g. 6"
-                  required={isInstallment}
-                  aria-invalid={!!errors.totalInstallments}
-                />
-                {errors.totalInstallments && (
-                  <p className="text-xs text-rose-400">{errors.totalInstallments}</p>
-                )}
-              </div>
-            )}
           </div>
 
           <DialogFooter>
