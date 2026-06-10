@@ -3,23 +3,17 @@ import {
   sumIncomeSources,
   sumFixedExpenses,
   getDiscretionaryPool,
+  getMonthRangeFromParam,
 } from "@/lib/utils";
 import { FinancesPageClient } from "@/components/finances/FinancesPageClient";
-import { BudgetCategoryWithStats } from "@/lib/types";
+import { BudgetCategoryWithStats, Transaction, PaymentSource } from "@/lib/types";
 
-function getMonthRange() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split("T")[0];
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    .toISOString()
-    .split("T")[0];
-  const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  return { start, end, monthStr };
-}
-
-export default async function FinancesPage() {
+export default async function FinancesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  const { month: monthParam } = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -35,7 +29,7 @@ export default async function FinancesPage() {
     );
   }
 
-  const { start, end, monthStr } = getMonthRange();
+  const { start, end, monthStr } = getMonthRangeFromParam(monthParam);
 
   const [
     incomeResult,
@@ -44,6 +38,8 @@ export default async function FinancesPage() {
     cardsResult,
     transactionsResult,
     paymentsResult,
+    txDetailResult,
+    sourcesResult,
   ] = await Promise.all([
     supabase
       .from("income_sources")
@@ -78,6 +74,19 @@ export default async function FinancesPage() {
       .select("fixed_expense_id")
       .eq("user_id", user.id)
       .eq("paid_month", monthStr),
+    supabase
+      .from("transactions")
+      .select("id, description, amount_cents, date, budget_category_id, credit_card_id, payment_source_id, is_installment, total_installments, current_installment")
+      .eq("user_id", user.id)
+      .gte("date", start)
+      .lte("date", end)
+      .not("budget_category_id", "is", null)
+      .order("date", { ascending: false }),
+    supabase
+      .from("payment_sources")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("name", { ascending: true }),
   ]);
 
   const incomeSources = incomeResult.data ?? [];
@@ -85,6 +94,8 @@ export default async function FinancesPage() {
   const budgetCategories = categoriesResult.data ?? [];
   const creditCards = cardsResult.data ?? [];
   const transactions = transactionsResult.data ?? [];
+  const txDetails = txDetailResult.data ?? [];
+  const paymentSources = sourcesResult.data ?? [];
 
   const totalIncome = sumIncomeSources(incomeSources);
   const totalFixed = sumFixedExpenses(expenses);
@@ -128,6 +139,8 @@ export default async function FinancesPage() {
       expenses={expenses}
       creditCards={creditCards}
       categories={categories}
+      transactions={txDetails as Transaction[]}
+      paymentSources={paymentSources as PaymentSource[]}
       discretionaryPoolCents={discretionaryPool}
       totalIncomeCents={totalIncome}
       totalFixedCents={totalFixed}

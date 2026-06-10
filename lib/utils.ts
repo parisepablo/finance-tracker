@@ -54,3 +54,18 @@ export function getCurrentMonth(): string {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
 }
+
+export function getMonthRangeFromParam(monthParam?: string | null) {
+  const monthStr = monthParam && /^\d{4}-\d{2}$/.test(monthParam)
+    ? monthParam
+    : getCurrentMonth();
+  const [year, month] = monthStr.split("-").map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+  return {
+    start: `${monthStr}-01`,
+    end: `${monthStr}-${String(lastDay).padStart(2, "0")}`,
+    monthStr,
+    year,
+    month,
+  };
+}

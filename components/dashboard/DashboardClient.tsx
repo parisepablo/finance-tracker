@@ -2,28 +2,21 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { formatCurrency } from "@/lib/utils";
 import { Amount } from "@/components/ui/amount";
-import { GlowCard } from "@/components/ui/glow-card";
-import { AmbientGlow } from "@/components/ui/ambient-glow";
-import { useAnimatedNumber } from "@/hooks/use-animated-number";
-import { BudgetDonut } from "@/components/budgets/BudgetDonut";
 import { Badge } from "@/components/ui/badge";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
+import { useAnimatedNumber } from "@/hooks/use-animated-number";
+import { BudgetDonut } from "@/components/budgets/BudgetDonut";
+import { GlowCard } from "@/components/ui/glow-card";
 import {
-  Wallet,
-  Receipt,
-  PiggyBank,
   CreditCard,
-  AlertTriangle,
-  CheckCircle2,
-  Info,
+  Banknote,
   CalendarDays,
-  PieChart,
   Check,
   ChevronDown,
   ChevronUp,
+  PieChart,
 } from "lucide-react";
 import { toast } from "sonner";
 import { haptics } from "@/lib/haptics";
@@ -34,17 +27,13 @@ interface DashboardBudgetItem {
   color: string;
   allocatedCents: number;
   spentCents: number;
-  remainingCents: number;
   spentPercentage: number;
 }
 
 interface DashboardCardItem {
   id: string;
   name: string;
-  lastFour: string;
-  dueDay: number | null;
-  totalDueCents: number;
-  exceeds30Percent: boolean;
+  totalCents: number;
 }
 
 interface DashboardUpcomingExpense {
@@ -57,52 +46,31 @@ interface DashboardUpcomingExpense {
   billingCycle: string;
 }
 
-type HealthStatus = "healthy" | "warning" | "danger";
-
 interface DashboardClientProps {
   totalIncomeCents: number;
   totalFixedCents: number;
   essentialFixedCents: number;
   optionalFixedCents: number;
-  fixedPercentage: number;
   discretionaryPoolCents: number;
-  totalCardObligationsCents: number;
+  ccPaymentDueCents: number;
+  finalPoolCents: number;
   budgets: DashboardBudgetItem[];
   cards: DashboardCardItem[];
+  totalCccChargesCents: number;
+  totalSpentCents: number;
+  remainingCents: number;
+  paymentSourceSpendingCents: number;
+  realCashAvailableCents: number;
   upcomingExpenses: DashboardUpcomingExpense[];
   paidExpenseIds: string[];
+  prevMonthName: string;
+  currentMonthName: string;
   currentMonth: string;
-  healthStatus: HealthStatus;
 }
 
-function HealthBadge({ status }: { status: HealthStatus }) {
-  if (status === "healthy") {
-    return (
-      <Badge variant="success" className="glow-emerald">
-        <CheckCircle2 className="mr-1 h-3 w-3" />
-        Healthy
-      </Badge>
-    );
-  }
-  if (status === "warning") {
-    return (
-      <Badge variant="warning" className="glow-amber">
-        <Info className="mr-1 h-3 w-3" />
-        Watch out
-      </Badge>
-    );
-  }
-  return (
-    <Badge variant="destructive" className="glow-rose">
-      <AlertTriangle className="mr-1 h-3 w-3" />
-      Over budget
-    </Badge>
-  );
-}
-
-function AnimatedCurrency({ cents, currency = "ARS" }: { cents: number; currency?: "ARS" | "USD" }) {
-  const animated = useAnimatedNumber(cents, 800);
-  return <Amount value={animated} currency={currency} className="font-mono" />;
+function AnimatedAmount({ cents }: { cents: number }) {
+  const animated = useAnimatedNumber(cents, 600);
+  return <Amount value={animated} className="font-mono" />;
 }
 
 export function DashboardClient({
@@ -110,28 +78,25 @@ export function DashboardClient({
   totalFixedCents,
   essentialFixedCents,
   optionalFixedCents,
-  fixedPercentage,
-  discretionaryPoolCents,
-  totalCardObligationsCents,
+  ccPaymentDueCents,
+  finalPoolCents,
   budgets,
   cards,
+  totalCccChargesCents,
+  totalSpentCents,
+  remainingCents,
+  realCashAvailableCents,
   upcomingExpenses,
   paidExpenseIds,
+  prevMonthName,
+  currentMonthName,
   currentMonth,
-  healthStatus,
 }: DashboardClientProps) {
-  const animatedIncome = useAnimatedNumber(totalIncomeCents, 800);
-  const animatedFixed = useAnimatedNumber(totalFixedCents, 800);
-  const animatedEssential = useAnimatedNumber(essentialFixedCents, 800);
-  const animatedOptional = useAnimatedNumber(optionalFixedCents, 800);
-  const animatedPool = useAnimatedNumber(discretionaryPoolCents, 800);
-  const animatedCards = useAnimatedNumber(totalCardObligationsCents, 800);
-
   const router = useRouter();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [paidIds, setPaidIds] = useState<Set<string>>(new Set(paidExpenseIds));
   const [showPaid, setShowPaid] = useState(false);
   const [togglingId, setTogglingId] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { pullProgress } = usePullToRefresh(() => {
     setIsRefreshing(true);
@@ -146,7 +111,6 @@ export function DashboardClient({
     if (togglingId === expenseId) return;
     setTogglingId(expenseId);
 
-    // Optimistic update
     setPaidIds((prev) => {
       const next = new Set(prev);
       if (markPaid) next.add(expenseId);
@@ -180,7 +144,6 @@ export function DashboardClient({
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
-      // Revert optimistic update
       setPaidIds((prev) => {
         const next = new Set(prev);
         if (markPaid) next.delete(expenseId);
@@ -193,186 +156,132 @@ export function DashboardClient({
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-6 relative">
+    <div className="flex flex-1 flex-col gap-6 p-6">
       <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} />
-      <AmbientGlow color="indigo" position="top-right" />
 
-      <div className="flex items-center justify-between relative z-10">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-          <p className="text-sm text-zinc-500">
-            Your financial health at a glance
+      <div>
+        <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+        <p className="text-sm text-zinc-500">Your monthly financial picture</p>
+      </div>
+
+      {/* Section 1 — Top grid (4 metric cards) */}
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+        {/* Monthly income */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 mb-1">
+            Monthly income
           </p>
+          <p className="text-xl font-bold text-white tabular-nums font-mono">
+            <AnimatedAmount cents={totalIncomeCents} />
+          </p>
+          <p className="text-[10px] text-zinc-500 mt-1">Total monthly income</p>
         </div>
-        <HealthBadge status={healthStatus} />
-      </div>
 
-      {/* Summary row */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 relative z-10">
-        <GlowCard color="indigo">
-          <div className="p-5 space-y-2">
-            <div className="flex flex-row items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
-                Monthly Income
-              </span>
-              <Wallet className="h-4 w-4 text-zinc-600" />
-            </div>
-            <div className="text-2xl font-bold text-white font-mono tabular-nums">
-              <Amount value={animatedIncome} className="font-mono" />
-            </div>
-          </div>
-        </GlowCard>
-
-        <GlowCard color="indigo">
-          <div className="p-5 space-y-2">
-            <div className="flex flex-row items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
-                Fixed Expenses
-              </span>
-              <Receipt className="h-4 w-4 text-zinc-600" />
-            </div>
-            <div className="text-2xl font-bold text-white font-mono tabular-nums">
-              <Amount value={animatedFixed} className="font-mono" />
-            </div>
-            <div className="space-y-0.5">
-              <p className="text-xs text-zinc-400 font-mono">
-                Essential: <Amount value={animatedEssential} className="font-mono" />
-              </p>
-              <p className="text-xs text-zinc-400 font-mono">
-                Optional: <Amount value={animatedOptional} className="font-mono" />
-              </p>
-            </div>
-            <p className="text-xs text-zinc-500 mt-1 font-mono">
-              {fixedPercentage}% of income
+        {/* Fixed expenses */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 mb-1">
+            Fixed expenses
+          </p>
+          <p className="text-xl font-bold text-rose-400 tabular-nums font-mono">
+            <AnimatedAmount cents={-totalFixedCents} />
+          </p>
+          <div className="space-y-0.5 mt-1">
+            <p className="text-[10px] text-zinc-500 font-mono">
+              Essential: <Amount value={essentialFixedCents} className="font-mono" />
+            </p>
+            <p className="text-[10px] text-zinc-500 font-mono">
+              Optional: <Amount value={optionalFixedCents} className="font-mono" />
             </p>
           </div>
-        </GlowCard>
+        </div>
 
-        <GlowCard color="indigo">
-          <div className="p-5 space-y-2">
-            <div className="flex flex-row items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-widest text-indigo-400">
-                Discretionary Pool
-              </span>
-              <PiggyBank className="h-4 w-4 text-indigo-500/70" />
-            </div>
-            <div className="text-2xl font-bold text-white font-mono tabular-nums">
-              <Amount value={animatedPool} className="font-mono" />
-            </div>
-            <p className="text-xs text-zinc-500 mt-1">
-              Income left after fixed expenses
+        {/* CC payment due */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <div className="flex items-center gap-1.5 mb-1">
+            <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
+              CC payment due
             </p>
+            <Badge variant="outline" className="text-[9px] px-1 py-0 text-zinc-500 border-zinc-700">
+              {prevMonthName}
+            </Badge>
           </div>
-        </GlowCard>
+          <p className="text-xl font-bold text-rose-400 tabular-nums font-mono">
+            <AnimatedAmount cents={-ccPaymentDueCents} />
+          </p>
+          <p className="text-[10px] text-zinc-500 mt-1">Previous cycle payment</p>
+        </div>
 
-        <GlowCard color="violet">
-          <div className="p-5 space-y-2">
-            <div className="flex flex-row items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
-                Card Obligations
-              </span>
-              <CreditCard className="h-4 w-4 text-zinc-600" />
-            </div>
-            <div className="text-2xl font-bold text-white font-mono tabular-nums">
-              <Amount value={animatedCards} className="font-mono" />
-            </div>
-            <p className="text-xs text-zinc-500 mt-1">This month</p>
-          </div>
-        </GlowCard>
+        {/* Discretionary pool */}
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+          <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 mb-1">
+            Discretionary pool
+          </p>
+          <p className="text-xl font-bold text-white tabular-nums font-mono">
+            <AnimatedAmount cents={finalPoolCents} />
+          </p>
+          <p className="text-[10px] text-zinc-500 mt-1">Available after obligations</p>
+        </div>
       </div>
 
-      {/* Budget health */}
-      <div className="space-y-3 relative z-10">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-          Budget Health
-        </h2>
+      {/* Section 2 — Spending this month (Donut charts) */}
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+            Spending this month
+          </h2>
+          <p className="text-[10px] text-zinc-500">vs discretionary pool</p>
+        </div>
+
         {budgets.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-800 p-8 text-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
               <PieChart className="h-5 w-5 text-zinc-600" />
             </div>
-            <p className="text-sm text-zinc-500">
-              No budget categories yet.
-            </p>
+            <p className="text-sm text-zinc-500">No budget categories yet.</p>
           </div>
         ) : (
-          <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {budgets.map((cat) => (
-              <GlowCard key={cat.id} color="indigo">
-                <div className="p-4 flex flex-col items-center">
-                  <BudgetDonut
-                    spentPercentage={cat.spentPercentage}
-                    color={cat.color}
-                    name={cat.name}
-                    spentCents={cat.spentCents}
-                    allocatedCents={cat.allocatedCents}
-                  />
-                </div>
-              </GlowCard>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Cards & Wallets overview */}
-      <div className="space-y-3 relative z-10">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-          Cards &amp; Wallets Overview
-        </h2>
-        {cards.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-800 p-8 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
-              <CreditCard className="h-5 w-5 text-zinc-600" />
+          <div className="space-y-3">
+            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+              {budgets.map((cat) => (
+                <GlowCard key={cat.id} color="indigo">
+                  <div className="p-4 flex flex-col items-center">
+                    <BudgetDonut
+                      spentPercentage={cat.spentPercentage}
+                      color={cat.color}
+                      name={cat.name}
+                      spentCents={cat.spentCents}
+                      allocatedCents={cat.allocatedCents}
+                    />
+                  </div>
+                </GlowCard>
+              ))}
             </div>
-            <p className="text-sm text-zinc-500">
-              No cards or wallets yet.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {cards.map((card) => (
-              <div
-                key={card.id}
-                className="flex flex-col gap-2 rounded-xl border border-zinc-800 bg-zinc-900 p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600/20 to-violet-600/20">
-                    <CreditCard className="h-4 w-4 text-indigo-400" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-zinc-200">{card.name}</span>
-                      {card.lastFour && (
-                        <span className="text-xs text-zinc-600 font-mono">
-                          •••• {card.lastFour}
-                        </span>
-                      )}
-                    </div>
-                    {card.dueDay && (
-                      <p className="text-xs text-zinc-500">
-                        Due day <span className="font-mono">{card.dueDay}</span>
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-white tabular-nums font-mono">
-                    <Amount value={card.totalDueCents} className="font-mono" />
-                  </p>
-                  {card.exceeds30Percent && (
-                    <p className="text-xs text-amber-400">
-                      Exceeds 30% of income
-                    </p>
-                  )}
-                </div>
+
+            {/* Summary row */}
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-zinc-300">Total spent</span>
+                <span className="text-sm font-bold text-white tabular-nums font-mono">
+                  <Amount value={totalSpentCents} className="font-mono" />
+                </span>
               </div>
-            ))}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-zinc-400">Remaining</span>
+                <span
+                  className={`text-sm font-bold tabular-nums font-mono ${
+                    remainingCents >= 0 ? "text-emerald-400" : "text-rose-400"
+                  }`}
+                >
+                  <Amount value={remainingCents} className="font-mono" />
+                </span>
+              </div>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Fixed expenses due soon */}
-      <div className="space-y-3 relative z-10">
+      {/* Due Soon section */}
+      <div className="space-y-3">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
           Due Soon
         </h2>
@@ -489,6 +398,69 @@ export function DashboardClient({
             )}
           </div>
         )}
+      </div>
+
+      {/* Section 3 — Current CC charges */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+            Current CC charges
+          </h2>
+          <Badge variant="outline" className="text-[9px] px-1 py-0 text-zinc-500 border-zinc-700">
+            {currentMonthName}
+          </Badge>
+        </div>
+
+        {cards.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-zinc-800 p-6 text-center text-sm text-zinc-500">
+            No credit cards yet.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {cards.map((card) => (
+              <div
+                key={card.id}
+                className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900 p-3"
+              >
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-zinc-500" />
+                  <span className="text-sm text-zinc-300">{card.name}</span>
+                </div>
+                <span className="text-sm font-semibold text-rose-400 tabular-nums font-mono">
+                  <Amount value={-card.totalCents} className="font-mono" />
+                </span>
+              </div>
+            ))}
+
+            <div className="flex items-center justify-between border-t border-zinc-800 pt-3 px-1">
+              <span className="text-sm font-medium text-zinc-400">Accumulating this cycle</span>
+              <span className="text-sm font-bold text-white tabular-nums font-mono">
+                <Amount value={totalCccChargesCents} className="font-mono" />
+              </span>
+            </div>
+            <p className="text-[10px] text-zinc-500 px-1">will be paid next month</p>
+          </div>
+        )}
+      </div>
+
+      {/* Section 4 — Real cash available */}
+      <div className="rounded-xl border border-emerald-800/30 bg-emerald-950/20 p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <p className="text-[10px] font-medium uppercase tracking-widest text-emerald-400">
+              Real cash available
+            </p>
+            <p className="text-3xl font-bold text-emerald-300 tabular-nums font-mono">
+              <AnimatedAmount cents={realCashAvailableCents} />
+            </p>
+            <p className="text-[10px] text-emerald-500/60">
+              pool − debit & cash spending
+            </p>
+          </div>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10">
+            <Banknote className="h-5 w-5 text-emerald-400" />
+          </div>
+        </div>
       </div>
     </div>
   );

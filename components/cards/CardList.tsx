@@ -16,10 +16,11 @@ import { haptics } from "@/lib/haptics";
 interface CardListProps {
   cards: CreditCard[];
   budgetCategories: BudgetCategory[];
+  currentMonth: string;
   onRefresh: () => void;
 }
 
-export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) {
+export function CardList({ cards, budgetCategories, currentMonth, onRefresh }: CardListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -191,7 +192,7 @@ export function CardList({ cards, budgetCategories, onRefresh }: CardListProps) 
 
           {expandedId === card.id && (
             <div className="mt-3 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-              <CardDetail card={card} budgetCategories={budgetCategories} refreshTrigger={detailRefreshKey} />
+              <CardDetail card={card} budgetCategories={budgetCategories} initialMonth={currentMonth} refreshTrigger={detailRefreshKey} />
             </div>
           )}
         </div>

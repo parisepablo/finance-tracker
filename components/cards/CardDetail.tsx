@@ -33,13 +33,18 @@ interface MonthlySummary {
 interface CardDetailProps {
   card: CreditCard;
   budgetCategories: BudgetCategory[];
+  initialMonth?: string;
   refreshTrigger?: number;
 }
 
 function formatMonthLabel(monthStr: string): string {
   const [year, month] = monthStr.split("-");
   const date = new Date(parseInt(year), parseInt(month) - 1);
-  return date.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+function formatDateShort(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 function getCurrentMonth(): string {
@@ -59,8 +64,47 @@ function nextMonth(monthStr: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
-export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardDetailProps) {
-  const [month, setMonth] = useState(getCurrentMonth());
+function getBillingCycle(closingDay: number, cycleOffset: number = 0): { start: Date; end: Date } {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Determine current cycle start
+  let cycleStart: Date;
+  const currentMonthClosing = new Date(today.getFullYear(), today.getMonth(), closingDay);
+
+  if (today.getDate() >= closingDay) {
+    // Today is on or after closing day, cycle started this month
+    cycleStart = new Date(today.getFullYear(), today.getMonth(), closingDay + 1);
+  } else {
+    // Today is before closing day, cycle started last month
+    cycleStart = new Date(today.getFullYear(), today.getMonth() - 1, closingDay + 1);
+  }
+
+  // Apply offset (positive = go back in time)
+  if (cycleOffset > 0) {
+    cycleStart = new Date(cycleStart.getFullYear(), cycleStart.getMonth() - cycleOffset, cycleStart.getDate());
+  }
+
+  // Cycle end is today for current cycle, or the day before the next cycle starts for past cycles
+  let cycleEnd: Date;
+  if (cycleOffset === 0) {
+    cycleEnd = today;
+  } else {
+    // For past cycles, end is the day before the next cycle starts
+    cycleEnd = new Date(cycleStart.getFullYear(), cycleStart.getMonth() + 1, closingDay);
+  }
+
+  return { start: cycleStart, end: cycleEnd };
+}
+
+function toDateParam(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+export function CardDetail({ card, budgetCategories, initialMonth, refreshTrigger = 0 }: CardDetailProps) {
+  const isCreditCard = card.closing_day !== null && card.closing_day !== undefined;
+  const [month, setMonth] = useState(initialMonth || getCurrentMonth());
+  const [cycleOffset, setCycleOffset] = useState(0);
   const [summary, setSummary] = useState<MonthlySummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,9 +117,14 @@ export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardD
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
-        `/api/cards/${card.id}?month=${month}`
-      );
+      let url: string;
+      if (isCreditCard) {
+        const cycle = getBillingCycle(card.closing_day, cycleOffset);
+        url = `/api/cards/${card.id}?start=${toDateParam(cycle.start)}&end=${toDateParam(cycle.end)}`;
+      } else {
+        url = `/api/cards/${card.id}?month=${month}`;
+      }
+      const res = await fetch(url);
       const result = await res.json();
       if (!res.ok) {
         setError(result.error || "Failed to load summary");
@@ -89,7 +138,7 @@ export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardD
     } finally {
       setLoading(false);
     }
-  }, [card.id, month]);
+  }, [card.id, card.closing_day, isCreditCard, month, cycleOffset]);
 
   useEffect(() => {
     fetchSummary();
@@ -138,19 +187,48 @@ export function CardDetail({ card, budgetCategories, refreshTrigger = 0 }: CardD
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setMonth((m) => prevMonth(m))}
+            onClick={() => {
+              if (isCreditCard) {
+                setCycleOffset((o) => o + 1);
+              } else {
+                setMonth((m) => prevMonth(m));
+              }
+            }}
             className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="min-w-[140px] text-center text-sm font-medium capitalize text-zinc-200 font-mono">
-            {formatMonthLabel(month)}
-          </span>
+          <div className="flex flex-col items-center min-w-[140px]">
+            {isCreditCard ? (
+              <>
+                <span className="text-center text-sm font-medium capitalize text-zinc-200 font-mono">
+                  {(() => {
+                    const cycle = getBillingCycle(card.closing_day, cycleOffset);
+                    return `${formatDateShort(cycle.start)} – ${formatDateShort(cycle.end)}`;
+                  })()}
+                </span>
+                <span className="text-[10px] text-zinc-500">
+                  {cycleOffset === 0 ? "Current billing cycle" : `Previous cycle ${cycleOffset}`}
+                </span>
+              </>
+            ) : (
+              <span className="text-center text-sm font-medium capitalize text-zinc-200 font-mono">
+                {formatMonthLabel(month)}
+              </span>
+            )}
+          </div>
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setMonth((m) => nextMonth(m))}
-            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
+            onClick={() => {
+              if (isCreditCard) {
+                setCycleOffset((o) => Math.max(0, o - 1));
+              } else {
+                setMonth((m) => nextMonth(m));
+              }
+            }}
+            disabled={isCreditCard ? cycleOffset === 0 : false}
+            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-transparent"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

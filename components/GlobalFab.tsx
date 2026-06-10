@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Fab } from "@/components/ui/fab";
 import { QuickAddChargeSheet } from "@/components/cards/QuickAddChargeSheet";
 import { CreditCard, BudgetCategory, PaymentSource } from "@/lib/types";
@@ -9,6 +9,7 @@ import { getPaymentSources } from "@/lib/actions/payment-sources";
 
 export function GlobalFab() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [cards, setCards] = useState<CreditCard[]>([]);
   const [paymentSources, setPaymentSources] = useState<PaymentSource[]>([]);
@@ -16,15 +17,17 @@ export function GlobalFab() {
   const [loaded, setLoaded] = useState(false);
 
   const isLoginPage = pathname === "/login";
+  const month = searchParams.get("month");
 
   useEffect(() => {
     if (isLoginPage) return;
 
     async function fetchData() {
       try {
+        const budgetUrl = month ? `/api/budgets?month=${month}` : "/api/budgets";
         const [cardRes, catRes, sourceResult] = await Promise.all([
           fetch("/api/cards"),
-          fetch("/api/budgets"),
+          fetch(budgetUrl),
           getPaymentSources(),
         ]);
 
@@ -49,7 +52,7 @@ export function GlobalFab() {
     }
 
     fetchData();
-  }, [isLoginPage]);
+  }, [isLoginPage, month]);
 
   if (isLoginPage) return null;
   if (!loaded) return null;

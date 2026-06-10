@@ -20,6 +20,7 @@ interface CardsPageClientProps {
   cards: CreditCard[];
   paymentSources: PaymentSource[];
   budgetCategories: BudgetCategory[];
+  currentMonth: string;
   error: string | null;
 }
 
@@ -27,6 +28,7 @@ export function CardsPageClient({
   cards,
   paymentSources,
   budgetCategories,
+  currentMonth,
   error,
 }: CardsPageClientProps) {
   const router = useRouter();
@@ -74,19 +76,21 @@ export function CardsPageClient({
         </div>
         {hasCards ? (
           cards.length === 1 ? (
-            <SingleCardView
-              card={cards[0]}
-              budgetCategories={budgetCategories}
-              detailRefreshKey={detailRefreshKey}
-              onRefresh={handleRefresh}
-              onDetailRefresh={() => setDetailRefreshKey((k) => k + 1)}
-            />
+        <SingleCardView
+            card={cards[0]}
+            budgetCategories={budgetCategories}
+            detailRefreshKey={detailRefreshKey}
+            currentMonth={currentMonth}
+            onRefresh={handleRefresh}
+            onDetailRefresh={() => setDetailRefreshKey((k) => k + 1)}
+          />
           ) : (
-            <CardList
-              cards={cards}
-              budgetCategories={budgetCategories}
-              onRefresh={handleRefresh}
-            />
+          <CardList
+            cards={cards}
+            budgetCategories={budgetCategories}
+            currentMonth={currentMonth}
+            onRefresh={handleRefresh}
+          />
           )
         ) : (
           <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
@@ -116,6 +120,7 @@ export function CardsPageClient({
           <PaymentSourceList
             paymentSources={paymentSources}
             budgetCategories={budgetCategories}
+            currentMonth={currentMonth}
             onRefresh={handleRefresh}
           />
         ) : (
@@ -141,12 +146,14 @@ function SingleCardView({
   card,
   budgetCategories,
   detailRefreshKey,
+  currentMonth,
   onRefresh,
   onDetailRefresh,
 }: {
   card: CreditCard;
   budgetCategories: BudgetCategory[];
   detailRefreshKey: number;
+  currentMonth: string;
   onRefresh: () => void;
   onDetailRefresh: () => void;
 }) {
@@ -239,7 +246,7 @@ function SingleCardView({
 
       {/* Auto-opened detail */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-        <CardDetail card={card} budgetCategories={budgetCategories} refreshTrigger={detailRefreshKey} />
+        <CardDetail card={card} budgetCategories={budgetCategories} initialMonth={currentMonth} refreshTrigger={detailRefreshKey} />
       </div>
     </div>
   );

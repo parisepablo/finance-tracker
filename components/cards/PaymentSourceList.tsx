@@ -17,12 +17,14 @@ import { haptics } from "@/lib/haptics";
 interface PaymentSourceListProps {
   paymentSources: PaymentSource[];
   budgetCategories: BudgetCategory[];
+  currentMonth: string;
   onRefresh: () => void;
 }
 
 export function PaymentSourceList({
   paymentSources,
   budgetCategories,
+  currentMonth,
   onRefresh,
 }: PaymentSourceListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -239,6 +241,7 @@ export function PaymentSourceList({
                   }}
                   source={detailSource}
                   budgetCategories={budgetCategories}
+                  currentMonth={currentMonth}
                   refreshTrigger={detailKey}
                   onSuccess={onRefresh}
                 />

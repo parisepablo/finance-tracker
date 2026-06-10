@@ -24,7 +24,7 @@ export function BudgetDonut({
 
   let activeColor = color;
   if (spentPercentage >= 100) activeColor = "#f43f5e";
-  else if (spentPercentage >= 80) activeColor = "#f59e0b";
+  else if (spentPercentage >= 75) activeColor = "#f59e0b";
 
   const data = [
     { name: "spent", value: clampedPct },
@@ -51,7 +51,7 @@ export function BudgetDonut({
           </Pie>
         </PieChart>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm text-white font-mono">{spentPercentage}%</span>
+          <span className="w-full text-center text-sm text-white font-mono">{spentPercentage}%</span>
         </div>
       </div>
       <span className="text-xs text-zinc-400 text-center">{name}</span>

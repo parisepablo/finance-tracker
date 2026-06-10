@@ -4,20 +4,19 @@ import {
   sumIncomeSources,
   sumFixedExpenses,
   getDiscretionaryPool,
+  getMonthRangeFromParam,
 } from "@/lib/utils";
 
-function getMonthRange() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .split("T")[0];
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    .toISOString()
-    .split("T")[0];
-  return { start, end };
-}
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const monthParam = searchParams.get("month");
 
-export async function GET() {
+  const monthStr = monthParam && /^\d{4}-\d{2}$/.test(monthParam)
+    ? monthParam
+    : undefined;
+
+  const { start, end } = getMonthRangeFromParam(monthStr);
+
   const supabase = await createClient();
 
   const {
@@ -28,8 +27,6 @@ export async function GET() {
   if (authError || !user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
-  const { start, end } = getMonthRange();
 
   const [
     categoriesResult,

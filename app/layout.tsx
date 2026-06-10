@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
 import { Toaster } from "@/components/ui/sonner";
@@ -8,6 +9,8 @@ import { AlertsBell } from "@/components/alerts/AlertsBell";
 import { NavigationEvents } from "@/components/alerts/NavigationEvents";
 import { VisibilityProvider } from "@/components/visibility-provider";
 import { VisibilityToggle } from "@/components/visibility-toggle";
+import { MonthProvider } from "@/context/month-context";
+import { MonthSelector } from "@/components/month-selector";
 import { Wallet } from "lucide-react";
 
 const inter = Inter({
@@ -54,45 +57,71 @@ export default function RootLayout({
       className={`${inter.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-full flex flex-col md:flex-row bg-background text-foreground">
-        <VisibilityProvider>
-          {/* Prefetch unread count on initial page load */}
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `fetch('/api/alerts/count').catch(() => {});`,
-            }}
-          />
-          <Sidebar />
-          <main className="flex-1 flex flex-col pb-24 md:pb-0 relative">
-            {/* Mobile header */}
-            <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-950 overflow-hidden">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
-                  <Wallet className="h-3.5 w-3.5 text-indigo-400" />
+        <MonthProvider>
+          <VisibilityProvider>
+            {/* Prefetch unread count on initial page load */}
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `fetch('/api/alerts/count').catch(() => {});`,
+              }}
+            />
+            <Sidebar />
+            <main className="flex-1 flex flex-col pb-24 md:pb-0 relative">
+              {/* Mobile header */}
+              <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-950 overflow-hidden">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
+                    <Wallet className="h-3.5 w-3.5 text-indigo-400" />
+                  </div>
+                  <span className="text-sm font-semibold text-white truncate">Finance Tracker</span>
                 </div>
-                <span className="text-sm font-semibold text-white truncate">Finance Tracker</span>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <VisibilityToggle />
+                  <AlertsBell />
+                </div>
               </div>
-              <div className="flex items-center gap-1 flex-shrink-0">
-                <VisibilityToggle />
-                <AlertsBell />
+              {/* Desktop header with month selector */}
+              <div className="hidden md:flex items-center justify-between px-6 py-3 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-30">
+                <div className="flex items-center gap-2 min-w-0 w-48">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
+                    <Wallet className="h-3.5 w-3.5 text-indigo-400" />
+                  </div>
+                  <span className="text-sm font-semibold text-white truncate">Finance Tracker</span>
+                </div>
+                <Suspense fallback={null}>
+                  <MonthSelector />
+                </Suspense>
+                <div className="flex items-center gap-1 flex-shrink-0 w-48 justify-end">
+                  <VisibilityToggle />
+                  <AlertsBell />
+                </div>
               </div>
-            </div>
-            <div className="animate-in fade-in duration-300 flex flex-col flex-1">
-              {children}
-            </div>
-          </main>
-          <GlobalFab />
-          <NavigationEvents />
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                background: "#18181b",
-                border: "1px solid rgba(255,255,255,0.06)",
-                color: "#fafafa",
-              },
-            }}
-          />
-        </VisibilityProvider>
+              {/* Mobile month selector */}
+              <div className="md:hidden flex items-center justify-center py-2 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-30">
+                <Suspense fallback={null}>
+                  <MonthSelector />
+                </Suspense>
+              </div>
+              <div className="animate-in fade-in duration-300 flex flex-col flex-1">
+                {children}
+              </div>
+            </main>
+            <Suspense fallback={null}>
+              <GlobalFab />
+            </Suspense>
+            <NavigationEvents />
+            <Toaster
+              position="bottom-right"
+              toastOptions={{
+                style: {
+                  background: "#18181b",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  color: "#fafafa",
+                },
+              }}
+            />
+          </VisibilityProvider>
+        </MonthProvider>
       </body>
     </html>
   );

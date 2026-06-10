@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { IncomeSource, FixedExpense, CreditCard, BudgetCategoryWithStats } from "@/lib/types";
+import { IncomeSource, FixedExpense, CreditCard, BudgetCategoryWithStats, Transaction, PaymentSource } from "@/lib/types";
 import { formatCurrency, getMonthlyEquivalent } from "@/lib/utils";
 import { Amount } from "@/components/ui/amount";
 import { IncomeList } from "@/components/income/IncomeList";
@@ -13,6 +13,7 @@ import { BudgetCategoryList } from "@/components/budgets/BudgetCategoryList";
 import { BudgetCategoryForm } from "@/components/budgets/BudgetCategoryForm";
 import { BudgetDonut } from "@/components/budgets/BudgetDonut";
 import { AllocationBar } from "@/components/budgets/AllocationBar";
+import { BudgetBreakdownSheet } from "@/components/budgets/BudgetBreakdownSheet";
 import { Button } from "@/components/ui/button";
 import { GlowCard } from "@/components/ui/glow-card";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
@@ -52,6 +53,8 @@ interface FinancesPageClientProps {
   totalFixedCents: number;
   fixedPercentage: number;
   paidExpenseIds: string[];
+  transactions: Transaction[];
+  paymentSources: PaymentSource[];
   currentMonth: string;
   error: string | null;
 }
@@ -66,6 +69,8 @@ export function FinancesPageClient({
   totalFixedCents,
   fixedPercentage,
   paidExpenseIds,
+  transactions,
+  paymentSources,
   currentMonth,
   error,
 }: FinancesPageClientProps) {
@@ -75,6 +80,8 @@ export function FinancesPageClient({
   const [formOpen, setFormOpen] = useState(false);
   const [deletingBudget, setDeletingBudget] = useState<BudgetCategoryWithStats | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [breakdownCategory, setBreakdownCategory] = useState<BudgetCategoryWithStats | null>(null);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
 
   const { pullProgress } = usePullToRefresh(() => {
     setIsRefreshing(true);
@@ -324,7 +331,7 @@ export function FinancesPageClient({
               ) : (
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {categories.map((cat) => (
-                    <GlowCard key={cat.id} color="indigo" className="relative">
+                    <GlowCard key={cat.id} color="indigo" className="relative cursor-pointer" onClick={() => { setBreakdownCategory(cat); setBreakdownOpen(true); }}>
                       <div className="p-4 flex flex-col items-center">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -408,6 +415,16 @@ export function FinancesPageClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BudgetBreakdownSheet
+        open={breakdownOpen}
+        onOpenChange={setBreakdownOpen}
+        category={breakdownCategory}
+        transactions={transactions}
+        creditCards={creditCards}
+        paymentSources={paymentSources}
+        currentMonth={currentMonth}
+      />
     </div>
   );
 }

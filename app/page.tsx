@@ -4,22 +4,16 @@ import {
   sumFixedExpenses,
   getDiscretionaryPool,
   getMonthlyEquivalent,
+  getMonthRangeFromParam,
 } from "@/lib/utils";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 
-function getMonthRange() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const lastDay = new Date(year, now.getMonth() + 1, 0).getDate();
-  return {
-    start: `${year}-${month}-01`,
-    end: `${year}-${month}-${String(lastDay).padStart(2, "0")}`,
-    monthStr: `${year}-${month}`,
-  };
-}
-
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  const { month: monthParam } = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -35,15 +29,23 @@ export default async function DashboardPage() {
     );
   }
 
-  const { start, end, monthStr } = getMonthRange();
+  const { start, end, monthStr, year, month } = getMonthRangeFromParam(monthParam);
+
+  // Previous month
+  const prevYear = month === 1 ? year - 1 : year;
+  const prevMonthNum = month === 1 ? 12 : month - 1;
+  const prevMonthStr = `${prevYear}-${String(prevMonthNum).padStart(2, "0")}`;
+  const prevStart = `${prevMonthStr}-01`;
+  const prevLastDay = new Date(prevYear, prevMonthNum, 0).getDate();
+  const prevEnd = `${prevMonthStr}-${String(prevLastDay).padStart(2, "0")}`;
 
   const [
     incomeResult,
     expensesResult,
     budgetResult,
     cardsResult,
-    transactionsResult,
-    paymentsResult,
+    currentMonthTransactionsResult,
+    prevMonthCcTransactionsResult,
   ] = await Promise.all([
     supabase.from("income_sources").select("*").eq("user_id", user.id),
     supabase.from("fixed_expenses").select("*").eq("user_id", user.id),
@@ -64,17 +66,20 @@ export default async function DashboardPage() {
       .gte("date", start)
       .lte("date", end),
     supabase
-      .from("expense_payments")
-      .select("fixed_expense_id")
+      .from("transactions")
+      .select("*")
       .eq("user_id", user.id)
-      .eq("paid_month", monthStr),
+      .not("credit_card_id", "is", null)
+      .gte("date", prevStart)
+      .lte("date", prevEnd),
   ]);
 
   const incomeSources = incomeResult.data ?? [];
   const fixedExpenses = expensesResult.data ?? [];
   const budgetCategories = budgetResult.data ?? [];
   const creditCards = cardsResult.data ?? [];
-  const transactions = transactionsResult.data ?? [];
+  const currentMonthTransactions = currentMonthTransactionsResult.data ?? [];
+  const prevMonthCcTransactions = prevMonthCcTransactionsResult.data ?? [];
 
   const totalIncome = sumIncomeSources(incomeSources);
   const totalFixed = sumFixedExpenses(fixedExpenses);
@@ -85,21 +90,24 @@ export default async function DashboardPage() {
     fixedExpenses.filter((e) => !e.is_essential)
   );
   const discretionaryPool = getDiscretionaryPool(totalIncome, totalFixed);
-  const fixedPercentage =
-    totalIncome > 0 ? Math.round((totalFixed / totalIncome) * 100) : 0;
 
-  // Budget health
+  const ccPaymentDue = prevMonthCcTransactions.reduce(
+    (sum, tx) => sum + tx.amount_cents,
+    0
+  );
+
+  const finalPool = Math.max(0, discretionaryPool - ccPaymentDue);
+
+  // Budget spending tracking for current month
   const budgets = budgetCategories.map((cat) => {
     const allocated =
       discretionaryPool > 0
         ? Math.round((discretionaryPool * cat.percentage) / 100)
         : 0;
-    const spent = transactions
+    const spent = currentMonthTransactions
       .filter((tx) => tx.budget_category_id === cat.id)
       .reduce((sum, tx) => sum + tx.amount_cents, 0);
-    const remaining = allocated - spent;
-    const spentPercentage =
-      allocated > 0 ? Math.round((spent / allocated) * 100) : 0;
+    const spentPercentage = allocated > 0 ? Math.round((spent / allocated) * 100) : 0;
 
     return {
       id: cat.id,
@@ -107,51 +115,60 @@ export default async function DashboardPage() {
       color: cat.color,
       allocatedCents: allocated,
       spentCents: spent,
-      remainingCents: remaining,
       spentPercentage,
     };
   });
 
-  // Credit card obligations
-  const activeFixedExpenses = fixedExpenses.filter((exp) => exp.is_active);
+  const totalSpent = currentMonthTransactions.reduce(
+    (sum, tx) => sum + tx.amount_cents,
+    0
+  );
+
+  const remaining = finalPool - totalSpent;
+
+  // Current CC charges per card
+  const currentCcTransactions = currentMonthTransactions.filter(
+    (tx) => tx.credit_card_id !== null
+  );
 
   const cards = creditCards.map((card) => {
-    const fixedDue = activeFixedExpenses
-      .filter((exp) => exp.credit_card_id === card.id)
-      .reduce(
-        (sum, exp) =>
-          sum + getMonthlyEquivalent(exp.amount_cents, exp.billing_cycle),
-        0
-      );
-
-    const txDue = transactions
+    const totalCents = currentCcTransactions
       .filter((tx) => tx.credit_card_id === card.id)
       .reduce((sum, tx) => sum + tx.amount_cents, 0);
-
-    const totalDue = fixedDue + txDue;
-
     return {
       id: card.id,
       name: card.name,
-      lastFour: card.last_four,
-      dueDay: card.due_day,
-      totalDueCents: totalDue,
-      exceeds30Percent: totalIncome > 0 && totalDue > totalIncome * 0.3,
+      totalCents,
     };
   });
 
-  const totalCardObligations = cards.reduce(
-    (sum, card) => sum + card.totalDueCents,
+  const totalCccCharges = currentCcTransactions.reduce(
+    (sum, tx) => sum + tx.amount_cents,
     0
   );
+
+  // Payment source spending for real cash available
+  const paymentSourceSpending = currentMonthTransactions
+    .filter((tx) => tx.payment_source_id !== null)
+    .reduce((sum, tx) => sum + tx.amount_cents, 0);
+
+  const realCashAvailable = finalPool - paymentSourceSpending;
 
   // Upcoming expenses (due within next 7 days)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const { data: paymentsData } = await supabase
+    .from("expense_payments")
+    .select("fixed_expense_id")
+    .eq("user_id", user.id)
+    .eq("paid_month", monthStr);
+
   const paidExpenseIds = new Set(
-    (paymentsResult.data ?? []).map((p) => p.fixed_expense_id)
+    (paymentsData ?? []).map((p) => p.fixed_expense_id)
   );
+
+  const activeFixedExpenses = fixedExpenses.filter((exp) => exp.is_active);
 
   const upcomingExpenses = activeFixedExpenses
     .filter((exp) => exp.due_day)
@@ -187,16 +204,9 @@ export default async function DashboardPage() {
       billingCycle: item.expense.billing_cycle,
     }));
 
-  // Financial health score
-  const anyOver100 = budgets.some((b) => b.spentPercentage > 100);
-  const anyOver90 = budgets.some((b) => b.spentPercentage > 90);
-
-  let healthStatus: "healthy" | "warning" | "danger" = "healthy";
-  if (fixedPercentage > 70 || anyOver100) {
-    healthStatus = "danger";
-  } else if (fixedPercentage >= 50 || anyOver90) {
-    healthStatus = "warning";
-  }
+  const prevMonthDate = new Date(prevYear, prevMonthNum - 1);
+  const prevMonthName = prevMonthDate.toLocaleDateString("en-US", { month: "long" });
+  const currentMonthName = new Date(year, month - 1).toLocaleDateString("en-US", { month: "long" });
 
   return (
     <DashboardClient
@@ -204,15 +214,21 @@ export default async function DashboardPage() {
       totalFixedCents={totalFixed}
       essentialFixedCents={essentialFixed}
       optionalFixedCents={optionalFixed}
-      fixedPercentage={fixedPercentage}
       discretionaryPoolCents={discretionaryPool}
-      totalCardObligationsCents={totalCardObligations}
+      ccPaymentDueCents={ccPaymentDue}
+      finalPoolCents={finalPool}
       budgets={budgets}
       cards={cards}
+      totalCccChargesCents={totalCccCharges}
+      totalSpentCents={totalSpent}
+      remainingCents={remaining}
+      paymentSourceSpendingCents={paymentSourceSpending}
+      realCashAvailableCents={realCashAvailable}
       upcomingExpenses={upcomingExpenses}
       paidExpenseIds={Array.from(paidExpenseIds)}
+      prevMonthName={prevMonthName}
+      currentMonthName={currentMonthName}
       currentMonth={monthStr}
-      healthStatus={healthStatus}
     />
   );
 }

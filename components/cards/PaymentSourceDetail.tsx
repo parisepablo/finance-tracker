@@ -19,6 +19,7 @@ interface PaymentSourceDetailProps {
   onOpenChange: (open: boolean) => void;
   source: PaymentSource;
   budgetCategories: BudgetCategory[];
+  currentMonth: string;
   refreshTrigger: number;
   onSuccess: () => void;
 }
@@ -39,6 +40,7 @@ export function PaymentSourceDetail({
   onOpenChange,
   source,
   budgetCategories,
+  currentMonth,
   refreshTrigger,
   onSuccess,
 }: PaymentSourceDetailProps) {
@@ -52,12 +54,19 @@ export function PaymentSourceDetail({
     if (!open) return;
     setLoading(true);
     try {
+      const [year, month] = currentMonth.split("-").map(Number);
+      const start = `${currentMonth}-01`;
+      const lastDay = new Date(year, month, 0).getDate();
+      const end = `${currentMonth}-${String(lastDay).padStart(2, "0")}`;
+
       const supabase = createClient();
       const { data, error } = await supabase
         .from("transactions")
         .select("id, description, amount_cents, date, budget_category_id, is_installment, total_installments, current_installment")
         .eq("payment_source_id", source.id)
         .eq("user_id", source.user_id)
+        .gte("date", start)
+        .lte("date", end)
         .order("date", { ascending: false });
 
       if (error) {
@@ -72,7 +81,7 @@ export function PaymentSourceDetail({
     } finally {
       setLoading(false);
     }
-  }, [open, source.id, source.user_id]);
+  }, [open, source.id, source.user_id, currentMonth]);
 
   useEffect(() => {
     fetchTransactions();
