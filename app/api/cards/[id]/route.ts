@@ -204,39 +204,7 @@ export async function PATCH(
     }
   }
 
-  if (body.closing_day !== undefined) {
-    if (body.closing_day === null) {
-      updates.closing_day = null;
-    } else if (
-      typeof body.closing_day === "number" &&
-      body.closing_day >= 1 &&
-      body.closing_day <= 31
-    ) {
-      updates.closing_day = body.closing_day;
-    } else {
-      return NextResponse.json(
-        { error: "Closing day must be between 1 and 31" },
-        { status: 400 }
-      );
-    }
-  }
 
-  if (body.due_day !== undefined) {
-    if (body.due_day === null) {
-      updates.due_day = null;
-    } else if (
-      typeof body.due_day === "number" &&
-      body.due_day >= 1 &&
-      body.due_day <= 31
-    ) {
-      updates.due_day = body.due_day;
-    } else {
-      return NextResponse.json(
-        { error: "Due day must be between 1 and 31" },
-        { status: 400 }
-      );
-    }
-  }
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json(

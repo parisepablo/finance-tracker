@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { CreditCard, BudgetCategory } from "@/lib/types";
+import { CreditCard, BudgetCategory, BillingCycle } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { Amount } from "@/components/ui/amount";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { EditChargeSheet } from "./EditChargeSheet";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { haptics } from "@/lib/haptics";
+import { formatDateShort, toDateParam, getCycleRange } from "@/lib/billing-cycles";
 
 interface MonthlySummaryItem {
   id: string;
@@ -33,7 +34,7 @@ interface MonthlySummary {
 interface CardDetailProps {
   card: CreditCard;
   budgetCategories: BudgetCategory[];
-  initialMonth?: string;
+  cycles: BillingCycle[];
   refreshTrigger?: number;
 }
 
@@ -41,10 +42,6 @@ function formatMonthLabel(monthStr: string): string {
   const [year, month] = monthStr.split("-");
   const date = new Date(parseInt(year), parseInt(month) - 1);
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-}
-
-function formatDateShort(date: Date): string {
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 function getCurrentMonth(): string {
@@ -64,46 +61,11 @@ function nextMonth(monthStr: string): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
-function getBillingCycle(closingDay: number, cycleOffset: number = 0): { start: Date; end: Date } {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
 
-  // Determine current cycle start
-  let cycleStart: Date;
-  const currentMonthClosing = new Date(today.getFullYear(), today.getMonth(), closingDay);
 
-  if (today.getDate() >= closingDay) {
-    // Today is on or after closing day, cycle started this month
-    cycleStart = new Date(today.getFullYear(), today.getMonth(), closingDay + 1);
-  } else {
-    // Today is before closing day, cycle started last month
-    cycleStart = new Date(today.getFullYear(), today.getMonth() - 1, closingDay + 1);
-  }
-
-  // Apply offset (positive = go back in time)
-  if (cycleOffset > 0) {
-    cycleStart = new Date(cycleStart.getFullYear(), cycleStart.getMonth() - cycleOffset, cycleStart.getDate());
-  }
-
-  // Cycle end is today for current cycle, or the day before the next cycle starts for past cycles
-  let cycleEnd: Date;
-  if (cycleOffset === 0) {
-    cycleEnd = today;
-  } else {
-    // For past cycles, end is the day before the next cycle starts
-    cycleEnd = new Date(cycleStart.getFullYear(), cycleStart.getMonth() + 1, closingDay);
-  }
-
-  return { start: cycleStart, end: cycleEnd };
-}
-
-function toDateParam(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-}
-
-export function CardDetail({ card, budgetCategories, initialMonth, refreshTrigger = 0 }: CardDetailProps) {
-  const isCreditCard = card.closing_day !== null && card.closing_day !== undefined;
-  const [month, setMonth] = useState(initialMonth || getCurrentMonth());
+export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 }: CardDetailProps) {
+  const hasCycles = cycles.length > 0;
+  const [month, setMonth] = useState(getCurrentMonth());
   const [cycleOffset, setCycleOffset] = useState(0);
   const [summary, setSummary] = useState<MonthlySummary | null>(null);
   const [loading, setLoading] = useState(false);
@@ -118,9 +80,13 @@ export function CardDetail({ card, budgetCategories, initialMonth, refreshTrigge
     setError(null);
     try {
       let url: string;
-      if (isCreditCard) {
-        const cycle = getBillingCycle(card.closing_day, cycleOffset);
-        url = `/api/cards/${card.id}?start=${toDateParam(cycle.start)}&end=${toDateParam(cycle.end)}`;
+      if (hasCycles) {
+        const range = getCycleRange(cycles, cycleOffset);
+        if (range) {
+          url = `/api/cards/${card.id}?start=${range.start}&end=${range.end}`;
+        } else {
+          url = `/api/cards/${card.id}?month=${month}`;
+        }
       } else {
         url = `/api/cards/${card.id}?month=${month}`;
       }
@@ -138,7 +104,7 @@ export function CardDetail({ card, budgetCategories, initialMonth, refreshTrigge
     } finally {
       setLoading(false);
     }
-  }, [card.id, card.closing_day, isCreditCard, month, cycleOffset]);
+  }, [card.id, cycles, hasCycles, month, cycleOffset]);
 
   useEffect(() => {
     fetchSummary();
@@ -179,6 +145,9 @@ export function CardDetail({ card, budgetCategories, initialMonth, refreshTrigge
     }
   }
 
+  const cycleRange = hasCycles ? getCycleRange(cycles, cycleOffset) : null;
+  const maxOffset = cycles.length > 0 ? cycles.length - 1 : 0;
+
   return (
     <SwipeableRowProvider>
     <div className="space-y-4">
@@ -188,8 +157,8 @@ export function CardDetail({ card, budgetCategories, initialMonth, refreshTrigge
             variant="ghost"
             size="icon"
             onClick={() => {
-              if (isCreditCard) {
-                setCycleOffset((o) => o + 1);
+              if (hasCycles) {
+                setCycleOffset((o) => Math.min(maxOffset, o + 1));
               } else {
                 setMonth((m) => prevMonth(m));
               }
@@ -199,17 +168,14 @@ export function CardDetail({ card, budgetCategories, initialMonth, refreshTrigge
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="flex flex-col items-center min-w-[140px]">
-            {isCreditCard ? (
+            {hasCycles ? (
               <>
                 <span className="text-center text-sm font-medium capitalize text-zinc-200 font-mono">
-                  {(() => {
-                    const cycle = getBillingCycle(card.closing_day, cycleOffset);
-                    return `${formatDateShort(cycle.start)} – ${formatDateShort(cycle.end)}`;
-                  })()}
+                  {cycleRange?.label ?? "—"}
                 </span>
-                <span className="text-[10px] text-zinc-500">
-                  {cycleOffset === 0 ? "Current billing cycle" : `Previous cycle ${cycleOffset}`}
-                </span>
+                {cycleOffset === 0 && (
+                  <span className="text-[10px] text-emerald-400">Current</span>
+                )}
               </>
             ) : (
               <span className="text-center text-sm font-medium capitalize text-zinc-200 font-mono">
@@ -221,13 +187,13 @@ export function CardDetail({ card, budgetCategories, initialMonth, refreshTrigge
             variant="ghost"
             size="icon"
             onClick={() => {
-              if (isCreditCard) {
+              if (hasCycles) {
                 setCycleOffset((o) => Math.max(0, o - 1));
               } else {
                 setMonth((m) => nextMonth(m));
               }
             }}
-            disabled={isCreditCard ? cycleOffset === 0 : false}
+            disabled={hasCycles ? cycleOffset === 0 : false}
             className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-transparent"
           >
             <ChevronRight className="h-4 w-4" />

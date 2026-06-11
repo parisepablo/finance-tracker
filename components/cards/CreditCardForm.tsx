@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CreditCard } from "@/lib/types";
+import { CreditCard, BillingCycle } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,9 +15,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { nextDueDate } from "@/lib/billing-cycles";
+import { updateCycle } from "@/lib/actions/billing-cycles";
 
 interface CreditCardFormProps {
   card?: CreditCard;
+  cycles?: BillingCycle[];
   onSuccess: () => void;
   trigger?: React.ReactNode;
   open?: boolean;
@@ -28,11 +35,11 @@ interface FormErrors {
   name?: string;
   lastFour?: string;
   creditLimit?: string;
-  closingDay?: string;
-  dueDay?: string;
+  closingDate?: string;
+  dueDate?: string;
 }
 
-export function CreditCardForm({ card, onSuccess, trigger, open: controlledOpen, onOpenChange: controlledOnOpenChange }: CreditCardFormProps) {
+export function CreditCardForm({ card, cycles, onSuccess, trigger, open: controlledOpen, onOpenChange: controlledOnOpenChange }: CreditCardFormProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = (value: boolean) => {
@@ -42,16 +49,19 @@ export function CreditCardForm({ card, onSuccess, trigger, open: controlledOpen,
       setInternalOpen(value);
     }
   };
+
+  const openCycle = cycles?.find((c) => c.status === "open");
+
   const [name, setName] = useState(card?.name ?? "");
   const [lastFour, setLastFour] = useState(card?.last_four ?? "");
   const [creditLimit, setCreditLimit] = useState(
     card?.credit_limit_cents ? (card.credit_limit_cents / 100).toString() : ""
   );
-  const [closingDay, setClosingDay] = useState(
-    card?.closing_day ? card.closing_day.toString() : ""
+  const [closingDate, setClosingDate] = useState<Date | undefined>(
+    openCycle ? new Date(openCycle.closing_date + "T00:00:00") : undefined
   );
-  const [dueDay, setDueDay] = useState(
-    card?.due_day ? card.due_day.toString() : ""
+  const [dueDate, setDueDate] = useState<Date | undefined>(
+    openCycle ? new Date(openCycle.due_date + "T00:00:00") : undefined
   );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -66,17 +76,25 @@ export function CreditCardForm({ card, onSuccess, trigger, open: controlledOpen,
       setName(card.name);
       setLastFour(card.last_four ?? "");
       setCreditLimit(card.credit_limit_cents ? (card.credit_limit_cents / 100).toString() : "");
-      setClosingDay(card.closing_day ? card.closing_day.toString() : "");
-      setDueDay(card.due_day ? card.due_day.toString() : "");
     } else {
       setName("");
       setLastFour("");
       setCreditLimit("");
-      setClosingDay("");
-      setDueDay("");
+    }
+    const oc = cycles?.find((c) => c.status === "open");
+    if (oc) {
+      setClosingDate(new Date(oc.closing_date + "T00:00:00"));
+      setDueDate(new Date(oc.due_date + "T00:00:00"));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  function handleClosingDateChange(date: Date | undefined) {
+    if (!date) return;
+    setClosingDate(date);
+    const autoDue = nextDueDate(date);
+    setDueDate(autoDue);
+  }
 
   function validate(): boolean {
     const newErrors: FormErrors = {};
@@ -98,18 +116,12 @@ export function CreditCardForm({ card, onSuccess, trigger, open: controlledOpen,
       }
     }
 
-    if (closingDay) {
-      const cd = parseInt(closingDay, 10);
-      if (isNaN(cd) || cd < 1 || cd > 31) {
-        newErrors.closingDay = "Closing day must be between 1 and 31";
-      }
+    if (!closingDate) {
+      newErrors.closingDate = "Closing date is required";
     }
 
-    if (dueDay) {
-      const dd = parseInt(dueDay, 10);
-      if (isNaN(dd) || dd < 1 || dd > 31) {
-        newErrors.dueDay = "Due day must be between 1 and 31";
-      }
+    if (!dueDate) {
+      newErrors.dueDate = "Due date is required";
     }
 
     setErrors(newErrors);
@@ -134,14 +146,6 @@ export function CreditCardForm({ card, onSuccess, trigger, open: controlledOpen,
       payload.credit_limit_cents = Math.round(parseFloat(creditLimit) * 100);
     }
 
-    if (closingDay) {
-      payload.closing_day = parseInt(closingDay, 10);
-    }
-
-    if (dueDay) {
-      payload.due_day = parseInt(dueDay, 10);
-    }
-
     try {
       const url = isEditing ? `/api/cards/${card.id}` : "/api/cards";
       const method = isEditing ? "PATCH" : "POST";
@@ -158,6 +162,19 @@ export function CreditCardForm({ card, onSuccess, trigger, open: controlledOpen,
         toast.error(result.error || "Something went wrong");
         setLoading(false);
         return;
+      }
+
+      // Update billing cycle if editing
+      if (isEditing && openCycle && closingDate && dueDate) {
+        const closingStr = closingDate.toISOString().split("T")[0];
+        const dueStr = dueDate.toISOString().split("T")[0];
+        const cycleResult = await updateCycle(openCycle.id, {
+          closing_date: closingStr,
+          due_date: dueStr,
+        });
+        if (cycleResult.error) {
+          toast.error(`Card saved, but cycle update failed: ${cycleResult.error}`);
+        }
       }
 
       toast.success(
@@ -252,46 +269,70 @@ export function CreditCardForm({ card, onSuccess, trigger, open: controlledOpen,
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="grid gap-2">
-                <Label htmlFor="closing-day">Closing Day (1–31)</Label>
-                <Input
-                id="closing-day"
-                type="text"
-                inputMode="numeric"
-                value={closingDay}
-                className="font-mono"
-                  onChange={(e) => {
-                    setClosingDay(e.target.value);
-                    if (errors.closingDay) setErrors((prev) => ({ ...prev, closingDay: undefined }));
-                  }}
-                  placeholder="e.g. 15"
-                  aria-invalid={!!errors.closingDay}
-                />
-                {errors.closingDay && (
-                  <p className="text-xs text-rose-400">{errors.closingDay}</p>
-                )}
+            {isEditing && (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label>Next Closing Date</Label>
+                  <Popover modal={false}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                        aria-invalid={!!errors.closingDate}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        <span className="font-mono">
+                          {closingDate ? format(closingDate, "PPP") : "Pick a date"}
+                        </span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={closingDate}
+                        onSelect={handleClosingDateChange}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {errors.closingDate && (
+                    <p className="text-xs text-rose-400">{errors.closingDate}</p>
+                  )}
+                </div>
+                <div className="grid gap-2">
+                  <Label>Due Date</Label>
+                  <Popover modal={false}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                        aria-invalid={!!errors.dueDate}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        <span className="font-mono">
+                          {dueDate ? format(dueDate, "PPP") : "Pick a date"}
+                        </span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={dueDate}
+                        onSelect={(d) => {
+                          setDueDate(d);
+                          if (errors.dueDate) setErrors((prev) => ({ ...prev, dueDate: undefined }));
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {errors.dueDate && (
+                    <p className="text-xs text-rose-400">{errors.dueDate}</p>
+                  )}
+                  <p className="text-[10px] text-zinc-500">
+                    Auto-calculated as 9 weekdays after closing
+                  </p>
+                </div>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="due-day">Due Day (1–31)</Label>
-                <Input
-                id="due-day"
-                type="text"
-                inputMode="numeric"
-                value={dueDay}
-                className="font-mono"
-                  onChange={(e) => {
-                    setDueDay(e.target.value);
-                    if (errors.dueDay) setErrors((prev) => ({ ...prev, dueDay: undefined }));
-                  }}
-                  placeholder="e.g. 25"
-                  aria-invalid={!!errors.dueDay}
-                />
-                {errors.dueDay && (
-                  <p className="text-xs text-rose-400">{errors.dueDay}</p>
-                )}
-              </div>
-            </div>
+            )}
           </div>
 
           <DialogFooter>

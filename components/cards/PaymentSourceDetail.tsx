@@ -19,7 +19,6 @@ interface PaymentSourceDetailProps {
   onOpenChange: (open: boolean) => void;
   source: PaymentSource;
   budgetCategories: BudgetCategory[];
-  currentMonth: string;
   refreshTrigger: number;
   onSuccess: () => void;
 }
@@ -35,12 +34,16 @@ interface TransactionItem {
   current_installment: number | null;
 }
 
+function getCurrentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
 export function PaymentSourceDetail({
   open,
   onOpenChange,
   source,
   budgetCategories,
-  currentMonth,
   refreshTrigger,
   onSuccess,
 }: PaymentSourceDetailProps) {
@@ -54,6 +57,7 @@ export function PaymentSourceDetail({
     if (!open) return;
     setLoading(true);
     try {
+      const currentMonth = getCurrentMonth();
       const [year, month] = currentMonth.split("-").map(Number);
       const start = `${currentMonth}-01`;
       const lastDay = new Date(year, month, 0).getDate();
@@ -81,7 +85,7 @@ export function PaymentSourceDetail({
     } finally {
       setLoading(false);
     }
-  }, [open, source.id, source.user_id, currentMonth]);
+  }, [open, source.id, source.user_id]);
 
   useEffect(() => {
     fetchTransactions();

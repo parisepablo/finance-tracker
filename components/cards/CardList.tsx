@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard, BudgetCategory } from "@/lib/types";
+import { CreditCard, BudgetCategory, BillingCycle } from "@/lib/types";
 import { formatCurrency } from "@/lib/utils";
 import { Amount } from "@/components/ui/amount";
 import { Button } from "@/components/ui/button";
@@ -12,15 +12,16 @@ import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { toast } from "sonner";
 import { CreditCardIcon, Pencil, Trash2, Eye, Wifi } from "lucide-react";
 import { haptics } from "@/lib/haptics";
+import { formatDateShort, getCycleRange } from "@/lib/billing-cycles";
 
 interface CardListProps {
   cards: CreditCard[];
   budgetCategories: BudgetCategory[];
-  currentMonth: string;
+  cycles: BillingCycle[];
   onRefresh: () => void;
 }
 
-export function CardList({ cards, budgetCategories, currentMonth, onRefresh }: CardListProps) {
+export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -89,7 +90,12 @@ export function CardList({ cards, budgetCategories, currentMonth, onRefresh }: C
         </div>
       )}
 
-      {cards.map((card) => (
+      {cards.map((card) => {
+        const cardCycles = cycles.filter((c) => c.credit_card_id === card.id);
+        const openCycle = cardCycles.find((c) => c.status === "open");
+        const cycleRange = getCycleRange(cardCycles, 0);
+
+        return (
         <div key={card.id} className="space-y-0 md:max-w-sm md:mx-auto">
           {/* Credit card visual */}
           <div className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-indigo-900 via-violet-900 to-zinc-900 border border-zinc-800 shadow-xl shadow-black/40" style={{ boxShadow: '0 0 40px rgba(99,102,241,0.09), 0 20px 40px rgba(0,0,0,0.4)' }}>
@@ -124,20 +130,19 @@ export function CardList({ cards, budgetCategories, currentMonth, onRefresh }: C
                       : "—"}
                   </p>
                 </div>
-                <div className="flex gap-4">
-                  {card.closing_day && (
-                    <div className="space-y-0.5 text-right">
-                      <p className="text-[10px] uppercase tracking-wider text-white/40">Closing</p>
-                      <p className="text-sm font-medium text-white font-mono">{card.closing_day}</p>
-                    </div>
-                  )}
-                  {card.due_day && (
-                    <div className="space-y-0.5 text-right">
-                      <p className="text-[10px] uppercase tracking-wider text-white/40">Due</p>
-                      <p className="text-sm font-medium text-white font-mono">{card.due_day}</p>
-                    </div>
-                  )}
-                </div>
+                {cycleRange && (
+                  <div className="flex flex-col items-end gap-0.5">
+                    <p className="text-[10px] uppercase tracking-wider text-white/40">Cycle</p>
+                    <p className="text-xs font-medium text-white/70 font-mono">
+                      {cycleRange.label}
+                    </p>
+                    {openCycle && (
+                      <p className="text-[10px] text-white/50">
+                        Due {formatDateShort(openCycle.due_date)}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -160,6 +165,7 @@ export function CardList({ cards, budgetCategories, currentMonth, onRefresh }: C
             />
             <CreditCardForm
               card={card}
+              cycles={cardCycles}
               onSuccess={onRefresh}
               trigger={
                 <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800">
@@ -192,11 +198,12 @@ export function CardList({ cards, budgetCategories, currentMonth, onRefresh }: C
 
           {expandedId === card.id && (
             <div className="mt-3 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-              <CardDetail card={card} budgetCategories={budgetCategories} initialMonth={currentMonth} refreshTrigger={detailRefreshKey} />
+              <CardDetail card={card} budgetCategories={budgetCategories} cycles={cardCycles} refreshTrigger={detailRefreshKey} />
             </div>
           )}
         </div>
-      ))}
+      );
+      })}
 
       <DeleteConfirmDialog
         open={confirmOpen}

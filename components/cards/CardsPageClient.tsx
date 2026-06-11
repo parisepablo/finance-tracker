@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard, BudgetCategory, PaymentSource } from "@/lib/types";
+import { CreditCard, BudgetCategory, PaymentSource, BillingCycle } from "@/lib/types";
 import { Amount } from "@/components/ui/amount";
 import { CardList } from "@/components/cards/CardList";
 import { CardDetail } from "@/components/cards/CardDetail";
@@ -15,12 +15,13 @@ import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { Button } from "@/components/ui/button";
 import { Wifi, CreditCardIcon, Pencil, Smartphone, Banknote } from "lucide-react";
+import { formatDateShort, getCycleRange } from "@/lib/billing-cycles";
 
 interface CardsPageClientProps {
   cards: CreditCard[];
   paymentSources: PaymentSource[];
   budgetCategories: BudgetCategory[];
-  currentMonth: string;
+  cycles: BillingCycle[];
   error: string | null;
 }
 
@@ -28,7 +29,7 @@ export function CardsPageClient({
   cards,
   paymentSources,
   budgetCategories,
-  currentMonth,
+  cycles,
   error,
 }: CardsPageClientProps) {
   const router = useRouter();
@@ -80,7 +81,7 @@ export function CardsPageClient({
             card={cards[0]}
             budgetCategories={budgetCategories}
             detailRefreshKey={detailRefreshKey}
-            currentMonth={currentMonth}
+            cycles={cycles}
             onRefresh={handleRefresh}
             onDetailRefresh={() => setDetailRefreshKey((k) => k + 1)}
           />
@@ -88,7 +89,7 @@ export function CardsPageClient({
           <CardList
             cards={cards}
             budgetCategories={budgetCategories}
-            currentMonth={currentMonth}
+            cycles={cycles}
             onRefresh={handleRefresh}
           />
           )
@@ -120,7 +121,6 @@ export function CardsPageClient({
           <PaymentSourceList
             paymentSources={paymentSources}
             budgetCategories={budgetCategories}
-            currentMonth={currentMonth}
             onRefresh={handleRefresh}
           />
         ) : (
@@ -146,17 +146,21 @@ function SingleCardView({
   card,
   budgetCategories,
   detailRefreshKey,
-  currentMonth,
+  cycles,
   onRefresh,
   onDetailRefresh,
 }: {
   card: CreditCard;
   budgetCategories: BudgetCategory[];
   detailRefreshKey: number;
-  currentMonth: string;
+  cycles: BillingCycle[];
   onRefresh: () => void;
   onDetailRefresh: () => void;
 }) {
+  const cardCycles = cycles.filter((c) => c.credit_card_id === card.id);
+  const openCycle = cardCycles.find((c) => c.status === "open");
+  const cycleRange = getCycleRange(cardCycles, 0);
+
   return (
     <div className="space-y-4 relative z-10">
       {/* Card visual */}
@@ -199,20 +203,19 @@ function SingleCardView({
                     : "—"}
                 </p>
               </div>
-              <div className="flex gap-4">
-                {card.closing_day && (
-                  <div className="space-y-0.5 text-right">
-                    <p className="text-[10px] uppercase tracking-wider text-white/40">Closing</p>
-                    <p className="text-sm font-medium text-white font-mono">{card.closing_day}</p>
-                  </div>
-                )}
-                {card.due_day && (
-                  <div className="space-y-0.5 text-right">
-                    <p className="text-[10px] uppercase tracking-wider text-white/40">Due</p>
-                    <p className="text-sm font-medium text-white font-mono">{card.due_day}</p>
-                  </div>
-                )}
-              </div>
+              {cycleRange && (
+                <div className="flex flex-col items-end gap-0.5">
+                  <p className="text-[10px] uppercase tracking-wider text-white/40">Cycle</p>
+                  <p className="text-xs font-medium text-white/70 font-mono">
+                    {cycleRange.label}
+                  </p>
+                  {openCycle && (
+                    <p className="text-[10px] text-white/50">
+                      Due {formatDateShort(openCycle.due_date)}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -234,6 +237,7 @@ function SingleCardView({
           />
           <CreditCardForm
             card={card}
+            cycles={cardCycles}
             onSuccess={onRefresh}
             trigger={
               <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800">
@@ -246,7 +250,7 @@ function SingleCardView({
 
       {/* Auto-opened detail */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-        <CardDetail card={card} budgetCategories={budgetCategories} initialMonth={currentMonth} refreshTrigger={detailRefreshKey} />
+        <CardDetail card={card} budgetCategories={budgetCategories} cycles={cardCycles} refreshTrigger={detailRefreshKey} />
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { CardsPageClient } from "@/components/cards/CardsPageClient";
-import { CreditCard, BudgetCategory, PaymentSource } from "@/lib/types";
-import { getMonthRangeFromParam } from "@/lib/utils";
+import { CreditCard, BudgetCategory, PaymentSource, BillingCycle } from "@/lib/types";
+import { autoAdvanceCycles } from "@/lib/actions/billing-cycles";
 
-async function getData(monthParam?: string) {
+async function getData() {
   const supabase = await createClient();
 
   const {
@@ -16,12 +16,10 @@ async function getData(monthParam?: string) {
       cards: [] as CreditCard[],
       paymentSources: [] as PaymentSource[],
       budgetCategories: [] as BudgetCategory[],
+      cycles: [] as BillingCycle[],
       error: "Unauthorized",
-      monthStr: getMonthRangeFromParam(monthParam).monthStr,
     };
   }
-
-  const { monthStr } = getMonthRangeFromParam(monthParam);
 
   const [cardsResult, sourcesResult, categoriesResult] = await Promise.all([
     supabase
@@ -41,13 +39,25 @@ async function getData(monthParam?: string) {
       .order("name", { ascending: true }),
   ]);
 
+  const cardIds = (cardsResult.data ?? []).map((c) => c.id);
+
+  let cycles: BillingCycle[] = [];
+  if (cardIds.length > 0) {
+    const { data: cyclesData } = await supabase
+      .from("billing_cycles")
+      .select("*")
+      .in("credit_card_id", cardIds)
+      .order("closing_date", { ascending: false });
+    cycles = (cyclesData ?? []) as BillingCycle[];
+  }
+
   if (cardsResult.error) {
     return {
       cards: [] as CreditCard[],
       paymentSources: (sourcesResult.data ?? []) as PaymentSource[],
       budgetCategories: (categoriesResult.data ?? []) as BudgetCategory[],
+      cycles,
       error: cardsResult.error.message,
-      monthStr,
     };
   }
 
@@ -55,25 +65,23 @@ async function getData(monthParam?: string) {
     cards: (cardsResult.data ?? []) as CreditCard[],
     paymentSources: (sourcesResult.data ?? []) as PaymentSource[],
     budgetCategories: (categoriesResult.data ?? []) as BudgetCategory[],
+    cycles,
     error: null,
-    monthStr,
   };
 }
 
-export default async function CardsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ month?: string }>;
-}) {
-  const { month: monthParam } = await searchParams;
-  const { cards, paymentSources, budgetCategories, error, monthStr } = await getData(monthParam);
+export default async function CardsPage() {
+  // Fire-and-forget auto-advance cycles
+  autoAdvanceCycles().catch(() => {});
+
+  const { cards, paymentSources, budgetCategories, cycles, error } = await getData();
 
   return (
     <CardsPageClient
       cards={cards}
       paymentSources={paymentSources}
       budgetCategories={budgetCategories}
-      currentMonth={monthStr}
+      cycles={cycles}
       error={error}
     />
   );

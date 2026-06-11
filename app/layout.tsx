@@ -10,8 +10,9 @@ import { NavigationEvents } from "@/components/alerts/NavigationEvents";
 import { VisibilityProvider } from "@/components/visibility-provider";
 import { VisibilityToggle } from "@/components/visibility-toggle";
 import { MonthProvider } from "@/context/month-context";
-import { MonthSelector } from "@/components/month-selector";
+import { ConditionalMonthSelector } from "@/components/conditional-month-selector";
 import { Wallet } from "lucide-react";
+import { autoAdvanceCycles } from "@/lib/actions/billing-cycles";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -51,6 +52,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fire-and-forget auto-advance billing cycles on app load
+  autoAdvanceCycles().catch(() => {});
+
   return (
     <html
       lang="en"
@@ -89,7 +93,7 @@ export default function RootLayout({
                   <span className="text-sm font-semibold text-white truncate">Finance Tracker</span>
                 </div>
                 <Suspense fallback={null}>
-                  <MonthSelector />
+                  <ConditionalMonthSelector />
                 </Suspense>
                 <div className="flex items-center gap-1 flex-shrink-0 w-48 justify-end">
                   <VisibilityToggle />
@@ -99,7 +103,7 @@ export default function RootLayout({
               {/* Mobile month selector */}
               <div className="md:hidden flex items-center justify-center py-2 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-30">
                 <Suspense fallback={null}>
-                  <MonthSelector />
+                  <ConditionalMonthSelector />
                 </Suspense>
               </div>
               <div className="animate-in fade-in duration-300 flex flex-col flex-1">

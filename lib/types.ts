@@ -39,8 +39,16 @@ export interface CreditCard {
   name: string;
   last_four: string;
   credit_limit_cents: number;
-  closing_day: number;
-  due_day: number;
+  created_at: string;
+}
+
+export interface BillingCycle {
+  id: string;
+  credit_card_id: string;
+  opening_date: string;
+  closing_date: string;
+  due_date: string;
+  status: 'open' | 'closed';
   created_at: string;
 }
 

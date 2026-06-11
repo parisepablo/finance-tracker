@@ -183,68 +183,14 @@ export const alertGenerators: Record<
   },
 
   CREDIT_CARD_CLOSING_SOON: (ctx) => {
+    // TODO: update to use billing_cycles table
     const alerts: AlertToCreate[] = [];
-    for (const card of ctx.creditCards) {
-      if (!card.closing_day) continue;
-      const days = daysUntil(card.closing_day, ctx.today);
-      if (days >= 0 && days <= 3) {
-        const cardTxs = ctx.transactions.filter(
-          (t) => t.credit_card_id === card.id
-        );
-        const totalCharges = cardTxs.reduce(
-          (sum, t) => sum + t.amount_cents,
-          0
-        );
-        const expiresAt = new Date(ctx.today);
-        expiresAt.setDate(expiresAt.getDate() + days + 1);
-
-        alerts.push({
-          type: "CREDIT_CARD_CLOSING_SOON",
-          title: `${card.name} closes in ${days} day${days === 1 ? "" : "s"}`,
-          message: `Your ${card.name} billing period closes on the ${card.closing_day}th. Current charges this month: ${formatCurrency(totalCharges)}.`,
-          payload: {
-            credit_card_id: card.id,
-            closing_day: card.closing_day,
-            total_charges_cents: totalCharges,
-          },
-          priority: "high",
-          expires_at: expiresAt,
-        });
-      }
-    }
     return alerts;
   },
 
   CREDIT_CARD_PAYMENT_DUE: (ctx) => {
+    // TODO: update to use billing_cycles table
     const alerts: AlertToCreate[] = [];
-    for (const card of ctx.creditCards) {
-      if (!card.due_day) continue;
-      const days = daysUntil(card.due_day, ctx.today);
-      if (days >= 0 && days <= 3) {
-        const cardTxs = ctx.transactions.filter(
-          (t) => t.credit_card_id === card.id
-        );
-        const totalDue = cardTxs.reduce(
-          (sum, t) => sum + t.amount_cents,
-          0
-        );
-        const expiresAt = new Date(ctx.today);
-        expiresAt.setDate(expiresAt.getDate() + days + 1);
-
-        alerts.push({
-          type: "CREDIT_CARD_PAYMENT_DUE",
-          title: `${card.name} payment due in ${days} day${days === 1 ? "" : "s"}`,
-          message: `Your ${card.name} payment of ${formatCurrency(totalDue)} is due on the ${card.due_day}th.`,
-          payload: {
-            credit_card_id: card.id,
-            due_day: card.due_day,
-            total_due_cents: totalDue,
-          },
-          priority: "critical",
-          expires_at: expiresAt,
-        });
-      }
-    }
     return alerts;
   },
 

@@ -7,6 +7,7 @@ import {
   getMonthRangeFromParam,
 } from "@/lib/utils";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
+import { autoAdvanceCycles } from "@/lib/actions/billing-cycles";
 
 export default async function DashboardPage({
   searchParams,
@@ -31,13 +32,8 @@ export default async function DashboardPage({
 
   const { start, end, monthStr, year, month } = getMonthRangeFromParam(monthParam);
 
-  // Previous month
-  const prevYear = month === 1 ? year - 1 : year;
-  const prevMonthNum = month === 1 ? 12 : month - 1;
-  const prevMonthStr = `${prevYear}-${String(prevMonthNum).padStart(2, "0")}`;
-  const prevStart = `${prevMonthStr}-01`;
-  const prevLastDay = new Date(prevYear, prevMonthNum, 0).getDate();
-  const prevEnd = `${prevMonthStr}-${String(prevLastDay).padStart(2, "0")}`;
+  // Fire-and-forget auto-advance cycles
+  autoAdvanceCycles().catch(() => {});
 
   const [
     incomeResult,
@@ -45,7 +41,7 @@ export default async function DashboardPage({
     budgetResult,
     cardsResult,
     currentMonthTransactionsResult,
-    prevMonthCcTransactionsResult,
+    closedCyclesResult,
   ] = await Promise.all([
     supabase.from("income_sources").select("*").eq("user_id", user.id),
     supabase.from("fixed_expenses").select("*").eq("user_id", user.id),
@@ -66,12 +62,12 @@ export default async function DashboardPage({
       .gte("date", start)
       .lte("date", end),
     supabase
-      .from("transactions")
-      .select("*")
-      .eq("user_id", user.id)
-      .not("credit_card_id", "is", null)
-      .gte("date", prevStart)
-      .lte("date", prevEnd),
+      .from("billing_cycles")
+      .select("*, credit_cards(user_id)")
+      .eq("status", "closed")
+      .eq("credit_cards.user_id", user.id)
+      .order("closing_date", { ascending: false })
+      .limit(1),
   ]);
 
   const incomeSources = incomeResult.data ?? [];
@@ -79,7 +75,7 @@ export default async function DashboardPage({
   const budgetCategories = budgetResult.data ?? [];
   const creditCards = cardsResult.data ?? [];
   const currentMonthTransactions = currentMonthTransactionsResult.data ?? [];
-  const prevMonthCcTransactions = prevMonthCcTransactionsResult.data ?? [];
+  const mostRecentClosedCycle = closedCyclesResult.data?.[0] ?? null;
 
   const totalIncome = sumIncomeSources(incomeSources);
   const totalFixed = sumFixedExpenses(fixedExpenses);
@@ -91,10 +87,41 @@ export default async function DashboardPage({
   );
   const discretionaryPool = getDiscretionaryPool(totalIncome, totalFixed);
 
-  const ccPaymentDue = prevMonthCcTransactions.reduce(
-    (sum, tx) => sum + tx.amount_cents,
-    0
-  );
+  // CC payment due = total charges from most recent closed cycle
+  let ccPaymentDue = 0;
+  if (mostRecentClosedCycle) {
+    // Find the cycle before the closed one to get the start date
+    const { data: previousCycle } = await supabase
+      .from("billing_cycles")
+      .select("closing_date")
+      .eq("credit_card_id", mostRecentClosedCycle.credit_card_id)
+      .lt("closing_date", mostRecentClosedCycle.closing_date)
+      .order("closing_date", { ascending: false })
+      .limit(1)
+      .single();
+
+    const cycleStart = previousCycle
+      ? (() => {
+          const d = new Date(previousCycle.closing_date);
+          d.setDate(d.getDate() + 1);
+          return d.toISOString().split("T")[0];
+        })()
+      : (() => {
+          const d = new Date(mostRecentClosedCycle.closing_date);
+          d.setDate(d.getDate() - 30);
+          return d.toISOString().split("T")[0];
+        })();
+
+    const { data: cycleCharges } = await supabase
+      .from("transactions")
+      .select("amount_cents")
+      .eq("user_id", user.id)
+      .eq("credit_card_id", mostRecentClosedCycle.credit_card_id)
+      .gte("date", cycleStart)
+      .lte("date", mostRecentClosedCycle.closing_date);
+
+    ccPaymentDue = (cycleCharges ?? []).reduce((sum, tx) => sum + tx.amount_cents, 0);
+  }
 
   const finalPool = Math.max(0, discretionaryPool - ccPaymentDue);
 
@@ -204,7 +231,7 @@ export default async function DashboardPage({
       billingCycle: item.expense.billing_cycle,
     }));
 
-  const prevMonthDate = new Date(prevYear, prevMonthNum - 1);
+  const prevMonthDate = new Date(year, month === 1 ? 11 : month - 2);
   const prevMonthName = prevMonthDate.toLocaleDateString("en-US", { month: "long" });
   const currentMonthName = new Date(year, month - 1).toLocaleDateString("en-US", { month: "long" });
 
