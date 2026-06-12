@@ -2,13 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getMonthlyEquivalent } from "@/lib/utils";
 
-function getCardId(request: NextRequest, params: Promise<{ id: string }>): Promise<string> {
-  const pathname = request.nextUrl?.pathname ?? new URL(request.url).pathname;
-  const urlId = pathname.split("/").pop() ?? "";
-  if (urlId) return Promise.resolve(urlId);
-  return params.then((p) => p.id);
-}
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -24,7 +17,7 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const cardId = await getCardId(request, params);
+  const { id: cardId } = await params;
 
   const { data: card, error: cardError } = await supabase
     .from("credit_cards")
@@ -167,7 +160,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const id = await getCardId(request, params);
+  const { id } = await params;
 
   const { data: existing, error: fetchError } = await supabase
     .from("credit_cards")
@@ -261,7 +254,7 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const id = await getCardId(request, params);
+  const { id } = await params;
 
   const { data: existing, error: fetchError } = await supabase
     .from("credit_cards")

@@ -13,6 +13,7 @@ import { MonthProvider } from "@/context/month-context";
 import { ConditionalMonthSelector } from "@/components/conditional-month-selector";
 import { Wallet } from "lucide-react";
 import { autoAdvanceCycles } from "@/lib/actions/billing-cycles";
+import { after } from "next/server";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -52,8 +53,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Fire-and-forget auto-advance billing cycles on app load
-  autoAdvanceCycles().catch(() => {});
+  // Non-blocking auto-advance billing cycles after response
+  after(() => {
+    autoAdvanceCycles().catch(() => {});
+  });
 
   return (
     <html

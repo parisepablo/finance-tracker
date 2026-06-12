@@ -13,22 +13,27 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { count, error } = await supabase
-    .from("alerts")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .eq("is_read", false);
+  const [{ count, error: countError }, { count: criticalCount, error: criticalError }] =
+    await Promise.all([
+      supabase
+        .from("alerts")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false),
+      supabase
+        .from("alerts")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false)
+        .eq("priority", "critical"),
+    ]);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (countError || criticalError) {
+    return NextResponse.json(
+      { error: countError?.message || criticalError?.message },
+      { status: 500 }
+    );
   }
-
-  const { count: criticalCount } = await supabase
-    .from("alerts")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .eq("is_read", false)
-    .eq("priority", "critical");
 
   return NextResponse.json({
     unread: count ?? 0,

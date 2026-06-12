@@ -3,11 +3,9 @@ import {
   sumIncomeSources,
   sumFixedExpenses,
   getDiscretionaryPool,
-  getMonthlyEquivalent,
   getMonthRangeFromParam,
 } from "@/lib/utils";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
-import { autoAdvanceCycles } from "@/lib/actions/billing-cycles";
 
 export default async function DashboardPage({
   searchParams,
@@ -32,16 +30,13 @@ export default async function DashboardPage({
 
   const { start, end, monthStr, year, month } = getMonthRangeFromParam(monthParam);
 
-  // Fire-and-forget auto-advance cycles
-  autoAdvanceCycles().catch(() => {});
-
   const [
     incomeResult,
     expensesResult,
     budgetResult,
     cardsResult,
     currentMonthTransactionsResult,
-    closedCyclesResult,
+    billingCyclesResult,
   ] = await Promise.all([
     supabase.from("income_sources").select("*").eq("user_id", user.id),
     supabase.from("fixed_expenses").select("*").eq("user_id", user.id),
@@ -64,10 +59,9 @@ export default async function DashboardPage({
     supabase
       .from("billing_cycles")
       .select("*, credit_cards(user_id)")
-      .eq("status", "closed")
       .eq("credit_cards.user_id", user.id)
       .order("closing_date", { ascending: false })
-      .limit(1),
+      .limit(50),
   ]);
 
   const incomeSources = incomeResult.data ?? [];
@@ -75,7 +69,10 @@ export default async function DashboardPage({
   const budgetCategories = budgetResult.data ?? [];
   const creditCards = cardsResult.data ?? [];
   const currentMonthTransactions = currentMonthTransactionsResult.data ?? [];
-  const mostRecentClosedCycle = closedCyclesResult.data?.[0] ?? null;
+
+  const billingCycles = billingCyclesResult.data ?? [];
+  const closedCycles = billingCycles.filter((c) => c.status === "closed");
+  const mostRecentClosedCycle = closedCycles[0] ?? null;
 
   const totalIncome = sumIncomeSources(incomeSources);
   const totalFixed = sumFixedExpenses(fixedExpenses);
@@ -90,15 +87,12 @@ export default async function DashboardPage({
   // CC payment due = total charges from most recent closed cycle
   let ccPaymentDue = 0;
   if (mostRecentClosedCycle) {
-    // Find the cycle before the closed one to get the start date
-    const { data: previousCycle } = await supabase
-      .from("billing_cycles")
-      .select("closing_date")
-      .eq("credit_card_id", mostRecentClosedCycle.credit_card_id)
-      .lt("closing_date", mostRecentClosedCycle.closing_date)
-      .order("closing_date", { ascending: false })
-      .limit(1)
-      .single();
+    // Compute previous cycle in memory from the fetched billing cycles
+    const previousCycle = closedCycles.find(
+      (c) =>
+        c.credit_card_id === mostRecentClosedCycle.credit_card_id &&
+        c.closing_date < mostRecentClosedCycle.closing_date
+    );
 
     const cycleStart = previousCycle
       ? (() => {
