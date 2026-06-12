@@ -90,6 +90,7 @@ export async function GET(
     amount_cents: number;
     type: "fixed" | "installment" | "single";
     date: string;
+    purchase_date: string;
     current_installment?: number;
     total_installments?: number;
   }> = [];
@@ -107,18 +108,24 @@ export async function GET(
       amount_cents: monthly,
       type: "fixed",
       date: expenseDate,
+      purchase_date: expenseDate,
     });
     totalDue += monthly;
   }
 
   for (const tx of transactionsResult.data ?? []) {
     if (tx.is_installment && tx.total_installments && tx.current_installment) {
+      const txDate = new Date(tx.date);
+      const purchaseDate = new Date(txDate);
+      purchaseDate.setMonth(purchaseDate.getMonth() - (tx.current_installment - 1));
+      const purchaseDateStr = purchaseDate.toISOString().split("T")[0];
       breakdown.push({
         id: tx.id,
         description: tx.description,
         amount_cents: tx.amount_cents,
         type: "installment",
         date: tx.date,
+        purchase_date: purchaseDateStr,
         current_installment: tx.current_installment,
         total_installments: tx.total_installments,
       });
@@ -129,13 +136,14 @@ export async function GET(
         amount_cents: tx.amount_cents,
         type: "single",
         date: tx.date,
+        purchase_date: tx.date,
       });
     }
     totalDue += tx.amount_cents;
   }
 
-  // Sort chronologically by date, oldest to newest
-  breakdown.sort((a, b) => a.date.localeCompare(b.date));
+  // Sort chronologically by original purchase date, oldest to newest
+  breakdown.sort((a, b) => a.purchase_date.localeCompare(b.purchase_date));
 
   return NextResponse.json({
     month: monthParam,
