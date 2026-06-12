@@ -216,6 +216,7 @@ export function EditChargeSheet({
       toast.success("Charge updated successfully");
       haptics.success();
       onOpenChange(false);
+      setSaving(false);
       onSuccess();
     } catch {
       toast.error("Network error. Please try again.");
