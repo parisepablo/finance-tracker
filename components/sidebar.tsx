@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Wallet,
   CreditCard,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AlertsBell } from "@/components/alerts/AlertsBell";
@@ -15,6 +16,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/finances", label: "Finances", icon: Wallet },
   { href: "/cards", label: "Cards & Wallets", icon: CreditCard },
+  { href: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
 function DesktopNavLinks() {
