@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { CreditCard, BudgetCategory, PaymentSource } from "@/lib/types";
 import { haptics } from "@/lib/haptics";
+import { VoiceMicButton } from "@/components/VoiceMicButton";
 
 type PaymentMethod =
   | { type: "card"; id: string; name: string; lastFour?: string; color?: string }
@@ -323,7 +324,22 @@ export function QuickAddChargeSheet({
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="quick-desc">Description</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="quick-desc">Description</Label>
+                  <VoiceMicButton
+                    categories={budgetCategories.map((c) => ({ id: c.id, name: c.name }))}
+                    onParsed={(result) => {
+                      if (result.description) setDescription(result.description);
+                      if (result.totalAmount) setTotalAmount(result.totalAmount);
+                      if (result.date) setDate(new Date(result.date));
+                      if (result.budgetCategoryId) setBudgetCategoryId(result.budgetCategoryId);
+                      if (result.isInstallment) {
+                        setIsInstallment(true);
+                        if (result.totalInstallments) setTotalInstallments(result.totalInstallments);
+                      }
+                    }}
+                  />
+                </div>
                 <Input
                   id="quick-desc"
                   autoFocus

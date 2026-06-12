@@ -27,6 +27,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { VoiceMicButton } from "@/components/VoiceMicButton";
 
 interface AddChargeFormProps {
   card: CreditCard;
@@ -155,7 +156,22 @@ export function AddChargeForm({
 
           <div className="grid gap-4 px-3 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="charge-desc">Description</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="charge-desc">Description</Label>
+                <VoiceMicButton
+                  categories={budgetCategories.map((c) => ({ id: c.id, name: c.name }))}
+                  onParsed={(result) => {
+                    if (result.description) setDescription(result.description);
+                    if (result.totalAmount) setTotalAmount(result.totalAmount);
+                    if (result.date) setDate(new Date(result.date));
+                    if (result.budgetCategoryId) setBudgetCategoryId(result.budgetCategoryId);
+                    if (result.isInstallment) {
+                      setIsInstallment(true);
+                      if (result.totalInstallments) setTotalInstallments(result.totalInstallments);
+                    }
+                  }}
+                />
+              </div>
               <Input
                 id="charge-desc"
                 value={description}
