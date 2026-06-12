@@ -89,6 +89,7 @@ export async function GET(
     description: string;
     amount_cents: number;
     type: "fixed" | "installment" | "single";
+    date: string;
     current_installment?: number;
     total_installments?: number;
   }> = [];
@@ -97,11 +98,15 @@ export async function GET(
 
   for (const expense of fixedResult.data ?? []) {
     const monthly = getMonthlyEquivalent(expense.amount_cents, expense.billing_cycle);
+    const expenseDate = expense.due_day
+      ? `${start.slice(0, 7)}-${String(expense.due_day).padStart(2, "0")}`
+      : start;
     breakdown.push({
       id: expense.id,
       description: expense.name,
       amount_cents: monthly,
       type: "fixed",
+      date: expenseDate,
     });
     totalDue += monthly;
   }
@@ -113,6 +118,7 @@ export async function GET(
         description: tx.description,
         amount_cents: tx.amount_cents,
         type: "installment",
+        date: tx.date,
         current_installment: tx.current_installment,
         total_installments: tx.total_installments,
       });
@@ -122,10 +128,14 @@ export async function GET(
         description: tx.description,
         amount_cents: tx.amount_cents,
         type: "single",
+        date: tx.date,
       });
     }
     totalDue += tx.amount_cents;
   }
+
+  // Sort chronologically by date, oldest to newest
+  breakdown.sort((a, b) => a.date.localeCompare(b.date));
 
   return NextResponse.json({
     month: monthParam,

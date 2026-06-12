@@ -21,6 +21,7 @@ interface MonthlySummaryItem {
   description: string;
   amount_cents: number;
   type: "fixed" | "installment" | "single";
+  date: string;
   current_installment?: number;
   total_installments?: number;
 }
