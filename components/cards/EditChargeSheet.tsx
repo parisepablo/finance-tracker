@@ -114,7 +114,15 @@ export function EditChargeSheet({
 
         setTransaction(tx);
         setDescription(tx.description);
-        setDate(new Date(tx.date));
+        // For installments, compute the original purchase date so the backend recreates
+        // all installments from the correct starting month.
+        if (tx.is_installment && tx.current_installment && tx.current_installment > 1) {
+          const originalDate = new Date(tx.date);
+          originalDate.setMonth(originalDate.getMonth() - (tx.current_installment - 1));
+          setDate(originalDate);
+        } else {
+          setDate(new Date(tx.date));
+        }
         setIsInstallment(tx.is_installment);
         setBudgetCategoryId(tx.budget_category_id ?? "");
         setTotalInstallments(
