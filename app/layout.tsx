@@ -14,6 +14,7 @@ import { ConditionalMonthSelector } from "@/components/conditional-month-selecto
 import { Wallet } from "lucide-react";
 import { autoAdvanceCycles } from "@/lib/actions/billing-cycles";
 import { after } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -49,7 +50,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -59,65 +60,89 @@ export default function RootLayout({
     autoAdvanceCycles().catch(() => {});
   });
 
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAuthenticated = !!user;
+
   return (
     <html
       lang="en"
       className={`${inter.variable} ${geistMono.variable} dark h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col md:flex-row bg-background text-foreground">
-        <MonthProvider>
-          <VisibilityProvider>
-            {/* Prefetch unread count on initial page load */}
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `fetch('/api/alerts/count').catch(() => {});`,
-              }}
-            />
-            <Sidebar />
-            <main className="flex-1 flex flex-col pb-24 md:pb-0 relative">
-              {/* Mobile header */}
-              <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-950 overflow-hidden">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
-                    <Wallet className="h-3.5 w-3.5 text-indigo-400" />
+      <body className="min-h-full bg-background text-foreground">
+        {isAuthenticated ? (
+          <div className="min-h-full flex flex-col md:flex-row">
+            <MonthProvider>
+              <VisibilityProvider>
+                {/* Prefetch unread count on initial page load */}
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `fetch('/api/alerts/count').catch(() => {});`,
+                  }}
+                />
+                <Sidebar />
+                <main className="flex-1 flex flex-col pb-24 md:pb-0 relative">
+                  {/* Mobile header */}
+                  <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-950 overflow-hidden">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
+                        <Wallet className="h-3.5 w-3.5 text-indigo-400" />
+                      </div>
+                      <span className="text-sm font-semibold text-white truncate">Plata</span>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <VisibilityToggle />
+                      <AlertsBell />
+                    </div>
                   </div>
-                  <span className="text-sm font-semibold text-white truncate">Finance Tracker</span>
-                </div>
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <VisibilityToggle />
-                  <AlertsBell />
-                </div>
-              </div>
-              {/* Desktop header with month selector */}
-              <div className="hidden md:flex items-center justify-between px-6 py-3 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-30">
-                <div className="flex items-center gap-2 min-w-0 w-48">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
-                    <Wallet className="h-3.5 w-3.5 text-indigo-400" />
+                  {/* Desktop header with month selector */}
+                  <div className="hidden md:flex items-center justify-between px-6 py-3 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-30">
+                    <div className="flex items-center gap-2 min-w-0 w-48">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
+                        <Wallet className="h-3.5 w-3.5 text-indigo-400" />
+                      </div>
+                      <span className="text-sm font-semibold text-white truncate">Plata</span>
+                    </div>
+                    <Suspense fallback={null}>
+                      <ConditionalMonthSelector />
+                    </Suspense>
+                    <div className="flex items-center gap-1 flex-shrink-0 w-48 justify-end">
+                      <VisibilityToggle />
+                      <AlertsBell />
+                    </div>
                   </div>
-                  <span className="text-sm font-semibold text-white truncate">Finance Tracker</span>
-                </div>
+                  {/* Mobile month selector */}
+                  <div className="md:hidden flex items-center justify-center py-2 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-30">
+                    <Suspense fallback={null}>
+                      <ConditionalMonthSelector />
+                    </Suspense>
+                  </div>
+                  <div className="animate-in fade-in duration-300 flex flex-col flex-1">
+                    {children}
+                  </div>
+                </main>
                 <Suspense fallback={null}>
-                  <ConditionalMonthSelector />
+                  <GlobalFab />
                 </Suspense>
-                <div className="flex items-center gap-1 flex-shrink-0 w-48 justify-end">
-                  <VisibilityToggle />
-                  <AlertsBell />
-                </div>
-              </div>
-              {/* Mobile month selector */}
-              <div className="md:hidden flex items-center justify-center py-2 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-30">
-                <Suspense fallback={null}>
-                  <ConditionalMonthSelector />
-                </Suspense>
-              </div>
-              <div className="animate-in fade-in duration-300 flex flex-col flex-1">
-                {children}
-              </div>
-            </main>
-            <Suspense fallback={null}>
-              <GlobalFab />
-            </Suspense>
-            <NavigationEvents />
+                <NavigationEvents />
+                <Toaster
+                  position="bottom-right"
+                  toastOptions={{
+                    style: {
+                      background: "#18181b",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                      color: "#fafafa",
+                    },
+                  }}
+                />
+              </VisibilityProvider>
+            </MonthProvider>
+          </div>
+        ) : (
+          <>
+            {children}
             <Toaster
               position="bottom-right"
               toastOptions={{
@@ -128,8 +153,8 @@ export default function RootLayout({
                 },
               }}
             />
-          </VisibilityProvider>
-        </MonthProvider>
+          </>
+        )}
       </body>
     </html>
   );

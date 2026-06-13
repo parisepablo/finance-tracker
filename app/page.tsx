@@ -6,6 +6,7 @@ import {
   getMonthRangeFromParam,
 } from "@/lib/utils";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
+import { LandingPage } from "@/components/marketing/LandingPage";
 
 export default async function DashboardPage({
   searchParams,
@@ -21,11 +22,7 @@ export default async function DashboardPage({
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-8">
-        <p className="text-muted-foreground">Please sign in to view your dashboard.</p>
-      </div>
-    );
+    return <LandingPage />;
   }
 
   const { start, end, monthStr, year, month } = getMonthRangeFromParam(monthParam);

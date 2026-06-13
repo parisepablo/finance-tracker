@@ -39,7 +39,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Finance Tracker
+            Plata
           </h1>
           <p className="text-sm text-muted-foreground">
             Sign in with your email and password
