@@ -27,13 +27,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Plata",
+  title: "$cinco",
   description: "Personal finance tracking application",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Plata",
+    title: "$cinco",
   },
   icons: {
     apple: "/icon-192x192.png",
@@ -90,7 +90,7 @@ export default async function RootLayout({
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
                         <Wallet className="h-3.5 w-3.5 text-indigo-400" />
                       </div>
-                      <span className="text-sm font-semibold text-white truncate">Plata</span>
+                      <span className="text-sm font-semibold truncate"><span className="text-white">Cinco</span><span className="text-emerald-400"> pal peso</span></span>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <VisibilityToggle />
@@ -103,7 +103,7 @@ export default async function RootLayout({
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
                         <Wallet className="h-3.5 w-3.5 text-indigo-400" />
                       </div>
-                      <span className="text-sm font-semibold text-white truncate">Plata</span>
+                      <span className="text-sm font-semibold truncate"><span className="text-white">Cinco</span><span className="text-emerald-400"> pal peso</span></span>
                     </div>
                     <Suspense fallback={null}>
                       <ConditionalMonthSelector />

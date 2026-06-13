@@ -104,7 +104,7 @@ export function LandingPage() {
         <FadeIn delay={0.1}>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-balance">
             <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
-              Plata
+              $cinco
             </span>
           </h1>
         </FadeIn>
@@ -180,7 +180,7 @@ export function LandingPage() {
         <FadeIn delay={0.1}>
           <div className="flex flex-col items-center justify-center gap-3 text-center">
             <p className="text-sm text-zinc-500">
-              Plata — a personal finance tracker. Built as a personal project.
+              $cinco — a personal finance tracker. Built as a personal project.
             </p>
             <a
               href="https://github.com/parisepablo/finance-tracker"

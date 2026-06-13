@@ -1,6 +1,6 @@
 {
-  "name": "Plata",
-  "short_name": "Plata",
+  "name": "$cinco",
+  "short_name": "$cinco",
   "description": "Personal finance tracker",
   "start_url": "/",
   "display": "standalone",

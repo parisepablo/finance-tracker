@@ -99,8 +99,9 @@ export function Sidebar() {
               <Wallet className="h-4 w-4 text-indigo-400" />
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm font-semibold tracking-tight text-white truncate">
-                Plata
+              <h1 className="text-sm font-semibold tracking-tight truncate">
+                <span className="text-white">Cinco</span>
+                <span className="text-emerald-400"> pal peso</span>
               </h1>
               <p className="text-[10px] text-zinc-500 uppercase tracking-wider truncate">
                 Finance
