@@ -95,17 +95,18 @@ export function Sidebar() {
       <aside className="hidden md:flex w-64 flex-col border-r border-white/[0.06] bg-zinc-900 backdrop-blur-xl p-4">
         <div className="mb-8 px-3 flex items-center justify-between overflow-hidden">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
-              <Wallet className="h-4 w-4 text-indigo-400" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-sm font-semibold tracking-tight truncate">
-                <span className="text-white">Cinco</span>
-                <span className="text-emerald-400"> pal peso</span>
-              </h1>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-wider truncate">
-                Finance
-              </p>
+            <img
+              src="/favicon-32x32.png"
+              alt="$cinco"
+              className="h-8 w-8 shrink-0 rounded-lg"
+            />
+            <div className="min-w-0 flex flex-col">
+              <span className="text-sm font-semibold tracking-tight text-white truncate">
+                Cinco
+              </span>
+              <span className="text-sm font-semibold tracking-tight text-emerald-400 truncate">
+                pal peso
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">

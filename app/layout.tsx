@@ -87,10 +87,11 @@ export default async function RootLayout({
                   {/* Mobile header */}
                   <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-950 overflow-hidden">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
-                        <Wallet className="h-3.5 w-3.5 text-indigo-400" />
+                      <img src="/favicon-32x32.png" alt="$cinco" className="h-7 w-7 shrink-0 rounded-lg" />
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold text-white truncate">Cinco</span>
+                        <span className="text-sm font-semibold text-emerald-400 truncate">pal peso</span>
                       </div>
-                      <span className="text-sm font-semibold truncate"><span className="text-white">Cinco</span><span className="text-emerald-400"> pal peso</span></span>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <VisibilityToggle />
@@ -100,10 +101,11 @@ export default async function RootLayout({
                   {/* Desktop header with month selector */}
                   <div className="hidden md:flex items-center justify-between px-6 py-3 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-30">
                     <div className="flex items-center gap-2 min-w-0 w-48">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-500/15">
-                        <Wallet className="h-3.5 w-3.5 text-indigo-400" />
+                      <img src="/favicon-32x32.png" alt="$cinco" className="h-7 w-7 shrink-0 rounded-lg" />
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-semibold text-white truncate">Cinco</span>
+                        <span className="text-sm font-semibold text-emerald-400 truncate">pal peso</span>
                       </div>
-                      <span className="text-sm font-semibold truncate"><span className="text-white">Cinco</span><span className="text-emerald-400"> pal peso</span></span>
                     </div>
                     <Suspense fallback={null}>
                       <ConditionalMonthSelector />
