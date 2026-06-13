@@ -207,10 +207,10 @@ export function QuickAddChargeSheet({
       <SheetContent
         side={side}
         className={cn(
-          "bg-zinc-900",
+          "bg-[#0f0c19]",
           isMobile
-            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-zinc-800"
-            : "w-full max-w-sm border-l border-zinc-800"
+            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-[#18122B]"
+            : "w-full max-w-sm border-l border-[#18122B]"
         )}
       >
         {step === "picker" && (
@@ -235,10 +235,10 @@ export function QuickAddChargeSheet({
                     });
                     setStep("form");
                   }}
-                  className="w-full flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-left transition-colors hover:bg-zinc-800"
+                  className="w-full flex items-center gap-3 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4 text-left transition-colors hover:bg-[#18122B]"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600/20 to-violet-600/20">
-                    <CreditCardIcon className="h-5 w-5 text-indigo-400" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600/20 to-violet-600/20">
+                    <CreditCardIcon className="h-5 w-5 text-emerald-400" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-zinc-200">{card.name}</p>
@@ -264,7 +264,7 @@ export function QuickAddChargeSheet({
                     });
                     setStep("form");
                   }}
-                  className="w-full flex items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900 p-4 text-left transition-colors hover:bg-zinc-800"
+                  className="w-full flex items-center gap-3 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4 text-left transition-colors hover:bg-[#18122B]"
                 >
                   <div
                     className="flex h-10 w-10 items-center justify-center rounded-lg"
@@ -301,7 +301,7 @@ export function QuickAddChargeSheet({
                     setStep("picker");
                     setSelectedMethod(null);
                   }}
-                  className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-[#18122B]"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -318,7 +318,7 @@ export function QuickAddChargeSheet({
 
             <form onSubmit={handleSubmit} className="space-y-4 px-3 py-4">
               {isSource && (
-                <div className="rounded-lg border border-zinc-800 bg-zinc-800/50 px-3 py-2 text-sm text-zinc-300">
+                <div className="rounded-lg border border-[#18122B] bg-[#18122B]/50 px-3 py-2 text-sm text-zinc-300">
                   Payment source: <span className="font-medium text-white">{selectedMethod.name}</span>
                 </div>
               )}

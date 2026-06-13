@@ -66,7 +66,7 @@ export function FixedExpensesPageClient({
       )}
 
       <div className="grid gap-4 md:grid-cols-3">
-        <GlowCard color="indigo">
+        <GlowCard color="emerald">
           <div className="p-5 space-y-2">
             <div className="flex flex-row items-center justify-between">
               <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
@@ -83,7 +83,7 @@ export function FixedExpensesPageClient({
           </div>
         </GlowCard>
 
-        <GlowCard color="indigo">
+        <GlowCard color="emerald">
           <div className="p-5 space-y-2">
             <div className="flex flex-row items-center justify-between">
               <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
@@ -100,13 +100,13 @@ export function FixedExpensesPageClient({
           </div>
         </GlowCard>
 
-        <GlowCard color="indigo" hoverIntensity="strong">
+        <GlowCard color="emerald" hoverIntensity="strong">
           <div className="p-5 space-y-2">
             <div className="flex flex-row items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-widest text-indigo-400">
+              <span className="text-xs font-medium uppercase tracking-widest text-emerald-400">
                 Discretionary Pool
               </span>
-              <PiggyBank className="h-4 w-4 text-indigo-500/70" />
+              <PiggyBank className="h-4 w-4 text-emerald-500/70" />
             </div>
             <div className="text-2xl font-bold text-white tabular-nums font-mono">
               <Amount value={discretionaryPool} className="font-mono" />

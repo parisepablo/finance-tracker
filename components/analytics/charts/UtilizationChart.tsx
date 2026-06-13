@@ -48,7 +48,7 @@ export function UtilizationChart({ data, creditCards }: UtilizationChartProps) {
   });
 
   // Colors for cards
-  const cardColors = ["#6366f1", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
+  const cardColors = ["#10b981", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
 
   return (
     <div className="h-64">
@@ -72,7 +72,7 @@ export function UtilizationChart({ data, creditCards }: UtilizationChartProps) {
             content={({ active, payload, label }) => {
               if (active && payload && payload.length) {
                 return (
-                  <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-2 shadow-lg">
+                  <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg">
                     <p className="text-xs text-zinc-400 mb-1">{label}</p>
                     {payload.map((entry, index) => {
                       if (entry.value === 0) return null;

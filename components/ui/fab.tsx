@@ -17,15 +17,15 @@ export function Fab({ onClick }: FabProps) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "fixed z-40 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition-all duration-200 ease-out",
-        "hover:bg-indigo-500 hover:scale-[1.08] active:scale-95",
+        "fixed z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg transition-all duration-200 ease-out",
+        "hover:bg-emerald-500 hover:scale-[1.08] active:scale-95",
         "bottom-[calc(5rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))]",
         "md:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] md:right-[calc(1.5rem+env(safe-area-inset-right))]"
       )}
       style={{
         boxShadow: isHovered
-          ? "0 0 30px rgba(99,102,241,0.5), 0 8px 24px rgba(0,0,0,0.4)"
-          : "0 0 20px rgba(99,102,241,0.4), 0 4px 16px rgba(0,0,0,0.3)",
+          ? "0 0 30px rgba(16,185,129,0.5), 0 8px 24px rgba(0,0,0,0.4)"
+          : "0 0 20px rgba(16,185,129,0.4), 0 4px 16px rgba(0,0,0,0.3)",
       }}
       aria-label="Add charge"
     >

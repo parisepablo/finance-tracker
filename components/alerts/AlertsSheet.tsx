@@ -23,18 +23,18 @@ interface AlertsSheetProps {
 
 function AlertSkeleton() {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-zinc-800 p-3">
-      <Skeleton className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-zinc-700" />
+    <div className="flex items-start gap-3 rounded-lg border border-[#18122B] p-3">
+      <Skeleton className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#231c3d]" />
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-center gap-2">
-          <Skeleton className="h-4 w-4 shrink-0 rounded bg-zinc-700" />
-          <Skeleton className="h-4 w-32 rounded bg-zinc-700" />
+          <Skeleton className="h-4 w-4 shrink-0 rounded bg-[#231c3d]" />
+          <Skeleton className="h-4 w-32 rounded bg-[#231c3d]" />
         </div>
-        <Skeleton className="h-3 w-full rounded bg-zinc-800" />
-        <Skeleton className="h-3 w-3/4 rounded bg-zinc-800" />
-        <Skeleton className="h-2.5 w-16 rounded bg-zinc-800" />
+        <Skeleton className="h-3 w-full rounded bg-[#18122B]" />
+        <Skeleton className="h-3 w-3/4 rounded bg-[#18122B]" />
+        <Skeleton className="h-2.5 w-16 rounded bg-[#18122B]" />
       </div>
-      <Skeleton className="h-6 w-6 shrink-0 rounded bg-zinc-800" />
+      <Skeleton className="h-6 w-6 shrink-0 rounded bg-[#18122B]" />
     </div>
   );
 }
@@ -43,10 +43,10 @@ function ReadDivider() {
   return (
     <div className="relative py-2">
       <div className="absolute inset-0 flex items-center">
-        <div className="w-full border-t border-zinc-800" />
+        <div className="w-full border-t border-[#18122B]" />
       </div>
       <div className="relative flex justify-center">
-        <span className="bg-zinc-900 px-2 text-xs text-zinc-600">Earlier</span>
+        <span className="bg-[#0f0c19] px-2 text-xs text-zinc-600">Earlier</span>
       </div>
     </div>
   );
@@ -113,7 +113,7 @@ export function AlertsSheet({ open, onOpenChange }: AlertsSheetProps) {
       <SheetContent
         side={side}
         className={cn(
-          "bg-zinc-900 border-zinc-800",
+          "bg-[#0f0c19] border-[#18122B]",
           isMobile
             ? "h-auto max-h-[85vh] rounded-t-2xl"
             : "w-full max-w-sm"
@@ -149,7 +149,7 @@ export function AlertsSheet({ open, onOpenChange }: AlertsSheetProps) {
           </div>
         ) : alerts.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-12">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
               <Bell className="h-5 w-5 text-zinc-500" />
             </div>
             <p className="text-sm text-zinc-500">

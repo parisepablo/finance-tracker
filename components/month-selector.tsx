@@ -73,7 +73,7 @@ export function MonthSelector() {
         variant="ghost"
         size="icon"
         onClick={prevMonth}
-        className="h-6 w-6 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50"
+        className="h-6 w-6 text-zinc-500 hover:text-zinc-300 hover:bg-[#18122B]/50"
         aria-label="Previous month"
       >
         <ChevronLeft className="h-3 w-3" />
@@ -86,7 +86,7 @@ export function MonthSelector() {
         size="icon"
         onClick={nextMonth}
         disabled={isCurrentMonth}
-        className="h-6 w-6 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 disabled:opacity-30 disabled:hover:bg-transparent"
+        className="h-6 w-6 text-zinc-500 hover:text-zinc-300 hover:bg-[#18122B]/50 disabled:opacity-30 disabled:hover:bg-transparent"
         aria-label="Next month"
       >
         <ChevronRight className="h-3 w-3" />

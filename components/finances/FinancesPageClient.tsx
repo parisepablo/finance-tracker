@@ -135,7 +135,7 @@ export function FinancesPageClient({
       )}
 
       {/* Summary flow bar */}
-      <GlowCard color="indigo">
+      <GlowCard color="emerald">
         <div className="p-5">
           <div className="flex flex-col items-start md:items-center gap-4 md:flex-row md:justify-between text-left md:text-center">
             {/* Total Income */}
@@ -197,11 +197,11 @@ export function FinancesPageClient({
 
             {/* Discretionary Pool */}
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10">
-                <Wallet className="h-5 w-5 text-indigo-400" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
+                <Wallet className="h-5 w-5 text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-indigo-400">
+                <p className="text-xs font-medium uppercase tracking-widest text-emerald-400">
                   Discretionary Pool
                 </p>
                 <p className="text-xl font-bold text-white tabular-nums font-mono">
@@ -233,7 +233,7 @@ export function FinancesPageClient({
             <div className="flex items-center gap-3">
               <Banknote className="h-4 w-4 text-emerald-400" />
               <span className="text-zinc-200">Income Sources</span>
-              <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400 font-mono">
+              <span className="rounded-full bg-[#18122B] px-2 py-0.5 text-xs text-zinc-400 font-mono">
                 {incomeSources.length}
               </span>
             </div>
@@ -254,7 +254,7 @@ export function FinancesPageClient({
             <div className="flex items-center gap-3">
               <Receipt className="h-4 w-4 text-rose-400" />
               <span className="text-zinc-200">Fixed Expenses</span>
-              <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400 font-mono">
+              <span className="rounded-full bg-[#18122B] px-2 py-0.5 text-xs text-zinc-400 font-mono">
                 {expenses.length}
               </span>
             </div>
@@ -279,9 +279,9 @@ export function FinancesPageClient({
         <AccordionItem value="budgets">
           <AccordionTrigger>
             <div className="flex items-center gap-3">
-              <PieChart className="h-4 w-4 text-indigo-400" />
+              <PieChart className="h-4 w-4 text-emerald-400" />
               <span className="text-zinc-200">Budget Categories</span>
-              <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400 font-mono">
+              <span className="rounded-full bg-[#18122B] px-2 py-0.5 text-xs text-zinc-400 font-mono">
                 {categories.length}
               </span>
             </div>
@@ -312,7 +312,7 @@ export function FinancesPageClient({
               )}
 
               {!overAllocated && underAllocated && (
-                <div className="flex items-center gap-2 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-4 py-3 text-sm text-indigo-400">
+                <div className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
                   <span>
                     You have allocated <span className="font-mono">{totalPercentage}%</span> of your pool. Consider allocating the remaining <span className="font-mono">{100 - totalPercentage}%</span>.
                   </span>
@@ -320,8 +320,8 @@ export function FinancesPageClient({
               )}
 
               {categories.length === 0 ? (
-                <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-800 p-8 text-center">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
+                <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#18122B] p-8 text-center">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#18122B]">
                     <PieChart className="h-5 w-5 text-zinc-600" />
                   </div>
                   <p className="text-sm text-zinc-500">
@@ -331,7 +331,7 @@ export function FinancesPageClient({
               ) : (
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {categories.map((cat) => (
-                    <GlowCard key={cat.id} color="indigo" className="relative cursor-pointer" onClick={() => { setBreakdownCategory(cat); setBreakdownOpen(true); }}>
+                    <GlowCard key={cat.id} color="emerald" className="relative cursor-pointer" onClick={() => { setBreakdownCategory(cat); setBreakdownOpen(true); }}>
                       <div className="p-4 flex flex-col items-center">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

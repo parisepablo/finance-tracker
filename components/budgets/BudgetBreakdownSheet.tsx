@@ -63,13 +63,13 @@ export function BudgetBreakdownSheet({
   function getPaymentMethod(tx: Transaction) {
     if (tx.credit_card_id) {
       const card = creditCards.find((c) => c.id === tx.credit_card_id);
-      return { name: card?.name ?? "Tarjeta", color: card ? undefined : "#6366f1" };
+      return { name: card?.name ?? "Tarjeta", color: card ? undefined : "#10b981" };
     }
     if (tx.payment_source_id) {
       const source = paymentSources.find((s) => s.id === tx.payment_source_id);
-      return { name: source?.name ?? "Otro", color: source?.color ?? "#6366f1" };
+      return { name: source?.name ?? "Otro", color: source?.color ?? "#10b981" };
     }
-    return { name: "Otro", color: "#6366f1" };
+    return { name: "Otro", color: "#10b981" };
   }
 
   return (
@@ -77,10 +77,10 @@ export function BudgetBreakdownSheet({
       <SheetContent
         side={isMobile ? "bottom" : "right"}
         className={cn(
-          "bg-zinc-900 flex flex-col",
+          "bg-[#0f0c19] flex flex-col",
           isMobile
-            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-zinc-800"
-            : "w-full max-w-sm border-l border-zinc-800"
+            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-[#18122B]"
+            : "w-full max-w-sm border-l border-[#18122B]"
         )}
       >
         <SheetHeader className="pb-2 shrink-0">
@@ -95,7 +95,7 @@ export function BudgetBreakdownSheet({
         <div className="flex-1 overflow-y-auto py-2">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-3 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#18122B]">
                 <Receipt className="h-5 w-5 text-zinc-600" />
               </div>
               <p className="text-sm text-zinc-500">
@@ -109,7 +109,7 @@ export function BudgetBreakdownSheet({
                 return (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3"
+                    className="flex items-center justify-between rounded-xl border border-[#18122B] bg-[#0f0c19] px-4 py-3"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-zinc-200 truncate">
@@ -142,7 +142,7 @@ export function BudgetBreakdownSheet({
           )}
         </div>
 
-        <div className="shrink-0 border-t border-zinc-800 pt-3 pb-1">
+        <div className="shrink-0 border-t border-[#18122B] pt-3 pb-1">
           <div className="flex items-center justify-between">
             <span className="text-sm text-zinc-400">Total gastado</span>
             <span className="text-lg font-bold text-white tabular-nums font-mono">

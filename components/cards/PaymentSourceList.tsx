@@ -72,8 +72,8 @@ export function PaymentSourceList({
 
   if (paymentSources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
           <Smartphone className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
@@ -129,7 +129,7 @@ export function PaymentSourceList({
                 </div>
               ) : (
                 <div
-                  className="relative overflow-hidden rounded-2xl p-5 border border-zinc-800"
+                  className="relative overflow-hidden rounded-2xl p-5 border border-[#18122B]"
                   style={{
                     background: `linear-gradient(135deg, ${source.color}22, ${source.color}11)`,
                     boxShadow: `0 0 40px ${source.color}15, 0 20px 40px rgba(0,0,0,0.4)`,
@@ -160,7 +160,7 @@ export function PaymentSourceList({
                   budgetCategories={budgetCategories}
                   onSuccess={onRefresh}
                   trigger={
-                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#18122B]">
                       + Charge
                     </Button>
                   }
@@ -172,7 +172,7 @@ export function PaymentSourceList({
                     setDetailSource(source);
                     setDetailKey((k) => k + 1);
                   }}
-                  className="text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  className="text-zinc-400 hover:text-white hover:bg-[#18122B]"
                 >
                   <Eye className="h-4 w-4 mr-1" />
                   History
@@ -181,7 +181,7 @@ export function PaymentSourceList({
                   source={source}
                   onSuccess={onRefresh}
                   trigger={
-                    <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800">
+                    <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]">
                       <Pencil className="h-4 w-4" />
                     </Button>
                   }
@@ -218,10 +218,10 @@ export function PaymentSourceList({
           <SheetContent
             side={isMobile ? "bottom" : "right"}
             className={cn(
-              "bg-zinc-900",
+              "bg-[#0f0c19]",
               isMobile
-                ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-zinc-800"
-                : "w-full max-w-sm border-l border-zinc-800"
+                ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-[#18122B]"
+                : "w-full max-w-sm border-l border-[#18122B]"
             )}
           >
             {detailSource && (

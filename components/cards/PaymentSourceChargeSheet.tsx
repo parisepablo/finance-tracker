@@ -193,10 +193,10 @@ export function PaymentSourceChargeSheet({
       <SheetContent
         side={side}
         className={cn(
-          "bg-zinc-900",
+          "bg-[#0f0c19]",
           isMobile
-            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-zinc-800"
-            : "w-full max-w-sm border-l border-zinc-800"
+            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-[#18122B]"
+            : "w-full max-w-sm border-l border-[#18122B]"
         )}
       >
         <SheetHeader className="pb-2">

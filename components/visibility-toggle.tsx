@@ -8,7 +8,7 @@ export function VisibilityToggle() {
   return (
     <button
       onClick={toggleVisibility}
-      className="p-2 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+      className="p-2 rounded-md text-zinc-500 hover:text-zinc-200 hover:bg-[#18122B] transition-colors"
       aria-label={valuesVisible ? "Hide values" : "Show values"}
     >
       {valuesVisible ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}

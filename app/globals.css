@@ -52,38 +52,38 @@
 
 /* Dark-only theme — these values are always active */
 :root {
-  --background: #09090b;
+  --background: #09070f;
   --foreground: #fafafa;
-  --card: #18181b;
+  --card: #0f0c19;
   --card-foreground: #fafafa;
-  --popover: #18181b;
+  --popover: #0f0c19;
   --popover-foreground: #fafafa;
-  --primary: #6366f1;
+  --primary: #10b981;
   --primary-foreground: #ffffff;
-  --secondary: #27272a;
+  --secondary: #18122B;
   --secondary-foreground: #fafafa;
-  --muted: #27272a;
+  --muted: #18122B;
   --muted-foreground: #a1a1aa;
-  --accent: #27272a;
+  --accent: #18122B;
   --accent-foreground: #fafafa;
   --destructive: #f43f5e;
-  --border: rgba(255, 255, 255, 0.06);
-  --input: rgba(255, 255, 255, 0.06);
-  --ring: #6366f1;
-  --chart-1: #6366f1;
-  --chart-2: #8b5cf6;
-  --chart-3: #a855f7;
+  --border: rgba(139, 92, 246, 0.06);
+  --input: rgba(139, 92, 246, 0.06);
+  --ring: #10b981;
+  --chart-1: #10b981;
+  --chart-2: #34d399;
+  --chart-3: #6ee7b7;
   --chart-4: #06b6d4;
-  --chart-5: #10b981;
+  --chart-5: #059669;
   --radius: 0.625rem;
-  --sidebar: #18181b;
+  --sidebar: #0f0c19;
   --sidebar-foreground: #fafafa;
-  --sidebar-primary: #6366f1;
+  --sidebar-primary: #10b981;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #27272a;
+  --sidebar-accent: #18122B;
   --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-ring: #6366f1;
+  --sidebar-border: rgba(139, 92, 246, 0.06);
+  --sidebar-ring: #10b981;
 }
 
 @layer base {
@@ -101,7 +101,7 @@
   }
   *:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px #6366f1, 0 0 8px #6366f180;
+    box-shadow: 0 0 0 2px #10b981, 0 0 8px #10b98180;
   }
   button, a, [role="button"] {
     touch-action: manipulation;
@@ -119,12 +119,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: #231c3d;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6366f1;
+  background: #10b981;
 }
 
 /* Safe area insets for PWA / iPhone notch */
@@ -138,7 +138,7 @@ body {
 
 /* Selection color */
 ::selection {
-  background: rgba(99, 102, 241, 0.3);
+  background: rgba(16, 185, 129, 0.3);
   color: #ffffff;
 }
 
@@ -149,7 +149,7 @@ body {
   }
 
   .glow-indigo {
-    box-shadow: 0 0 40px -10px rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.15);
   }
 
   .glow-emerald {
@@ -226,7 +226,7 @@ body {
   }
 
   /* Pull-to-refresh pulse */
-  @keyframes pulse-indigo {
+  @keyframes pulse-emerald {
     0%, 100% {
       opacity: 1;
     }

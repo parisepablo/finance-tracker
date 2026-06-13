@@ -161,7 +161,7 @@ export function SwipeableRow({
             onEdit();
             setOpenRowId(null);
           }}
-          className="flex h-full w-[72px] items-center justify-center bg-indigo-600 text-white"
+          className="flex h-full w-[72px] items-center justify-center bg-emerald-600 text-white"
           aria-label="Edit"
         >
           <svg

@@ -55,7 +55,7 @@ export function SpendingVsIncomeChart({ data }: SpendingVsIncomeChartProps) {
             content={({ active, payload, label }) => {
               if (active && payload && payload.length) {
                 return (
-                  <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-2 shadow-lg">
+                  <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg">
                     <p className="text-xs text-zinc-400 mb-1">{label}</p>
                     {payload.map((entry, index) => (
                       <p
@@ -87,9 +87,9 @@ export function SpendingVsIncomeChart({ data }: SpendingVsIncomeChartProps) {
             type="monotone"
             dataKey="spending"
             name="Total Spending"
-            stroke="#6366f1"
+            stroke="#10b981"
             strokeWidth={2}
-            dot={{ fill: "#6366f1", strokeWidth: 0, r: 3 }}
+            dot={{ fill: "#10b981", strokeWidth: 0, r: 3 }}
           />
           <Line
             type="monotone"

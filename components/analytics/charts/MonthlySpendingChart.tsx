@@ -54,7 +54,7 @@ export function MonthlySpendingChart({ data }: MonthlySpendingChartProps) {
             content={({ active, payload, label }) => {
               if (active && payload && payload.length) {
                 return (
-                  <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-2 shadow-lg">
+                  <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg">
                     <p className="text-xs text-zinc-400 mb-1">{label}</p>
                     <p className="text-sm text-white font-mono">
                       {formatCurrency(payload[0].value as number)}
@@ -68,10 +68,10 @@ export function MonthlySpendingChart({ data }: MonthlySpendingChartProps) {
           <Line
             type="monotone"
             dataKey="total"
-            stroke="#6366f1"
+            stroke="#10b981"
             strokeWidth={2}
-            dot={{ fill: "#6366f1", strokeWidth: 0, r: 3 }}
-            activeDot={{ r: 5, fill: "#818cf8" }}
+            dot={{ fill: "#10b981", strokeWidth: 0, r: 3 }}
+            activeDot={{ r: 5, fill: "#34d399" }}
           />
         </LineChart>
       </ResponsiveContainer>

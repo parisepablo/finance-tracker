@@ -7,7 +7,7 @@ interface AmbientGlowProps {
 }
 
 const colorMap = {
-  indigo: "rgba(99, 102, 241, 0.08)",
+  indigo: "rgba(16, 185, 129, 0.08)",
   violet: "rgba(139, 92, 246, 0.08)",
   emerald: "rgba(16, 185, 129, 0.08)",
   amber: "rgba(245, 158, 11, 0.08)",
@@ -23,7 +23,7 @@ const positionMap = {
 };
 
 export function AmbientGlow({
-  color = "indigo",
+  color = "emerald",
   position = "top-right",
   className,
 }: AmbientGlowProps) {

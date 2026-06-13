@@ -31,7 +31,7 @@ function Calendar({
     <DayPicker
       showOutsideDays={showOutsideDays}
       className={cn(
-        "group/calendar bg-zinc-900 p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
+        "group/calendar bg-[#0f0c19] p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
         String.raw`rtl:**:[.rdp-button_next>svg]:rotate-180`,
         String.raw`rtl:**:[.rdp-button_previous>svg]:rotate-180`,
         className
@@ -77,7 +77,7 @@ function Calendar({
           defaultClassNames.dropdown_root
         ),
         dropdown: cn(
-          "absolute inset-0 bg-zinc-900 opacity-0",
+          "absolute inset-0 bg-[#0f0c19] opacity-0",
           defaultClassNames.dropdown
         ),
         caption_label: cn(
@@ -106,16 +106,16 @@ function Calendar({
           defaultClassNames.day
         ),
         range_start: cn(
-          "relative isolate z-0 rounded-l-(--cell-radius) bg-zinc-800 after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-zinc-800",
+          "relative isolate z-0 rounded-l-(--cell-radius) bg-[#18122B] after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-[#18122B]",
           defaultClassNames.range_start
         ),
         range_middle: cn("rounded-none", defaultClassNames.range_middle),
         range_end: cn(
-          "relative isolate z-0 rounded-r-(--cell-radius) bg-zinc-800 after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-zinc-800",
+          "relative isolate z-0 rounded-r-(--cell-radius) bg-[#18122B] after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-[#18122B]",
           defaultClassNames.range_end
         ),
         today: cn(
-          "rounded-(--cell-radius) bg-zinc-800 text-zinc-200 data-[selected=true]:rounded-none",
+          "rounded-(--cell-radius) bg-[#18122B] text-zinc-200 data-[selected=true]:rounded-none",
           defaultClassNames.today
         ),
         outside: cn(
@@ -206,7 +206,7 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal text-zinc-300 group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-indigo-500/50 group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-indigo-500/20 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-indigo-600 data-[range-end=true]:text-white data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-zinc-800 data-[range-middle=true]:text-zinc-200 data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-indigo-600 data-[range-start=true]:text-white data-[selected-single=true]:bg-indigo-600 data-[selected-single=true]:text-white hover:text-white [&>span]:text-xs [&>span]:opacity-70",
+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal text-zinc-300 group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-emerald-500/50 group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-emerald-500/20 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-end=true]:bg-emerald-600 data-[range-end=true]:text-white data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-[#18122B] data-[range-middle=true]:text-zinc-200 data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-start=true]:bg-emerald-600 data-[range-start=true]:text-white data-[selected-single=true]:bg-emerald-600 data-[selected-single=true]:text-white hover:text-white [&>span]:text-xs [&>span]:opacity-70",
         defaultClassNames.day,
         className
       )}

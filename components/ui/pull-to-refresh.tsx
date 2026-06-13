@@ -21,10 +21,10 @@ export function PullToRefreshIndicator({
       }}
     >
       <div
-        className="h-full bg-indigo-500 transition-[width] duration-150 ease-out"
+        className="h-full bg-emerald-500 transition-[width] duration-150 ease-out"
         style={{
           width: `${width}%`,
-          animation: isRefreshing ? "pulse-indigo 1s infinite" : "none",
+          animation: isRefreshing ? "pulse-emerald 1s infinite" : "none",
         }}
       />
     </div>

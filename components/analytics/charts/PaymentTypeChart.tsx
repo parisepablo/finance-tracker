@@ -20,7 +20,7 @@ export function PaymentTypeChart({ data }: PaymentTypeChartProps) {
       name: "Single Payments",
       value: data.singleAmount / 100,
       count: data.singleCount,
-      color: "#6366f1",
+      color: "#10b981",
     },
     {
       name: "Installments",
@@ -57,7 +57,7 @@ export function PaymentTypeChart({ data }: PaymentTypeChartProps) {
                   const entry = payload[0];
                   const data = entry.payload as (typeof chartData)[0];
                   return (
-                    <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-2 shadow-lg">
+                    <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg">
                       <p className="text-sm font-medium" style={{ color: data.color }}>
                         {data.name}
                       </p>

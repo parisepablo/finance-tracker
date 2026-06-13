@@ -12,7 +12,7 @@ const features = [
     icon: Wallet,
     title: "Income Sources",
     description: "Track multiple monthly net income streams.",
-    color: "indigo" as const,
+    color: "emerald" as const,
   },
   {
     icon: Receipt,
@@ -42,7 +42,7 @@ const features = [
 
 function MockDashboardPreview() {
   return (
-    <GlowCard color="indigo" interactive className="w-full max-w-lg mx-auto">
+    <GlowCard color="emerald" interactive className="w-full max-w-lg mx-auto">
       <div className="p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -88,22 +88,22 @@ export function LandingPage() {
   return (
     <div className="relative min-h-full overflow-hidden bg-background text-foreground">
       {/* Ambient background glows */}
-      <AmbientGlow color="indigo" position="top-left" className="opacity-60" />
+      <AmbientGlow color="emerald" position="top-left" className="opacity-60" />
       <AmbientGlow color="violet" position="bottom-right" className="opacity-60" />
 
       {/* Hero Section */}
       <section className="relative z-10 flex flex-col items-center justify-center px-6 pt-24 pb-16 text-center">
         <FadeIn delay={0}>
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/15">
-              <Wallet className="h-6 w-6 text-indigo-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/15">
+              <Wallet className="h-6 w-6 text-emerald-400" />
             </div>
           </div>
         </FadeIn>
 
         <FadeIn delay={0.1}>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-balance">
-            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-400 via-violet-400 to-emerald-400 bg-clip-text text-transparent">
               $cinco
             </span>
           </h1>
@@ -145,8 +145,8 @@ export function LandingPage() {
               <FadeIn key={feature.title} delay={index * 0.08}>
                 <GlowCard color={feature.color} interactive className="h-full">
                   <div className="p-5 space-y-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10">
-                      <Icon className="h-5 w-5 text-indigo-400" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
+                      <Icon className="h-5 w-5 text-emerald-400" />
                     </div>
                     <h3 className="text-sm font-semibold text-white">
                       {feature.title}
@@ -167,7 +167,7 @@ export function LandingPage() {
         <FadeIn delay={0.1}>
           <Badge
             variant="outline"
-            className="text-xs px-4 py-2 border-zinc-700 text-zinc-400 bg-zinc-900/50"
+            className="text-xs px-4 py-2 border-[#231c3d] text-zinc-400 bg-[#0f0c19]/50"
           >
             <Lock className="h-3 w-3 mr-1.5 text-zinc-500" />
             This is a personal project — not open for public sign-up
@@ -176,7 +176,7 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/[0.06] px-6 py-8">
+      <footer className="relative z-10 border-t border-violet-500/10 px-6 py-8">
         <FadeIn delay={0.1}>
           <div className="flex flex-col items-center justify-center gap-3 text-center">
             <p className="text-sm text-zinc-500">

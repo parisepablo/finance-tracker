@@ -80,8 +80,8 @@ export function BudgetCategoryList({
 
   if (categories.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
           <PieChart className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
@@ -121,7 +121,7 @@ export function BudgetCategoryList({
         }
 
         return (
-          <GlowCard key={cat.id} color="indigo">
+          <GlowCard key={cat.id} color="emerald">
             <div className="p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -139,7 +139,7 @@ export function BudgetCategoryList({
                     <DropdownMenuTrigger asChild>
                       <button
                         aria-label="Opciones"
-                        className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-[#18122B] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                       >
                         <MoreVertical className="h-4 w-4" />
                       </button>
@@ -178,7 +178,7 @@ export function BudgetCategoryList({
                 </span>
               </div>
 
-              <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-[#18122B]">
                 <div
                   className="h-full rounded-full progress-shimmer animate-progress"
                   style={{

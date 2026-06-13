@@ -35,7 +35,7 @@ export function IncomePageClient({ incomeSources, error }: IncomePageClientProps
         <IncomeForm onSuccess={handleRefresh} />
       </div>
 
-      <GlowCard color="indigo">
+      <GlowCard color="emerald">
         <div className="p-5 space-y-2">
           <div className="flex flex-row items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">

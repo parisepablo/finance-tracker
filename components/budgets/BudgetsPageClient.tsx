@@ -38,7 +38,7 @@ export function BudgetsPageClient({
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-6 relative">
-      <AmbientGlow color="indigo" position="top-right" />
+      <AmbientGlow color="emerald" position="top-right" />
 
       <div className="flex items-center justify-between relative z-10">
         <div>
@@ -65,7 +65,7 @@ export function BudgetsPageClient({
       )}
 
       {!overAllocated && underAllocated && (
-        <div className="relative z-10 flex items-center gap-2 rounded-lg border border-indigo-500/20 bg-indigo-500/10 px-4 py-3 text-sm text-indigo-400">
+        <div className="relative z-10 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">
           <Info className="h-4 w-4 shrink-0" />
           <span>
             You have allocated <span className="font-mono">{totalPercentage}%</span> of your discretionary pool.
@@ -75,13 +75,13 @@ export function BudgetsPageClient({
         </div>
       )}
 
-      <GlowCard color="indigo" hoverIntensity="strong" className="relative z-10">
+      <GlowCard color="emerald" hoverIntensity="strong" className="relative z-10">
         <div className="p-5 space-y-2">
           <div className="flex flex-row items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-widest text-indigo-400">
+            <span className="text-xs font-medium uppercase tracking-widest text-emerald-400">
               Discretionary Pool
             </span>
-            <Wallet className="h-4 w-4 text-indigo-500/70" />
+            <Wallet className="h-4 w-4 text-emerald-500/70" />
           </div>
           <div className="text-2xl font-bold text-white tabular-nums font-mono">
             <Amount value={discretionaryPoolCents} className="font-mono" />

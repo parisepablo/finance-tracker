@@ -35,15 +35,15 @@ function DesktopNavLinks() {
             className={cn(
               "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ease-out",
               isActive
-                ? "text-indigo-400"
-                : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50"
+                ? "text-emerald-400"
+                : "text-zinc-400 hover:text-zinc-100 hover:bg-[#18122B]/50"
             )}
           >
             {isActive && (
-              <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-indigo-500" />
+              <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-emerald-500" />
             )}
             {isActive && (
-              <span className="absolute inset-0 rounded-lg bg-indigo-500/10" />
+              <span className="absolute inset-0 rounded-lg bg-emerald-500/10" />
             )}
             <Icon className="shrink-0 relative z-10 transition-transform duration-150 ease-out group-hover:translate-x-0.5 h-4 w-4" />
             <span className="leading-none relative z-10">{item.label}</span>
@@ -58,7 +58,7 @@ function MobileBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-800 bg-zinc-950">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-[#18122B] bg-[#09070f]">
       <div className="flex items-center justify-around px-2 pt-2 bottom-nav">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -70,11 +70,11 @@ function MobileBottomNav() {
               href={item.href}
               className={cn(
                 "relative flex flex-col items-center gap-0.5 py-1 px-3 min-w-[64px] transition-colors",
-                isActive ? "text-indigo-500" : "text-zinc-500"
+                isActive ? "text-emerald-500" : "text-zinc-500"
               )}
             >
               {isActive && (
-                <span className="absolute -top-2 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-indigo-500" />
+                <span className="absolute -top-2 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-emerald-500" />
               )}
               <Icon className="h-5 w-5" />
               <span className="text-[10px] font-medium leading-none">
@@ -92,7 +92,7 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-64 flex-col border-r border-white/[0.06] bg-zinc-900 backdrop-blur-xl p-4">
+      <aside className="hidden md:flex w-64 flex-col border-r border-violet-500/10 bg-[#0f0c19] backdrop-blur-xl p-4">
         <div className="mb-8 px-3 flex items-center justify-between overflow-hidden">
           <div className="flex items-center gap-2.5 min-w-0">
             <img

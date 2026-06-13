@@ -94,8 +94,8 @@ export function CardsPageClient({
           />
           )
         ) : (
-          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
+          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
               <CreditCardIcon className="h-6 w-6 text-zinc-600" />
             </div>
             <div className="space-y-1">
@@ -124,8 +124,8 @@ export function CardsPageClient({
             onRefresh={handleRefresh}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
+          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
               <Smartphone className="h-6 w-6 text-zinc-600" />
             </div>
             <div className="space-y-1">
@@ -166,10 +166,10 @@ function SingleCardView({
       {/* Card visual */}
       <div className="space-y-0 md:max-w-sm md:mx-auto">
         <div
-          className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-indigo-900 via-violet-900 to-zinc-900 border border-zinc-800"
+          className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-emerald-900 via-violet-900 to-zinc-900 border border-[#18122B]"
           style={{
             boxShadow:
-              "0 0 40px rgba(99,102,241,0.09), 0 20px 40px rgba(0,0,0,0.4)",
+              "0 0 40px rgba(16, 185, 129,0.09), 0 20px 40px rgba(0,0,0,0.4)",
           }}
         >
           <div className="relative z-10 flex flex-col gap-4">
@@ -230,7 +230,7 @@ function SingleCardView({
               onRefresh();
             }}
             trigger={
-              <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+              <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#18122B]">
                 + Charge
               </Button>
             }
@@ -240,7 +240,7 @@ function SingleCardView({
             cycles={cardCycles}
             onSuccess={onRefresh}
             trigger={
-              <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800">
+              <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]">
                 <Pencil className="h-4 w-4" />
               </Button>
             }
@@ -249,7 +249,7 @@ function SingleCardView({
       </div>
 
       {/* Auto-opened detail */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+      <div className="rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
         <CardDetail card={card} budgetCategories={budgetCategories} cycles={cardCycles} refreshTrigger={detailRefreshKey} />
       </div>
     </div>

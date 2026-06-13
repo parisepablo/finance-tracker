@@ -165,7 +165,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                 setMonth((m) => prevMonth(m));
               }
             }}
-            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
+            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -196,7 +196,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
               }
             }}
             disabled={hasCycles ? cycleOffset === 0 : false}
-            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800 disabled:opacity-30 disabled:hover:bg-transparent"
+            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B] disabled:opacity-30 disabled:hover:bg-transparent"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -228,7 +228,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
 
           <div className="space-y-2">
             {summary.breakdown.length === 0 && (
-              <div className="rounded-xl border border-dashed border-zinc-800 p-6 text-center text-sm text-zinc-500">
+              <div className="rounded-xl border border-dashed border-[#18122B] p-6 text-center text-sm text-zinc-500">
                 No charges for this month.
               </div>
             )}
@@ -243,8 +243,8 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                   setDeleteChargeId(item.id);
                 }}
               >
-                <div className="group flex flex-col gap-1 rounded-xl border border-zinc-800 bg-zinc-900 p-3 hover:bg-zinc-900/70 transition-all duration-300 relative overflow-hidden">
-                  <div className="absolute inset-y-0 left-0 w-0.5 bg-indigo-500/50 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
+                <div className="group flex flex-col gap-1 rounded-xl border border-[#18122B] bg-[#0f0c19] p-3 hover:bg-[#0f0c19]/70 transition-all duration-300 relative overflow-hidden">
+                  <div className="absolute inset-y-0 left-0 w-0.5 bg-emerald-500/50 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
                   {/* Title line */}
                   <div className="flex items-center gap-2 pl-1">
                     {item.type === "fixed" && (

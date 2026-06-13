@@ -32,7 +32,7 @@ const priorityConfig = {
   medium: {
     border: "border-l-indigo-500",
     borderRead: "border-l-indigo-500/40",
-    bg: "bg-indigo-500/10",
+    bg: "bg-emerald-500/10",
   },
   low: {
     border: "border-l-zinc-600",
@@ -89,17 +89,17 @@ export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
     <button
       onClick={handleRead}
       className={cn(
-        "group relative flex w-full items-start gap-3 rounded-lg border border-zinc-800 border-l-4 p-3 text-left transition-colors",
+        "group relative flex w-full items-start gap-3 rounded-lg border border-[#18122B] border-l-4 p-3 text-left transition-colors",
         isUnread
-          ? ["opacity-100", config.border, config.bg, "hover:bg-zinc-800/50"]
-          : ["opacity-55", config.borderRead, "hover:bg-zinc-800/30"]
+          ? ["opacity-100", config.border, config.bg, "hover:bg-[#18122B]/50"]
+          : ["opacity-55", config.borderRead, "hover:bg-[#18122B]/30"]
       )}
     >
       {isUnread && (
         <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-indigo-500" />
       )}
       {!isUnread && (
-        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-zinc-700" />
+        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#231c3d]" />
       )}
 
       <div className="flex-1 min-w-0">
@@ -131,7 +131,7 @@ export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
 
       <button
         onClick={handleDismiss}
-        className="shrink-0 rounded-md p-1 text-zinc-600 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
+        className="shrink-0 rounded-md p-1 text-zinc-600 hover:text-zinc-300 hover:bg-[#18122B] transition-colors"
         aria-label="Dismiss"
       >
         <X className="h-3.5 w-3.5" />

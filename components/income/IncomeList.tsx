@@ -65,8 +65,8 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
 
   if (incomeSources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
           <Banknote className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
@@ -97,7 +97,7 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
             onDelete={() => openDeleteDialog(source)}
           >
             <GlowCard
-              color="indigo"
+              color="emerald"
               interactive
               className={!source.is_active ? "opacity-60" : undefined}
             >
@@ -129,7 +129,7 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
                       if (!open) setEditingItem(null);
                     }}
                     trigger={
-                      <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800">
+                      <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]">
                         <Pencil className="h-4 w-4" />
                       </Button>
                     }

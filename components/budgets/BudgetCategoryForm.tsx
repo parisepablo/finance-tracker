@@ -41,7 +41,7 @@ const PRESET_COLORS = [
   "#10b981", // emerald
   "#06b6d4", // cyan
   "#3b82f6", // blue
-  "#6366f1", // indigo
+  "#10b981", // indigo
   "#a855f7", // purple
   "#ec4899", // pink
 ];

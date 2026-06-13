@@ -35,7 +35,7 @@ interface PaymentSourceFormProps {
 }
 
 const PRESET_COLORS = [
-  "#6366f1", // indigo
+  "#10b981", // indigo
   "#8b5cf6", // violet
   "#10b981", // emerald
   "#f59e0b", // amber
@@ -135,13 +135,13 @@ export function PaymentSourceForm({ source, onSuccess, trigger }: PaymentSourceF
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-zinc-800">
+          <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#18122B]">
             <Plus className="h-4 w-4 mr-1" />
             {isEditing ? "Edit" : "Add source"}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="bg-zinc-900 border-zinc-800">
+      <DialogContent className="bg-[#0f0c19] border-[#18122B]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>

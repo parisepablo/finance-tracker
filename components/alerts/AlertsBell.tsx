@@ -41,7 +41,7 @@ export function AlertsBell() {
         onClick={() => setOpen(true)}
         className={cn(
           "relative flex items-center justify-center rounded-lg p-2 transition-colors",
-          "text-zinc-400 hover:text-white hover:bg-zinc-800"
+          "text-zinc-400 hover:text-white hover:bg-[#18122B]"
         )}
         aria-label="Notifications"
       >

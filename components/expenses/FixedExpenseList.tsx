@@ -154,8 +154,8 @@ export function FixedExpenseList({
 
   if (expenses.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-zinc-800 p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
           <Receipt className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
@@ -241,7 +241,7 @@ export function FixedExpenseList({
                     onDelete={() => openDeleteDialog(expense)}
                   >
                   <GlowCard
-                    color="indigo"
+                    color="emerald"
                     className={!expense.is_active ? "opacity-60" : undefined}
                   >
                     <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -308,7 +308,7 @@ export function FixedExpenseList({
                                 variant="ghost"
                                 size="icon"
                                 aria-label="Edit"
-                                className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-zinc-800"
+                                className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]"
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -351,7 +351,7 @@ export function FixedExpenseList({
                             className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-colors ${
                               isPaid
                                 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-500/50"
-                                : "border-zinc-700 bg-zinc-900 text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400"
+                                : "border-[#231c3d] bg-[#0f0c19] text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400"
                             }`}
                             aria-label={isPaid ? "Unmark as paid" : "Mark as paid"}
                           >

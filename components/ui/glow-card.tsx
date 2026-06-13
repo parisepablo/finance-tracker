@@ -3,10 +3,10 @@ import { cn } from "@/lib/utils";
 
 const glowColors = {
   indigo: {
-    from: "rgba(99, 102, 241, 0.3)",
-    to: "rgba(139, 92, 246, 0.18)",
-    hoverFrom: "rgba(99, 102, 241, 0.3)",
-    hoverTo: "rgba(139, 92, 246, 0.3)",
+    from: "rgba(16, 185, 129, 0.3)",
+    to: "rgba(52, 211, 153, 0.18)",
+    hoverFrom: "rgba(16, 185, 129, 0.3)",
+    hoverTo: "rgba(52, 211, 153, 0.3)",
   },
   violet: {
     from: "rgba(139, 92, 246, 0.3)",
@@ -44,7 +44,7 @@ interface GlowCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function GlowCard({
-  color = "indigo",
+  color = "emerald",
   hoverIntensity = "medium",
   interactive = false,
   children,

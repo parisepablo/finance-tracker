@@ -13,7 +13,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           <CircleCheckIcon className="size-4 text-emerald-400" />
         ),
         info: (
-          <InfoIcon className="size-4 text-indigo-400" />
+          <InfoIcon className="size-4 text-emerald-400" />
         ),
         warning: (
           <TriangleAlertIcon className="size-4 text-amber-400" />
@@ -35,7 +35,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }
       toastOptions={{
         classNames: {
-          toast: "cn-toast border-l-2 border-l-indigo-500",
+          toast: "cn-toast border-l-2 border-l-emerald-500",
         },
       }}
       {...props}

@@ -77,27 +77,27 @@ export function AnalyticsPageClient({
       </div>
 
       {/* Monthly Spending Trend */}
-      <div className="relative z-10 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
         <h2 className="text-sm font-medium text-zinc-200 mb-4">Monthly Spending Trend</h2>
         <MonthlySpendingChart data={monthlyData} />
       </div>
 
       {/* Spending vs Income */}
-      <div className="relative z-10 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
         <h2 className="text-sm font-medium text-zinc-200 mb-4">Spending vs Income</h2>
         <SpendingVsIncomeChart data={monthlyData} />
       </div>
 
       {/* Spending by Category */}
-      <div className="relative z-10 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-medium text-zinc-200">Spending by Category</h2>
-          <div className="flex items-center gap-1 bg-zinc-800 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-[#18122B] rounded-lg p-1">
             <button
               onClick={() => setCategoryFilter("all")}
               className={`px-3 py-1 text-xs rounded-md transition-colors ${
                 categoryFilter === "all"
-                  ? "bg-zinc-700 text-white"
+                  ? "bg-[#231c3d] text-white"
                   : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
@@ -107,7 +107,7 @@ export function AnalyticsPageClient({
               onClick={() => setCategoryFilter("credit")}
               className={`px-3 py-1 text-xs rounded-md transition-colors ${
                 categoryFilter === "credit"
-                  ? "bg-zinc-700 text-white"
+                  ? "bg-[#231c3d] text-white"
                   : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
@@ -117,7 +117,7 @@ export function AnalyticsPageClient({
               onClick={() => setCategoryFilter("cash")}
               className={`px-3 py-1 text-xs rounded-md transition-colors ${
                 categoryFilter === "cash"
-                  ? "bg-zinc-700 text-white"
+                  ? "bg-[#231c3d] text-white"
                   : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
@@ -133,13 +133,13 @@ export function AnalyticsPageClient({
       </div>
 
       {/* Payment Type Distribution */}
-      <div className="relative z-10 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
         <h2 className="text-sm font-medium text-zinc-200 mb-4">Payment Type Distribution</h2>
         <PaymentTypeChart data={paymentTypeData} />
       </div>
 
       {/* Credit Card Utilization */}
-      <div className="relative z-10 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
+      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
         <h2 className="text-sm font-medium text-zinc-200 mb-4">Credit Card Utilization</h2>
         <UtilizationChart data={utilizationData} creditCards={creditCards} />
       </div>
