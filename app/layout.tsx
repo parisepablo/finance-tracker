@@ -26,14 +26,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Finance Tracker",
+  title: "Plata",
   description: "Personal finance tracking application",
   manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Finance",
-  },
+appleWebApp: {
+  capable: true,
+  statusBarStyle: "black-translucent",
+  title: "Plata",
+},
+icons: {
+  apple: "/icon-192x192.png",
+  icon: "/favicon-32x32.png",
+},
   icons: {
     apple: "/icons/icon-192.png",
       icon: '/favicon-32x32.png'
