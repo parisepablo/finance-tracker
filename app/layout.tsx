@@ -29,20 +29,16 @@ export const metadata: Metadata = {
   title: "Plata",
   description: "Personal finance tracking application",
   manifest: "/manifest.json",
-appleWebApp: {
-  capable: true,
-  statusBarStyle: "black-translucent",
-  title: "Plata",
-},
-icons: {
-  apple: "/icon-192x192.png",
-  icon: "/favicon-32x32.png",
-},
-  icons: {
-    apple: "/icons/icon-192.png",
-      icon: '/favicon-32x32.png'
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Plata",
   },
-};
+  icons: {
+    apple: "/icon-192x192.png",
+    icon: "/favicon-32x32.png",
+  },
+};!git
 
 export const viewport: Viewport = {
   width: "device-width",
