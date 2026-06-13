@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     apple: "/icon-192x192.png",
     icon: "/favicon-32x32.png",
   },
-};!git
+};
 
 export const viewport: Viewport = {
   width: "device-width",
