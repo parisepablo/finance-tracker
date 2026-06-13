@@ -7,7 +7,7 @@ import { Amount } from "@/components/ui/amount";
 import { Button } from "@/components/ui/button";
 import { GlowCard } from "@/components/ui/glow-card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Receipt, Package, Zap } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Receipt, Package, Zap } from "lucide-react";
 import { SwipeableRow } from "@/components/ui/swipeable-row";
 import { SwipeableRowProvider } from "@/components/ui/swipeable-row-context";
 import { toast } from "sonner";
@@ -76,6 +76,12 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
   const [editChargeId, setEditChargeId] = useState<string | null>(null);
   const [deleteChargeId, setDeleteChargeId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showCharges, setShowCharges] = useState(false);
+
+  // Reset charges visibility when month or cycle changes
+  useEffect(() => {
+    setShowCharges(false);
+  }, [month, cycleOffset]);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -226,14 +232,36 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
             </div>
           </GlowCard>
 
-          <div className="space-y-2">
-            {summary.breakdown.length === 0 && (
-              <div className="rounded-xl border border-dashed border-[#18122B] p-6 text-center text-sm text-zinc-500">
-                No charges for this month.
-              </div>
-            )}
+          {summary.breakdown.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowCharges((s) => !s)}
+              className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-[#18122B] bg-[#0f0c19] px-4 py-2.5 text-sm text-zinc-400 hover:text-zinc-200 hover:bg-[#18122B] transition-colors"
+            >
+              {showCharges ? (
+                <>
+                  <ChevronUp className="h-4 w-4" />
+                  Hide charges
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4" />
+                  Show {summary.breakdown.length} charge
+                  {summary.breakdown.length === 1 ? "" : "s"}
+                </>
+              )}
+            </button>
+          )}
 
-            {summary.breakdown.map((item) => (
+          {summary.breakdown.length === 0 && (
+            <div className="rounded-xl border border-dashed border-[#18122B] p-6 text-center text-sm text-zinc-500">
+              No charges for this month.
+            </div>
+          )}
+
+          {showCharges && summary.breakdown.length > 0 && (
+            <div className="space-y-2 animate-in fade-in duration-300">
+              {summary.breakdown.map((item) => (
               <SwipeableRow
                 key={item.id}
                 rowId={item.id}
@@ -292,8 +320,9 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
               </SwipeableRow>
             ))}
           </div>
-        </>
-      )}
+        )}
+      </>
+    )}
       <EditChargeSheet
         open={!!editChargeId}
         onOpenChange={(open) => {
