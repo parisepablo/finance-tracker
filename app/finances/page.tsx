@@ -45,6 +45,7 @@ export default async function FinancesPage({
       .from("income_sources")
       .select("*")
       .eq("user_id", user.id)
+      .eq("month", monthStr)
       .order("created_at", { ascending: false }),
     supabase
       .from("fixed_expenses")

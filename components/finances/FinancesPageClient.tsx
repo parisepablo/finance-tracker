@@ -241,7 +241,7 @@ export function FinancesPageClient({
           <AccordionContent>
             <div className="space-y-4">
               <div className="flex justify-end">
-                <IncomeForm onSuccess={handleRefresh} />
+                <IncomeForm onSuccess={handleRefresh} defaultMonth={currentMonth} />
               </div>
               <IncomeList incomeSources={incomeSources} onRefresh={handleRefresh} />
             </div>

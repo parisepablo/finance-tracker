@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { getCurrentMonth } from "@/lib/utils";
 
 interface IncomeFormProps {
   income?: IncomeSource;
@@ -30,6 +31,7 @@ interface IncomeFormProps {
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  defaultMonth?: string;
 }
 
 interface FormErrors {
@@ -37,7 +39,7 @@ interface FormErrors {
   amount?: string;
 }
 
-export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, onOpenChange: controlledOnOpenChange }: IncomeFormProps) {
+export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, onOpenChange: controlledOnOpenChange, defaultMonth }: IncomeFormProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setOpen = (value: boolean) => {
@@ -55,6 +57,7 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
   const [currency, setCurrency] = useState<"ARS" | "USD">(
     income?.currency ?? "ARS"
   );
+  const [month, setMonth] = useState(income?.month ?? defaultMonth ?? getCurrentMonth());
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -69,11 +72,13 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
       setAmount((income.amount_cents / 100).toString());
       setIsActive(income.is_active);
       setCurrency(income.currency);
+      setMonth(income.month);
     } else {
       setName("");
       setAmount("");
       setIsActive(true);
       setCurrency("ARS");
+      setMonth(defaultMonth ?? getCurrentMonth());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -107,6 +112,7 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
       amount_cents: amountCents,
       currency,
       is_active: isActive,
+      month,
     };
 
     try {
@@ -216,6 +222,22 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
                   <SelectItem value="USD">USD (US$)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="month">Month</Label>
+              <Input
+                id="month"
+                type="month"
+                value={month}
+                className="font-mono"
+                onChange={(e) => {
+                  setMonth(e.target.value);
+                }}
+              />
+              <p className="text-xs text-zinc-500">
+                This income applies to this month only.
+              </p>
             </div>
 
             <div className="flex items-center gap-2">

@@ -5,6 +5,7 @@ export interface IncomeSource {
   amount_cents: number;
   currency: "ARS" | "USD";
   is_active: boolean;
+  month: string;
   created_at: string;
 }
 

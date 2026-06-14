@@ -35,7 +35,7 @@ export default async function DashboardPage({
     currentMonthTransactionsResult,
     billingCyclesResult,
   ] = await Promise.all([
-    supabase.from("income_sources").select("*").eq("user_id", user.id),
+    supabase.from("income_sources").select("*").eq("user_id", user.id).eq("month", monthStr),
     supabase.from("fixed_expenses").select("*").eq("user_id", user.id),
     supabase
       .from("budget_categories")

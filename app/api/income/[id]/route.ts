@@ -72,6 +72,16 @@ export async function PATCH(
     updates.currency = body.currency;
   }
 
+  if (body.month !== undefined) {
+    if (!/^\d{4}-\d{2}$/.test(body.month)) {
+      return NextResponse.json(
+        { error: "Month must be in YYYY-MM format" },
+        { status: 400 }
+      );
+    }
+    updates.month = body.month;
+  }
+
   if (Object.keys(updates).length === 0) {
     return NextResponse.json(
       { error: "No fields to update" },
@@ -88,6 +98,13 @@ export async function PATCH(
     .single();
 
   if (error) {
+    // Handle unique constraint violation
+    if (error.code === "23505") {
+      return NextResponse.json(
+        { error: "An income source with this name already exists for this month" },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

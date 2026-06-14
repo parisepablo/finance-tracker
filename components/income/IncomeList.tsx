@@ -103,13 +103,16 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
             >
               <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium text-zinc-200">{source.name}</span>
                     <Badge variant={source.is_active ? "default" : "secondary"}>
                       {source.is_active ? "Active" : "Inactive"}
                     </Badge>
                     <Badge variant="outline" className="text-[10px]">
                       {source.currency}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px] font-mono">
+                      {source.month}
                     </Badge>
                   </div>
                   <p className="text-lg font-semibold text-white tabular-nums font-mono">

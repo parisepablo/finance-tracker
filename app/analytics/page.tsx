@@ -78,9 +78,8 @@ export default async function AnalyticsPage() {
       .order("name", { ascending: true }),
     supabase
       .from("income_sources")
-      .select("id, name, amount_cents, currency, is_active")
-      .eq("user_id", user.id)
-      .eq("is_active", true),
+      .select("id, name, amount_cents, currency, is_active, month")
+      .eq("user_id", user.id),
     supabase
       .from("fixed_expenses")
       .select("id, name, amount_cents, billing_cycle, is_active")
@@ -116,20 +115,22 @@ export default async function AnalyticsPage() {
     return sum + monthly;
   }, 0);
 
-  // Calculate monthly income total
-  const monthlyIncomeTotal = incomeSources.reduce((sum, inc) => {
-    if (inc.currency === "USD") {
-      // Approximate USD to ARS conversion (you might want to use a real rate)
-      return sum + inc.amount_cents * 100;
-    }
-    return sum + inc.amount_cents;
-  }, 0);
-
   // Build monthly data
   const monthlyData: MonthlyData[] = sortedMonths.map((month) => {
     const monthTransactions = transactions.filter((tx) => tx.date.startsWith(month));
     const creditCardTx = monthTransactions.filter((tx) => tx.credit_card_id);
     const cashTx = monthTransactions.filter((tx) => tx.payment_source_id);
+
+    // Calculate actual income for this month
+    const monthIncome = incomeSources
+      .filter((inc) => inc.month === month && inc.is_active)
+      .reduce((sum, inc) => {
+        if (inc.currency === "USD") {
+          // Approximate USD to ARS conversion (you might want to use a real rate)
+          return sum + inc.amount_cents * 100;
+        }
+        return sum + inc.amount_cents;
+      }, 0);
 
     return {
       month,
@@ -137,7 +138,7 @@ export default async function AnalyticsPage() {
       totalCents: monthTransactions.reduce((sum, tx) => sum + tx.amount_cents, 0),
       creditCardCents: creditCardTx.reduce((sum, tx) => sum + tx.amount_cents, 0),
       cashCents: cashTx.reduce((sum, tx) => sum + tx.amount_cents, 0),
-      incomeCents: monthlyIncomeTotal,
+      incomeCents: monthIncome,
       fixedExpenseCents: monthlyFixedTotal,
     };
   });

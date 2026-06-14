@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentMonth } from "@/lib/utils";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const monthParam = searchParams.get("month");
+  const month = monthParam && /^\d{4}-\d{2}$/.test(monthParam)
+    ? monthParam
+    : getCurrentMonth();
+
   const supabase = await createClient();
 
   const {
@@ -17,6 +24,7 @@ export async function GET() {
     .from("income_sources")
     .select("*")
     .eq("user_id", user.id)
+    .eq("month", month)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -71,6 +79,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const month = body.month && /^\d{4}-\d{2}$/.test(body.month)
+    ? body.month
+    : getCurrentMonth();
+
   const { data, error } = await supabase
     .from("income_sources")
     .insert({
@@ -79,11 +91,19 @@ export async function POST(request: NextRequest) {
       amount_cents: body.amount_cents,
       currency: body.currency ?? "ARS",
       is_active: body.is_active ?? true,
+      month,
     })
     .select()
     .single();
 
   if (error) {
+    // Handle unique constraint violation
+    if (error.code === "23505") {
+      return NextResponse.json(
+        { error: "An income source with this name already exists for this month" },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

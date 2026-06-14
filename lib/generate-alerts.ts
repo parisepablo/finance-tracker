@@ -42,6 +42,7 @@ async function fetchFinancialData(
       .from("income_sources")
       .select("*")
       .eq("user_id", userId)
+      .eq("month", currentMonth)
       .eq("is_active", true),
     supabase
       .from("fixed_expenses")
