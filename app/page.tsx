@@ -30,18 +30,13 @@ export default async function DashboardPage({
   const [
     incomeResult,
     expensesResult,
-    budgetResult,
     cardsResult,
     currentMonthTransactionsResult,
+    paymentSourcesResult,
     billingCyclesResult,
   ] = await Promise.all([
     supabase.from("income_sources").select("*").eq("user_id", user.id).eq("month", monthStr),
-    supabase.from("fixed_expenses").select("*").eq("user_id", user.id),
-    supabase
-      .from("budget_categories")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false }),
+    supabase.from("fixed_expenses").select("*").eq("user_id", user.id).eq("month", monthStr),
     supabase
       .from("credit_cards")
       .select("*")
@@ -54,6 +49,10 @@ export default async function DashboardPage({
       .gte("date", start)
       .lte("date", end),
     supabase
+      .from("payment_sources")
+      .select("id, type")
+      .eq("user_id", user.id),
+    supabase
       .from("billing_cycles")
       .select("*, credit_cards(user_id)")
       .eq("credit_cards.user_id", user.id)
@@ -63,9 +62,9 @@ export default async function DashboardPage({
 
   const incomeSources = incomeResult.data ?? [];
   const fixedExpenses = expensesResult.data ?? [];
-  const budgetCategories = budgetResult.data ?? [];
   const creditCards = cardsResult.data ?? [];
   const currentMonthTransactions = currentMonthTransactionsResult.data ?? [];
+  const paymentSources = paymentSourcesResult.data ?? [];
 
   const billingCycles = billingCyclesResult.data ?? [];
   const closedCycles = billingCycles.filter((c) => c.status === "closed");
@@ -116,26 +115,30 @@ export default async function DashboardPage({
 
   const finalPool = Math.max(0, discretionaryPool - ccPaymentDue);
 
-  // Budget spending tracking for current month
-  const budgets = budgetCategories.map((cat) => {
-    const allocated =
-      discretionaryPool > 0
-        ? Math.round((discretionaryPool * cat.percentage) / 100)
-        : 0;
-    const spent = currentMonthTransactions
-      .filter((tx) => tx.budget_category_id === cat.id)
-      .reduce((sum, tx) => sum + tx.amount_cents, 0);
-    const spentPercentage = allocated > 0 ? Math.round((spent / allocated) * 100) : 0;
+  // Payment method spending breakdown for current month
+  const paymentSourceTypes = new Map(
+    paymentSources.map((ps) => [ps.id, ps.type])
+  );
 
-    return {
-      id: cat.id,
-      name: cat.name,
-      color: cat.color,
-      allocatedCents: allocated,
-      spentCents: spent,
-      spentPercentage,
-    };
-  });
+  const creditCardSpending = currentMonthTransactions
+    .filter((tx) => tx.credit_card_id)
+    .reduce((sum, tx) => sum + tx.amount_cents, 0);
+
+  const transferSpending = currentMonthTransactions
+    .filter(
+      (tx) =>
+        tx.payment_source_id &&
+        paymentSourceTypes.get(tx.payment_source_id) === "digital"
+    )
+    .reduce((sum, tx) => sum + tx.amount_cents, 0);
+
+  const cashSpending = currentMonthTransactions
+    .filter(
+      (tx) =>
+        tx.payment_source_id &&
+        paymentSourceTypes.get(tx.payment_source_id) === "cash"
+    )
+    .reduce((sum, tx) => sum + tx.amount_cents, 0);
 
   const totalSpent = currentMonthTransactions.reduce(
     (sum, tx) => sum + tx.amount_cents,
@@ -143,27 +146,6 @@ export default async function DashboardPage({
   );
 
   const remaining = finalPool - totalSpent;
-
-  // Current CC charges per card
-  const currentCcTransactions = currentMonthTransactions.filter(
-    (tx) => tx.credit_card_id !== null
-  );
-
-  const cards = creditCards.map((card) => {
-    const totalCents = currentCcTransactions
-      .filter((tx) => tx.credit_card_id === card.id)
-      .reduce((sum, tx) => sum + tx.amount_cents, 0);
-    return {
-      id: card.id,
-      name: card.name,
-      totalCents,
-    };
-  });
-
-  const totalCccCharges = currentCcTransactions.reduce(
-    (sum, tx) => sum + tx.amount_cents,
-    0
-  );
 
   // Payment source spending for real cash available
   const paymentSourceSpending = currentMonthTransactions
@@ -235,11 +217,11 @@ export default async function DashboardPage({
       discretionaryPoolCents={discretionaryPool}
       ccPaymentDueCents={ccPaymentDue}
       finalPoolCents={finalPool}
-      budgets={budgets}
-      cards={cards}
-      totalCccChargesCents={totalCccCharges}
       totalSpentCents={totalSpent}
       remainingCents={remaining}
+      creditCardSpendingCents={creditCardSpending}
+      transferSpendingCents={transferSpending}
+      cashSpendingCents={cashSpending}
       paymentSourceSpendingCents={paymentSourceSpending}
       realCashAvailableCents={realCashAvailable}
       upcomingExpenses={upcomingExpenses}

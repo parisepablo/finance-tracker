@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { getCurrentMonth } from "@/lib/utils";
 
 interface FixedExpenseFormProps {
   expense?: FixedExpense;
@@ -31,6 +32,7 @@ interface FixedExpenseFormProps {
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  defaultMonth?: string;
 }
 
 interface FormErrors {
@@ -55,6 +57,7 @@ export function FixedExpenseForm({
   trigger,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
+  defaultMonth,
 }: FixedExpenseFormProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
@@ -85,6 +88,8 @@ export function FixedExpenseForm({
   );
   const [isEssential, setIsEssential] = useState(expense?.is_essential ?? true);
   const [isActive, setIsActive] = useState(expense?.is_active ?? true);
+  const [month, setMonth] = useState(expense?.month ?? defaultMonth ?? getCurrentMonth());
+  const [applyToFuture, setApplyToFuture] = useState(true);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -111,6 +116,8 @@ export function FixedExpenseForm({
       setCreditCardId(expense.credit_card_id ?? "");
       setIsEssential(expense.is_essential);
       setIsActive(expense.is_active);
+      setMonth(expense.month);
+      setApplyToFuture(false);
     } else {
       resetForm();
     }
@@ -160,6 +167,8 @@ export function FixedExpenseForm({
       payment_method: paymentMethod,
       is_essential: isEssential,
       is_active: isActive,
+      month,
+      apply_to_future_months: applyToFuture,
     };
 
     if (dueDayNum !== undefined) {
@@ -215,6 +224,8 @@ export function FixedExpenseForm({
     setCreditCardId("");
     setIsEssential(true);
     setIsActive(true);
+    setMonth(defaultMonth ?? getCurrentMonth());
+    setApplyToFuture(true);
   }
 
   return (
@@ -379,6 +390,58 @@ export function FixedExpenseForm({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            )}
+
+            <div className="grid gap-2">
+              <Label htmlFor="month">Month</Label>
+              <Input
+                id="month"
+                type="month"
+                value={month}
+                className="font-mono"
+                onChange={(e) => {
+                  setMonth(e.target.value);
+                }}
+              />
+              <p className="text-xs text-zinc-500">
+                This expense applies to this month only.
+              </p>
+            </div>
+
+            {!isEditing && (
+              <div className="flex items-start gap-3">
+                <Switch
+                  id="apply_to_future"
+                  checked={applyToFuture}
+                  onCheckedChange={setApplyToFuture}
+                />
+                <div className="grid gap-1 leading-none">
+                  <Label htmlFor="apply_to_future" className="cursor-pointer">
+                    Apply to all future months
+                  </Label>
+                  <p className="text-xs text-zinc-500">
+                    Auto-create this expense for upcoming months (5 years)
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {isEditing && (
+              <div className="flex items-start gap-3">
+                <Switch
+                  id="apply_to_future"
+                  checked={applyToFuture}
+                  onCheckedChange={setApplyToFuture}
+                />
+                <div className="grid gap-1 leading-none">
+                  <Label htmlFor="apply_to_future" className="cursor-pointer">
+                    Apply to future months from this one
+                  </Label>
+                  <p className="text-xs text-zinc-500">
+                    Update this and all future months with the same name
+                  </p>
+                </div>
               </div>
             )}
 

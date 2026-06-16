@@ -47,7 +47,8 @@ export async function GET(request: NextRequest) {
     supabase
       .from("fixed_expenses")
       .select("*")
-      .eq("user_id", user.id),
+      .eq("user_id", user.id)
+      .eq("month", monthStr),
     supabase
       .from("transactions")
       .select("budget_category_id, amount_cents")

@@ -82,9 +82,8 @@ export default async function AnalyticsPage() {
       .eq("user_id", user.id),
     supabase
       .from("fixed_expenses")
-      .select("id, name, amount_cents, billing_cycle, is_active")
-      .eq("user_id", user.id)
-      .eq("is_active", true),
+      .select("id, name, amount_cents, billing_cycle, is_active, month")
+      .eq("user_id", user.id),
   ]);
 
   const transactions = transactionsResult.data ?? [];

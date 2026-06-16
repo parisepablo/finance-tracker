@@ -7,34 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { useAnimatedNumber } from "@/hooks/use-animated-number";
-import { BudgetDonut } from "@/components/budgets/BudgetDonut";
 import { GlowCard } from "@/components/ui/glow-card";
 import {
-  CreditCard,
-  Banknote,
   CalendarDays,
   Check,
   ChevronDown,
   ChevronUp,
-  PieChart,
+  CircleHelp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { haptics } from "@/lib/haptics";
-
-interface DashboardBudgetItem {
-  id: string;
-  name: string;
-  color: string;
-  allocatedCents: number;
-  spentCents: number;
-  spentPercentage: number;
-}
-
-interface DashboardCardItem {
-  id: string;
-  name: string;
-  totalCents: number;
-}
 
 interface DashboardUpcomingExpense {
   id: string;
@@ -54,11 +36,11 @@ interface DashboardClientProps {
   discretionaryPoolCents: number;
   ccPaymentDueCents: number;
   finalPoolCents: number;
-  budgets: DashboardBudgetItem[];
-  cards: DashboardCardItem[];
-  totalCccChargesCents: number;
   totalSpentCents: number;
   remainingCents: number;
+  creditCardSpendingCents: number;
+  transferSpendingCents: number;
+  cashSpendingCents: number;
   paymentSourceSpendingCents: number;
   realCashAvailableCents: number;
   upcomingExpenses: DashboardUpcomingExpense[];
@@ -80,11 +62,11 @@ export function DashboardClient({
   optionalFixedCents,
   ccPaymentDueCents,
   finalPoolCents,
-  budgets,
-  cards,
-  totalCccChargesCents,
   totalSpentCents,
   remainingCents,
+  creditCardSpendingCents,
+  transferSpendingCents,
+  cashSpendingCents,
   realCashAvailableCents,
   upcomingExpenses,
   paidExpenseIds,
@@ -223,61 +205,73 @@ export function DashboardClient({
         </div>
       </div>
 
-      {/* Section 2 — Spending this month (Donut charts) */}
+      {/* Section 2 — Spending this month */}
       <div className="space-y-3">
         <div>
           <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
             Spending this month
           </h2>
-          <p className="text-[10px] text-zinc-500">vs discretionary pool</p>
+          <p className="text-[10px] text-zinc-500">by payment method</p>
         </div>
 
-        {budgets.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#18122B] p-8 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#18122B]">
-              <PieChart className="h-5 w-5 text-zinc-600" />
-            </div>
-            <p className="text-sm text-zinc-500">No budget categories yet.</p>
+        <div className="rounded-xl border border-[#18122B] bg-[#0f0c19]/50 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-zinc-400">Credit Card</span>
+            <span className="text-sm font-medium text-white tabular-nums font-mono">
+              <Amount value={creditCardSpendingCents} className="font-mono" />
+            </span>
           </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {budgets.map((cat) => (
-                <GlowCard key={cat.id} color="emerald">
-                  <div className="p-4 flex flex-col items-center">
-                    <BudgetDonut
-                      spentPercentage={cat.spentPercentage}
-                      color={cat.color}
-                      name={cat.name}
-                      spentCents={cat.spentCents}
-                      allocatedCents={cat.allocatedCents}
-                    />
-                  </div>
-                </GlowCard>
-              ))}
-            </div>
-
-            {/* Summary row */}
-            <div className="rounded-xl border border-[#18122B] bg-[#0f0c19]/50 p-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-zinc-300">Total spent</span>
-                <span className="text-sm font-bold text-white tabular-nums font-mono">
-                  <Amount value={totalSpentCents} className="font-mono" />
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-zinc-400">Remaining</span>
-                <span
-                  className={`text-sm font-bold tabular-nums font-mono ${
-                    remainingCents >= 0 ? "text-emerald-400" : "text-rose-400"
-                  }`}
-                >
-                  <Amount value={remainingCents} className="font-mono" />
-                </span>
-              </div>
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-zinc-400">Transfers</span>
+            <span className="text-sm font-medium text-white tabular-nums font-mono">
+              <Amount value={transferSpendingCents} className="font-mono" />
+            </span>
           </div>
-        )}
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-zinc-400">Cash</span>
+            <span className="text-sm font-medium text-white tabular-nums font-mono">
+              <Amount value={cashSpendingCents} className="font-mono" />
+            </span>
+          </div>
+          <div className="border-t border-[#18122B] pt-2 flex items-center justify-between">
+            <span className="text-sm font-medium text-zinc-300">Total spent</span>
+            <span className="text-sm font-bold text-white tabular-nums font-mono">
+              <Amount value={totalSpentCents} className="font-mono" />
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-1 text-sm text-zinc-400">
+              Remaining
+              <span
+                className="cursor-help text-zinc-600"
+                title="Discretionary pool minus all spending (credit card + transfers + cash). Includes money already spent on credit cards even if not yet paid."
+              >
+                <CircleHelp className="h-3.5 w-3.5" />
+              </span>
+            </span>
+            <span
+              className={`text-sm font-bold tabular-nums font-mono ${
+                remainingCents >= 0 ? "text-emerald-400" : "text-rose-400"
+              }`}
+            >
+              <Amount value={remainingCents} className="font-mono" />
+            </span>
+          </div>
+          <div className="flex items-center justify-between rounded-lg bg-emerald-500/5 px-3 py-2">
+            <span className="flex items-center gap-1 text-sm text-emerald-400">
+              Real cash available
+              <span
+                className="cursor-help text-emerald-600/60"
+                title="Money you actually have left in your account right now. Remaining minus credit card charges (since those haven't left your bank account yet)."
+              >
+                <CircleHelp className="h-3.5 w-3.5" />
+              </span>
+            </span>
+            <span className="text-sm font-bold text-emerald-300 tabular-nums font-mono">
+              <Amount value={realCashAvailableCents} className="font-mono" />
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Due Soon section */}
@@ -400,68 +394,6 @@ export function DashboardClient({
         )}
       </div>
 
-      {/* Section 3 — Current CC charges */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
-            Current CC charges
-          </h2>
-          <Badge variant="outline" className="text-[9px] px-1 py-0 text-zinc-500 border-[#231c3d]">
-            {currentMonthName}
-          </Badge>
-        </div>
-
-        {cards.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#18122B] p-6 text-center text-sm text-zinc-500">
-            No credit cards yet.
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {cards.map((card) => (
-              <div
-                key={card.id}
-                className="flex items-center justify-between rounded-xl border border-[#18122B] bg-[#0f0c19] p-3"
-              >
-                <div className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-zinc-500" />
-                  <span className="text-sm text-zinc-300">{card.name}</span>
-                </div>
-                <span className="text-sm font-semibold text-rose-400 tabular-nums font-mono">
-                  <Amount value={-card.totalCents} className="font-mono" />
-                </span>
-              </div>
-            ))}
-
-            <div className="flex items-center justify-between border-t border-[#18122B] pt-3 px-1">
-              <span className="text-sm font-medium text-zinc-400">Accumulating this cycle</span>
-              <span className="text-sm font-bold text-white tabular-nums font-mono">
-                <Amount value={totalCccChargesCents} className="font-mono" />
-              </span>
-            </div>
-            <p className="text-[10px] text-zinc-500 px-1">will be paid next month</p>
-          </div>
-        )}
-      </div>
-
-      {/* Section 4 — Real cash available */}
-      <div className="rounded-xl border border-emerald-800/30 bg-emerald-950/20 p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <p className="text-[10px] font-medium uppercase tracking-widest text-emerald-400">
-              Real cash available
-            </p>
-            <p className="text-3xl font-bold text-emerald-300 tabular-nums font-mono">
-              <AnimatedAmount cents={realCashAvailableCents} />
-            </p>
-            <p className="text-[10px] text-emerald-500/60">
-              pool − debit & cash spending
-            </p>
-          </div>
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10">
-            <Banknote className="h-5 w-5 text-emerald-400" />
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

@@ -274,13 +274,16 @@ export function FixedExpenseList({
                               </Badge>
                             )}
                           </div>
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+                           <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
                             {expense.due_day && (
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
                                 Due day <span className="font-mono">{expense.due_day}</span>
                               </span>
                             )}
+                            <Badge variant="outline" className="text-[10px] font-mono">
+                              {expense.month}
+                            </Badge>
                             <Badge variant="outline" className="text-[10px]">
                               {cycleLabel}
                             </Badge>

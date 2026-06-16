@@ -22,6 +22,7 @@ export interface FixedExpense {
   credit_card_id: string | null;
   is_essential: boolean;
   is_active: boolean;
+  month: string;
   created_at: string;
 }
 

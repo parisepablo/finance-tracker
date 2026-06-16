@@ -21,7 +21,7 @@ export async function PATCH(
 
   const { data: existing, error: fetchError } = await supabase
     .from("fixed_expenses")
-    .select("id")
+    .select("*")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -136,6 +136,16 @@ export async function PATCH(
     }
   }
 
+  if (body.month !== undefined) {
+    if (!/^\d{4}-\d{2}$/.test(body.month)) {
+      return NextResponse.json(
+        { error: "Month must be in YYYY-MM format" },
+        { status: 400 }
+      );
+    }
+    updates.month = body.month;
+  }
+
   if (Object.keys(updates).length === 0) {
     return NextResponse.json(
       { error: "No fields to update" },
@@ -152,7 +162,28 @@ export async function PATCH(
     .single();
 
   if (error) {
+    if (error.code === "23505") {
+      return NextResponse.json(
+        { error: "A fixed expense with this name already exists for this month" },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Forward-fill to future months if requested
+  const applyToFuture = body.apply_to_future_months === true;
+  if (applyToFuture) {
+    const expenseName = updates.name ?? existing.name;
+    const expenseMonth = updates.month ?? existing.month;
+
+    await supabase
+      .from("fixed_expenses")
+      .update(updates)
+      .eq("user_id", user.id)
+      .eq("name", expenseName)
+      .gte("month", expenseMonth)
+      .neq("id", id);
   }
 
   return NextResponse.json({

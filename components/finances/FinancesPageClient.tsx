@@ -262,7 +262,7 @@ export function FinancesPageClient({
           <AccordionContent>
             <div className="space-y-4">
               <div className="flex justify-end">
-                <FixedExpenseForm creditCards={creditCards} onSuccess={handleRefresh} />
+                <FixedExpenseForm creditCards={creditCards} onSuccess={handleRefresh} defaultMonth={currentMonth} />
               </div>
               <FixedExpenseList
                 expenses={expenses}

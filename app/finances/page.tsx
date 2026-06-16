@@ -51,6 +51,7 @@ export default async function FinancesPage({
       .from("fixed_expenses")
       .select("*")
       .eq("user_id", user.id)
+      .eq("month", monthStr)
       .order("category", { ascending: true })
       .order("name", { ascending: true }),
     supabase

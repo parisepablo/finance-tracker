@@ -1,8 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getMonthlyEquivalent } from "@/lib/utils";
+import { getMonthlyEquivalent, getCurrentMonth } from "@/lib/utils";
 
-export async function GET() {
+function getFutureMonths(startMonth: string, years: number = 5): string[] {
+  const [year, month] = startMonth.split("-").map(Number);
+  const months: string[] = [];
+  let currentYear = year;
+  let currentMonth = month;
+
+  for (let i = 0; i < years * 12; i++) {
+    currentMonth++;
+    if (currentMonth > 12) {
+      currentMonth = 1;
+      currentYear++;
+    }
+    months.push(`${currentYear}-${String(currentMonth).padStart(2, "0")}`);
+  }
+
+  return months;
+}
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const monthParam = searchParams.get("month");
+  const month = monthParam && /^\d{4}-\d{2}$/.test(monthParam)
+    ? monthParam
+    : getCurrentMonth();
+
   const supabase = await createClient();
 
   const {
@@ -18,6 +42,7 @@ export async function GET() {
     .from("fixed_expenses")
     .select("*")
     .eq("user_id", user.id)
+    .eq("month", month)
     .order("category", { ascending: true })
     .order("name", { ascending: true });
 
@@ -142,6 +167,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const month = body.month && /^\d{4}-\d{2}$/.test(body.month)
+    ? body.month
+    : getCurrentMonth();
+
   const insertData: Record<string, unknown> = {
     user_id: user.id,
     name: body.name.trim(),
@@ -152,6 +181,7 @@ export async function POST(request: NextRequest) {
     is_estimated: body.is_estimated ?? false,
     is_essential: body.is_essential ?? true,
     is_active: body.is_active ?? true,
+    month,
   };
 
   if (body.due_day !== undefined) {
@@ -169,7 +199,33 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) {
+    if (error.code === "23505") {
+      return NextResponse.json(
+        { error: "A fixed expense with this name already exists for this month" },
+        { status: 409 }
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Forward-fill future months if requested
+  const applyToFuture = body.apply_to_future_months === true;
+  if (applyToFuture) {
+    const futureMonths = getFutureMonths(month);
+    const baseData = { ...insertData };
+    delete baseData.month;
+
+    for (const futureMonth of futureMonths) {
+      try {
+        await supabase
+          .from("fixed_expenses")
+          .insert({ ...baseData, month: futureMonth })
+          .select()
+          .single();
+      } catch {
+        // Ignore duplicates (they might already exist)
+      }
+    }
   }
 
   return NextResponse.json(
