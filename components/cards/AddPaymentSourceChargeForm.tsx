@@ -54,6 +54,7 @@ export function AddPaymentSourceChargeForm({
   const [budgetCategoryId, setBudgetCategoryId] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [dateOpen, setDateOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -63,6 +64,7 @@ export function AddPaymentSourceChargeForm({
     setTotalAmount("");
     setDate(new Date());
     setBudgetCategoryId("");
+    setDateOpen(false);
   }, [open]);
 
   function validate(): boolean {
@@ -179,10 +181,10 @@ export function AddPaymentSourceChargeForm({
               <Label htmlFor="ps-charge-amount">Total Amount</Label>
               <Input
                 id="ps-charge-amount"
-                type="text"
+                type="number"
                 inputMode="decimal"
                 value={totalAmount}
-                className="font-mono"
+                className="font-mono no-spinner"
                 onChange={(e) => {
                   setTotalAmount(e.target.value);
                   if (errors.totalAmount) setErrors((prev) => ({ ...prev, totalAmount: undefined }));
@@ -197,7 +199,7 @@ export function AddPaymentSourceChargeForm({
 
             <div className="grid gap-2">
               <Label>Purchase Date</Label>
-              <Popover modal={false}>
+              <Popover modal={false} open={dateOpen} onOpenChange={setDateOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -214,6 +216,7 @@ export function AddPaymentSourceChargeForm({
                     selected={date}
                     onSelect={(d) => {
                       setDate(d);
+                      if (d) setDateOpen(false);
                       if (errors.date) setErrors((prev) => ({ ...prev, date: undefined }));
                     }}
                   />
@@ -232,7 +235,7 @@ export function AddPaymentSourceChargeForm({
                   setBudgetCategoryId(value === "none" ? "" : value)
                 }
               >
-                <SelectTrigger id="ps-budget-category">
+                <SelectTrigger id="ps-budget-category" className="w-full">
                   <SelectValue placeholder="Select budget category (optional)" />
                 </SelectTrigger>
                 <SelectContent>

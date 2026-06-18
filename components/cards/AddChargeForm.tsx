@@ -58,6 +58,7 @@ export function AddChargeForm({
   const [budgetCategoryId, setBudgetCategoryId] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [dateOpen, setDateOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -69,6 +70,7 @@ export function AddChargeForm({
     setIsInstallment(false);
     setTotalInstallments("");
     setBudgetCategoryId("");
+    setDateOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -191,10 +193,10 @@ export function AddChargeForm({
               <Label htmlFor="charge-amount">Total Amount</Label>
               <Input
                 id="charge-amount"
-                type="text"
+                type="number"
                 inputMode="decimal"
                 value={totalAmount}
-                className="font-mono"
+                className="font-mono no-spinner"
                 onChange={(e) => {
                   setTotalAmount(e.target.value);
                   if (errors.totalAmount) setErrors((prev) => ({ ...prev, totalAmount: undefined }));
@@ -209,7 +211,7 @@ export function AddChargeForm({
 
             <div className="grid gap-2">
               <Label>Purchase Date</Label>
-              <Popover modal={false}>
+              <Popover modal={false} open={dateOpen} onOpenChange={setDateOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -226,6 +228,7 @@ export function AddChargeForm({
                     selected={date}
                     onSelect={(d) => {
                       setDate(d);
+                      if (d) setDateOpen(false);
                       if (errors.date) setErrors((prev) => ({ ...prev, date: undefined }));
                     }}
                   />
@@ -244,7 +247,7 @@ export function AddChargeForm({
                   setBudgetCategoryId(value === "none" ? "" : value)
                 }
               >
-                <SelectTrigger id="budget-category">
+                <SelectTrigger id="budget-category" className="w-full">
                   <SelectValue placeholder="Select budget category (optional)" />
                 </SelectTrigger>
                 <SelectContent>

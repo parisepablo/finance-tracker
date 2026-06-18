@@ -62,6 +62,7 @@ export function QuickAddChargeSheet({
   const [budgetCategoryId, setBudgetCategoryId] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [dateOpen, setDateOpen] = useState(false);
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -88,6 +89,7 @@ export function QuickAddChargeSheet({
     setIsInstallment(false);
     setTotalInstallments("");
     setBudgetCategoryId("");
+    setDateOpen(false);
 
     // Auto-skip picker if only one payment method exists
     const allMethods: PaymentMethod[] = [
@@ -360,11 +362,11 @@ export function QuickAddChargeSheet({
                 <Label htmlFor="quick-amount">Amount (ARS)</Label>
                 <Input
                   id="quick-amount"
-                  type="text"
+                  type="number"
                   inputMode="decimal"
                   placeholder="0.00"
                   value={totalAmount}
-                  className="font-mono"
+                  className="font-mono no-spinner"
                   onChange={(e) => {
                     setTotalAmount(e.target.value);
                     if (errors.totalAmount) setErrors((p) => ({ ...p, totalAmount: undefined }));
@@ -378,7 +380,7 @@ export function QuickAddChargeSheet({
 
               <div className="space-y-1.5">
                 <Label>Date</Label>
-                <Popover modal={false}>
+                <Popover modal={false} open={dateOpen} onOpenChange={setDateOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -395,6 +397,7 @@ export function QuickAddChargeSheet({
                       selected={date}
                       onSelect={(d) => {
                         setDate(d);
+                        if (d) setDateOpen(false);
                         if (errors.date) setErrors((p) => ({ ...p, date: undefined }));
                       }}
                     />
@@ -413,7 +416,7 @@ export function QuickAddChargeSheet({
                     setBudgetCategoryId(value === "none" ? "" : value)
                   }
                 >
-                  <SelectTrigger id="quick-budget">
+                  <SelectTrigger id="quick-budget" className="w-full">
                     <SelectValue placeholder="Optional" />
                   </SelectTrigger>
                   <SelectContent>
