@@ -19,9 +19,10 @@ import { CalendarIcon, CreditCard as CreditCardIcon, Smartphone, Banknote, Chevr
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { CreditCard, BudgetCategory, PaymentSource } from "@/lib/types";
+import { CreditCard, BudgetCategory, PaymentSource, UserSettings } from "@/lib/types";
 import { haptics } from "@/lib/haptics";
 import { VoiceMicButton } from "@/components/VoiceMicButton";
+import { getCurrentUserSettings } from "@/lib/actions/user-settings";
 
 type PaymentMethod =
   | { type: "card"; id: string; name: string; lastFour?: string; color?: string }
@@ -91,7 +92,6 @@ export function QuickAddChargeSheet({
     setBudgetCategoryId("");
     setDateOpen(false);
 
-    // Auto-skip picker if only one payment method exists
     const allMethods: PaymentMethod[] = [
       ...cards.map((c) => ({
         type: "card" as const,
@@ -109,13 +109,57 @@ export function QuickAddChargeSheet({
       })),
     ];
 
-    if (allMethods.length === 1) {
-      setSelectedMethod(allMethods[0]);
-      setStep("form");
-    } else {
+    async function applyDefaults() {
+      const { data: settings } = await getCurrentUserSettings();
+
+      const defaultCardId = settings?.default_credit_card_id;
+      const defaultSourceId = settings?.default_payment_source_id;
+      const defaultCategoryId = settings?.default_budget_category_id;
+
+      if (defaultCategoryId) {
+        setBudgetCategoryId(defaultCategoryId);
+      }
+
+      if (allMethods.length === 1) {
+        setSelectedMethod(allMethods[0]);
+        setStep("form");
+        return;
+      }
+
+      if (defaultCardId) {
+        const card = cards.find((c) => c.id === defaultCardId);
+        if (card) {
+          setSelectedMethod({
+            type: "card",
+            id: card.id,
+            name: card.name,
+            lastFour: card.last_four,
+          });
+          setStep("form");
+          return;
+        }
+      }
+
+      if (defaultSourceId) {
+        const source = paymentSources.find((s) => s.id === defaultSourceId);
+        if (source) {
+          setSelectedMethod({
+            type: "source",
+            id: source.id,
+            name: source.name,
+            sourceType: source.type,
+            color: source.color,
+          });
+          setStep("form");
+          return;
+        }
+      }
+
       setStep("picker");
       setSelectedMethod(null);
     }
+
+    applyDefaults();
   }, [open, cards, paymentSources]);
 
   function validate(): boolean {

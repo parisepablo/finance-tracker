@@ -124,3 +124,58 @@ export interface Alert {
   created_at: string;
   expires_at: string | null;
 }
+
+export interface UserSettings {
+  user_id: string;
+  telegram_chat_id: string | null;
+  telegram_username: string | null;
+  telegram_link_code: string | null;
+  telegram_link_expires_at: string | null;
+  email_alias: string | null;
+  default_credit_card_id: string | null;
+  default_payment_source_id: string | null;
+  default_budget_category_id: string | null;
+  raw_retention_days: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type PendingChargeSource = "telegram" | "email" | "notification";
+export type PendingChargeStatus =
+  | "pending"
+  | "confirmed"
+  | "discarded"
+  | "parse_failed"
+  | "notification_failed";
+
+export interface PendingCharge {
+  id: string;
+  user_id: string;
+  source: PendingChargeSource;
+  source_ref: string | null;
+  raw_input: string | null;
+  description: string | null;
+  amount_cents: number | null;
+  date: string | null;
+  credit_card_id: string | null;
+  payment_source_id: string | null;
+  budget_category_id: string | null;
+  is_installment: boolean;
+  total_installments: number | null;
+  status: PendingChargeStatus;
+  confirmation_token: string;
+  confirmed_at: string | null;
+  parse_error: string | null;
+  created_at: string;
+}
+
+export interface ParsedCharge {
+  description: string;
+  amount_cents: number;
+  date: string;
+  credit_card_id?: string;
+  payment_source_id?: string;
+  budget_category_id?: string;
+  is_installment: boolean;
+  total_installments?: number;
+}
