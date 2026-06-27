@@ -25,6 +25,18 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Telegram only allows A-Z, a-z, 0-9, '_' and '-' in the secret token.
+  const validSecret = /^[A-Za-z0-9_-]+$/;
+  if (!validSecret.test(webhookSecret)) {
+    return NextResponse.json(
+      {
+        error:
+          "TELEGRAM_WEBHOOK_SECRET contains invalid characters. Use only A-Z, a-z, 0-9, '_' and '-'. Base64 is not allowed.",
+      },
+      { status: 400 }
+    );
+  }
+
   const webhookUrl = `${protocol}://${host}/api/bots/telegram`;
 
   try {
