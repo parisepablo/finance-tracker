@@ -164,6 +164,7 @@ export interface PendingCharge {
   total_installments: number | null;
   status: PendingChargeStatus;
   confirmation_token: string;
+  callback_token: string;
   confirmed_at: string | null;
   parse_error: string | null;
   created_at: string;

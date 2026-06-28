@@ -232,8 +232,8 @@ export async function POST(request: NextRequest) {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "✅ Sí", callback_data: `confirm:${pending.confirmation_token}` },
-          { text: "❌ No", callback_data: `discard:${pending.confirmation_token}` },
+          { text: "✅ Sí", callback_data: `c:${pending.callback_token}` },
+          { text: "❌ No", callback_data: `d:${pending.callback_token}` },
         ],
       ],
     },

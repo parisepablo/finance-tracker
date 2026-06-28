@@ -23,6 +23,12 @@ export interface CreatePendingChargeInput {
   parseError?: string;
 }
 
+function generateCallbackToken(): string {
+  return Array.from({ length: 16 }, () =>
+    Math.floor(Math.random() * 36).toString(36)
+  ).join("");
+}
+
 export async function createPendingCharge(
   supabase: SupabaseClient,
   input: CreatePendingChargeInput
@@ -44,6 +50,7 @@ export async function createPendingCharge(
       total_installments: input.totalInstallments ?? null,
       status: input.status ?? "pending",
       parse_error: input.parseError ?? null,
+      callback_token: generateCallbackToken(),
     })
     .select()
     .single();
@@ -64,6 +71,20 @@ export async function getPendingChargeByToken(
     .from("pending_charges")
     .select("*")
     .eq("confirmation_token", token)
+    .single();
+
+  if (error || !data) return null;
+  return data as PendingCharge;
+}
+
+export async function getPendingChargeByCallbackToken(
+  supabase: SupabaseClient,
+  token: string
+): Promise<PendingCharge | null> {
+  const { data, error } = await supabase
+    .from("pending_charges")
+    .select("*")
+    .eq("callback_token", token)
     .single();
 
   if (error || !data) return null;

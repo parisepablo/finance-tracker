@@ -17,8 +17,8 @@ import {
 import {
   createPendingCharge,
   findPotentialDuplicate,
+  getPendingChargeByCallbackToken,
   getPendingChargeById,
-  getPendingChargeByToken,
   updatePendingChargeStatus,
 } from "@/lib/data/pending-charges";
 import { BudgetCategory, CreditCard, PaymentSource } from "@/lib/types";
@@ -264,12 +264,12 @@ async function sendConfirmationMessage(
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "✅ Sí", callback_data: `confirm:${pending.confirmation_token}` },
-          { text: "❌ No", callback_data: `discard:${pending.confirmation_token}` },
+          { text: "✅ Sí", callback_data: `c:${pending.callback_token}` },
+          { text: "❌ No", callback_data: `d:${pending.callback_token}` },
         ],
         [
-          { text: "💳 Cambiar medio", callback_data: `edit_method:${pending.confirmation_token}` },
-          { text: "🏷️ Categoría", callback_data: `edit_category:${pending.confirmation_token}` },
+          { text: "💳 Cambiar medio", callback_data: `m:${pending.callback_token}` },
+          { text: "🏷️ Categoría", callback_data: `g:${pending.callback_token}` },
         ],
       ],
     },
@@ -290,14 +290,14 @@ async function sendPaymentMethodSelection(
     const label = card.last_four ? `${card.name} •••• ${card.last_four}` : card.name;
     buttons.push({
       text: label,
-      callback_data: `select_card:${card.id}:${pending.confirmation_token}`,
+      callback_data: `cd:${card.id}:${pending.callback_token}`,
     });
   }
 
   for (const source of ctx.paymentSources) {
     buttons.push({
       text: source.name,
-      callback_data: `select_source:${source.id}:${pending.confirmation_token}`,
+      callback_data: `so:${source.id}:${pending.callback_token}`,
     });
   }
 
@@ -325,9 +325,11 @@ async function handleCallback(
   callbackQueryId: string,
   data: string
 ) {
-  const [action, token, ...rest] = data.split(":");
+  const [action, idPart, token] = data.split(":");
 
-  const pending = await getPendingChargeByToken(supabase, token);
+  const pending = token
+    ? await getPendingChargeByCallbackToken(supabase, token)
+    : null;
   if (!pending) {
     await answerCallbackQuery(callbackQueryId, {
       text: "Este gasto ya no está disponible.",
@@ -338,7 +340,7 @@ async function handleCallback(
 
   const ctx = await getFinancialContext(supabase, pending.user_id);
 
-  if (action === "confirm") {
+  if (action === "c") {
     const result = await confirmPendingCharge(supabase, pending);
     if (!result) {
       await answerCallbackQuery(callbackQueryId, {
@@ -355,7 +357,7 @@ async function handleCallback(
     return;
   }
 
-  if (action === "discard") {
+  if (action === "d") {
     await updatePendingChargeStatus(supabase, pending.id, "discarded");
     await answerCallbackQuery(callbackQueryId, { text: "Descartado" });
     await editTelegramMessage(chatId, messageId, "Gasto descartado", {
@@ -364,16 +366,16 @@ async function handleCallback(
     return;
   }
 
-  if (action === "edit_method") {
+  if (action === "m") {
     await sendPaymentMethodSelection(supabase, chatId, pending, ctx);
     await answerCallbackQuery(callbackQueryId);
     return;
   }
 
-  if (action === "edit_category") {
+  if (action === "g") {
     const buttons = ctx.budgetCategories.map((cat) => ({
       text: cat.name,
-      callback_data: `select_category:${cat.id}:${pending.confirmation_token}`,
+      callback_data: `ca:${cat.id}:${pending.callback_token}`,
     }));
 
     await sendTelegramMessage(chatId, "¿A qué categoría va?", {
@@ -383,8 +385,8 @@ async function handleCallback(
     return;
   }
 
-  if (action === "select_card") {
-    const cardId = rest[0];
+  if (action === "cd") {
+    const cardId = idPart;
     await supabase
       .from("pending_charges")
       .update({ credit_card_id: cardId, payment_source_id: null })
@@ -397,8 +399,8 @@ async function handleCallback(
     return;
   }
 
-  if (action === "select_source") {
-    const sourceId = rest[0];
+  if (action === "so") {
+    const sourceId = idPart;
     await supabase
       .from("pending_charges")
       .update({ payment_source_id: sourceId, credit_card_id: null })
@@ -411,8 +413,8 @@ async function handleCallback(
     return;
   }
 
-  if (action === "select_category") {
-    const categoryId = rest[0];
+  if (action === "ca") {
+    const categoryId = idPart;
     await supabase.from("pending_charges").update({ budget_category_id: categoryId }).eq("id", pending.id);
     const updated = await getPendingChargeById(supabase, pending.id);
     if (updated) {
