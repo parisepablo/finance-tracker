@@ -216,6 +216,7 @@ export async function POST(request: NextRequest) {
     formatChargePreview({
       description: parsed.description,
       amountCents: parsed.amount_cents,
+      currency: parsed.currency,
       date: parsed.date,
       paymentMethodName: getPaymentMethodName(
         ctx,

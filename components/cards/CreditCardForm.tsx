@@ -14,6 +14,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -63,6 +70,7 @@ export function CreditCardForm({ card, cycles, onSuccess, trigger, open: control
   const [dueDate, setDueDate] = useState<Date | undefined>(
     openCycle ? new Date(openCycle.due_date + "T00:00:00") : undefined
   );
+  const [currency, setCurrency] = useState<"ARS" | "USD">(card?.currency ?? "ARS");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -76,10 +84,12 @@ export function CreditCardForm({ card, cycles, onSuccess, trigger, open: control
       setName(card.name);
       setLastFour(card.last_four ?? "");
       setCreditLimit(card.credit_limit_cents ? (card.credit_limit_cents / 100).toString() : "");
+      setCurrency(card.currency ?? "ARS");
     } else {
       setName("");
       setLastFour("");
       setCreditLimit("");
+      setCurrency("ARS");
     }
     const oc = cycles?.find((c) => c.status === "open");
     if (oc) {
@@ -136,6 +146,7 @@ export function CreditCardForm({ card, cycles, onSuccess, trigger, open: control
 
     const payload: Record<string, unknown> = {
       name: name.trim(),
+      currency,
     };
 
     if (lastFour) {
@@ -267,6 +278,22 @@ export function CreditCardForm({ card, cycles, onSuccess, trigger, open: control
               {errors.creditLimit && (
                 <p className="text-xs text-rose-400">{errors.creditLimit}</p>
               )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="currency">Currency</Label>
+              <Select
+                value={currency}
+                onValueChange={(value) => setCurrency(value as "ARS" | "USD")}
+              >
+                <SelectTrigger id="currency">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ARS">ARS</SelectItem>
+                  <SelectItem value="USD">USD</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {isEditing && (

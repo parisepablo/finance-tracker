@@ -41,6 +41,7 @@ export interface CreditCard {
   name: string;
   last_four: string;
   credit_limit_cents: number;
+  currency: "ARS" | "USD";
   created_at: string;
 }
 
@@ -68,6 +69,7 @@ export interface Transaction {
   user_id: string;
   description: string;
   amount_cents: number;
+  currency: "ARS" | "USD";
   date: string;
   budget_category_id: string | null;
   credit_card_id: string | null;
@@ -156,6 +158,7 @@ export interface PendingCharge {
   raw_input: string | null;
   description: string | null;
   amount_cents: number | null;
+  currency: "ARS" | "USD";
   date: string | null;
   credit_card_id: string | null;
   payment_source_id: string | null;
@@ -173,6 +176,7 @@ export interface PendingCharge {
 export interface ParsedCharge {
   description: string;
   amount_cents: number;
+  currency: "ARS" | "USD";
   date: string;
   credit_card_id?: string;
   payment_source_id?: string;

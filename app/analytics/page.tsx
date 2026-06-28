@@ -69,7 +69,7 @@ export default async function AnalyticsPage() {
       .order("date", { ascending: true }),
     supabase
       .from("credit_cards")
-      .select("id, name, credit_limit_cents, user_id, last_four, created_at")
+      .select("id, name, credit_limit_cents, user_id, last_four, currency, created_at")
       .eq("user_id", user.id),
     supabase
       .from("budget_categories")

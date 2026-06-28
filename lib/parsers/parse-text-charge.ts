@@ -7,6 +7,7 @@ export interface UserPaymentContext {
   defaultCreditCardId?: string | null;
   defaultPaymentSourceId?: string | null;
   defaultBudgetCategoryId?: string | null;
+  defaultCurrency?: "ARS" | "USD";
 }
 
 export type ParseTextResult =
@@ -93,6 +94,21 @@ function parseAmount(text: string): number | null {
   return Math.round(bestAmount * 100);
 }
 
+function parseCurrency(text: string, ctx: UserPaymentContext): "ARS" | "USD" {
+  const normalized = normalize(text);
+
+  const usdKeywords = ["usd", "dolar", "dolares", "dollars"];
+  const arsKeywords = ["ars", "pesos"];
+
+  const hasUsd = usdKeywords.some((kw) => normalized.includes(kw));
+  const hasArs = arsKeywords.some((kw) => normalized.includes(kw));
+
+  if (hasUsd && !hasArs) return "USD";
+
+  // Default to ARS unless the user has only USD cards and mentions no currency
+  return ctx.defaultCurrency ?? "ARS";
+}
+
 function parseInstallments(text: string): { isInstallment: boolean; totalInstallments?: number } {
   const normalized = normalize(text);
 
@@ -117,12 +133,17 @@ interface PaymentMethodMatch {
 
 function findPaymentMethod(
   text: string,
-  ctx: UserPaymentContext
+  ctx: UserPaymentContext,
+  currency: "ARS" | "USD"
 ): PaymentMethodMatch | null {
   const normalized = normalize(text);
 
-  // Direct card name/last four matches
-  for (const card of ctx.cards) {
+  // Helper to filter cards by currency preference
+  const currencyCards = ctx.cards.filter((c) => c.currency === currency);
+  const cardsToSearch = currencyCards.length > 0 ? currencyCards : ctx.cards;
+
+  // Direct card name/last four matches (prefer matching currency)
+  for (const card of cardsToSearch) {
     const cardNameNorm = normalize(card.name);
     if (normalized.includes(cardNameNorm)) {
       return { creditCardId: card.id, methodName: card.name, matchedKeyword: cardNameNorm };
@@ -132,11 +153,13 @@ function findPaymentMethod(
     }
   }
 
-  // Direct payment source name matches
-  for (const source of ctx.paymentSources) {
-    const sourceNameNorm = normalize(source.name);
-    if (normalized.includes(sourceNameNorm)) {
-      return { paymentSourceId: source.id, methodName: source.name, matchedKeyword: sourceNameNorm };
+  // Direct payment source name matches (sources are ARS-only for now)
+  if (currency === "ARS") {
+    for (const source of ctx.paymentSources) {
+      const sourceNameNorm = normalize(source.name);
+      if (normalized.includes(sourceNameNorm)) {
+        return { paymentSourceId: source.id, methodName: source.name, matchedKeyword: sourceNameNorm };
+      }
     }
   }
 
@@ -155,13 +178,13 @@ function findPaymentMethod(
     if (!matchedKeyword) continue;
 
     if (mapping.creditCardName) {
-      const card = ctx.cards.find((c) => normalize(c.name).includes(mapping.creditCardName as string));
+      const card = cardsToSearch.find((c) => normalize(c.name).includes(mapping.creditCardName as string));
       if (card) {
         return { creditCardId: card.id, methodName: card.name, matchedKeyword };
       }
     }
 
-    if (mapping.sourceType && mapping.sourceKeywords) {
+    if (currency === "ARS" && mapping.sourceType && mapping.sourceKeywords) {
       const source = ctx.paymentSources.find(
         (s) =>
           s.type === mapping.sourceType &&
@@ -284,8 +307,9 @@ export function parseTextCharge(
 
   const date = parseDate(trimmed) || new Date().toISOString().split("T")[0];
   const { isInstallment, totalInstallments } = parseInstallments(trimmed);
+  const currency = parseCurrency(trimmed, ctx);
 
-  const paymentMethod = findPaymentMethod(trimmed, ctx);
+  const paymentMethod = findPaymentMethod(trimmed, ctx, currency);
   const category = findBudgetCategory(trimmed, ctx);
 
   const description = buildDescription(
@@ -299,6 +323,7 @@ export function parseTextCharge(
   const charge: ParsedCharge = {
     description,
     amount_cents: amountCents,
+    currency,
     date,
     credit_card_id: paymentMethod?.creditCardId,
     payment_source_id: paymentMethod?.paymentSourceId,

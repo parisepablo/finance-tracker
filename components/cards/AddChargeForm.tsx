@@ -190,7 +190,7 @@ export function AddChargeForm({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="charge-amount">Total Amount</Label>
+              <Label htmlFor="charge-amount">Total Amount ({card.currency})</Label>
               <Input
                 id="charge-amount"
                 type="number"

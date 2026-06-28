@@ -33,6 +33,7 @@ Available budget categories: ${categoryNames || "none"}
 Respond ONLY with a raw JSON object. No markdown, no explanation, no code blocks.
 Use these exact keys:
 - amount: number (numeric amount, no currency symbols)
+- currency: string ("ARS" or "USD". Default "ARS" unless the text explicitly mentions USD/dollars/dólares.)
 - description: string (concise merchant or concept)
 - date: string (ISO date YYYY-MM-DD. Use ${today} if not mentioned.)
 - credit_card_name: string (exact name of a credit card from the list, or omit)
@@ -88,6 +89,7 @@ Return ONLY the JSON object.`;
           ? parsed.description.trim()
           : "Gasto",
       amount_cents: Math.round(parsed.amount * 100),
+      currency: parsed.currency === "USD" ? "USD" : "ARS",
       date:
         typeof parsed.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(parsed.date)
           ? parsed.date

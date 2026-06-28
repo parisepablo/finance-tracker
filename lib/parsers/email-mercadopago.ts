@@ -82,6 +82,7 @@ export function parseMercadoPagoEmail(
   return {
     description,
     amount_cents: Math.round(amount * 100),
+    currency: "ARS",
     date,
     payment_source_id: paymentSource?.id,
     budget_category_id: category?.id,

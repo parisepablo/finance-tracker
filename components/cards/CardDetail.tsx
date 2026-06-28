@@ -20,6 +20,7 @@ interface MonthlySummaryItem {
   id: string;
   description: string;
   amount_cents: number;
+  currency: "ARS" | "USD";
   type: "fixed" | "installment" | "single";
   date: string;
   purchase_date: string;
@@ -313,7 +314,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                         )}
                     </div>
                     <span className="shrink-0 ml-2 text-right font-semibold text-white tabular-nums font-mono">
-                      <Amount value={item.amount_cents} className="font-mono" />
+                      <Amount value={item.amount_cents} currency={item.currency} className="font-mono" />
                     </span>
                   </div>
                 </div>

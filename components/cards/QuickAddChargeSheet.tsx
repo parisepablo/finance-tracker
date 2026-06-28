@@ -403,7 +403,9 @@ export function QuickAddChargeSheet({
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="quick-amount">Amount (ARS)</Label>
+                <Label htmlFor="quick-amount">
+                  Amount ({isSource ? "ARS" : (selectedMethod && cards.find((c) => c.id === selectedMethod.id)?.currency) ?? "ARS"})
+                </Label>
                 <Input
                   id="quick-amount"
                   type="number"

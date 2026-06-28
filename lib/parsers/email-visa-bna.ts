@@ -99,6 +99,7 @@ export function parseVisaBnaEmail(
   return {
     description,
     amount_cents: Math.round(amount * 100),
+    currency: "ARS",
     date,
     credit_card_id: creditCard?.id,
     budget_category_id: category?.id,

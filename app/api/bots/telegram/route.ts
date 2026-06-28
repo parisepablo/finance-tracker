@@ -34,13 +34,20 @@ async function getFinancialContext(
     supabase.from("user_settings").select("*").eq("user_id", userId).single(),
   ]);
 
+  const cards = (cardsResult.data ?? []) as CreditCard[];
+  const defaultCreditCardId = settingsResult.data?.default_credit_card_id;
+  const defaultCard = defaultCreditCardId
+    ? cards.find((c) => c.id === defaultCreditCardId)
+    : null;
+
   return {
-    cards: (cardsResult.data ?? []) as CreditCard[],
+    cards,
     paymentSources: (sourcesResult.data ?? []) as PaymentSource[],
     budgetCategories: (categoriesResult.data ?? []) as BudgetCategory[],
-    defaultCreditCardId: settingsResult.data?.default_credit_card_id,
+    defaultCreditCardId,
     defaultPaymentSourceId: settingsResult.data?.default_payment_source_id,
     defaultBudgetCategoryId: settingsResult.data?.default_budget_category_id,
+    defaultCurrency: defaultCard?.currency ?? "ARS",
   };
 }
 
@@ -210,6 +217,7 @@ async function handleTextMessage(
     rawInput: text,
     description: charge.description,
     amountCents: charge.amount_cents,
+    currency: charge.currency,
     date: charge.date,
     creditCardId: charge.credit_card_id,
     paymentSourceId: charge.payment_source_id,
@@ -248,6 +256,7 @@ async function sendConfirmationMessage(
     formatChargePreview({
       description,
       amountCents,
+      currency: pending.currency ?? "ARS",
       date,
       paymentMethodName: getPaymentMethodName(
         ctx,
@@ -438,6 +447,8 @@ async function confirmPendingCharge(
     return false;
   }
 
+  const currency = pending.currency ?? "ARS";
+
   const totalInstallments = pending.is_installment && pending.total_installments
     ? pending.total_installments
     : 1;
@@ -459,6 +470,7 @@ async function confirmPendingCharge(
       user_id: pending.user_id,
       description: pending.description,
       amount_cents: amount,
+      currency,
       date: date.toISOString().split("T")[0],
       budget_category_id: pending.budget_category_id,
       credit_card_id: pending.credit_card_id,

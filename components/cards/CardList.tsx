@@ -105,7 +105,7 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
                   <Wifi className="h-5 w-5 text-white/60 rotate-90" />
                 </div>
                 <span className="text-xs font-medium text-white/50 uppercase tracking-wider">
-                  {card.name}
+                  {card.name} ({card.currency})
                 </span>
               </div>
 
@@ -126,7 +126,7 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
                   <p className="text-[10px] uppercase tracking-wider text-white/40">Limit</p>
                   <p className="text-sm font-semibold text-white tabular-nums font-mono">
                     {card.credit_limit_cents !== null
-                      ? <Amount value={card.credit_limit_cents} className="font-mono" />
+                      ? <Amount value={card.credit_limit_cents} currency={card.currency} className="font-mono" />
                       : "—"}
                   </p>
                 </div>

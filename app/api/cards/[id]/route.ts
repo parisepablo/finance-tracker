@@ -81,6 +81,7 @@ export async function GET(
     id: string;
     description: string;
     amount_cents: number;
+    currency: "ARS" | "USD";
     type: "fixed" | "installment" | "single";
     date: string;
     purchase_date: string;
@@ -99,6 +100,7 @@ export async function GET(
       id: expense.id,
       description: expense.name,
       amount_cents: monthly,
+      currency: "ARS",
       type: "fixed",
       date: expenseDate,
       purchase_date: expenseDate,
@@ -116,6 +118,7 @@ export async function GET(
         id: tx.id,
         description: tx.description,
         amount_cents: tx.amount_cents,
+        currency: tx.currency ?? "ARS",
         type: "installment",
         date: tx.date,
         purchase_date: purchaseDateStr,
@@ -127,6 +130,7 @@ export async function GET(
         id: tx.id,
         description: tx.description,
         amount_cents: tx.amount_cents,
+        currency: tx.currency ?? "ARS",
         type: "single",
         date: tx.date,
         purchase_date: tx.date,
@@ -215,7 +219,16 @@ export async function PATCH(
     }
   }
 
-
+  if (body.currency !== undefined) {
+    if (body.currency === "ARS" || body.currency === "USD") {
+      updates.currency = body.currency;
+    } else {
+      return NextResponse.json(
+        { error: "Currency must be ARS or USD" },
+        { status: 400 }
+      );
+    }
+  }
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json(

@@ -65,6 +65,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const currency = body.currency === "USD" ? "USD" : "ARS";
+
   const { data: card, error } = await supabase
     .from("credit_cards")
     .insert({
@@ -72,6 +74,7 @@ export async function POST(request: NextRequest) {
       name: body.name.trim(),
       last_four: body.last_four ?? null,
       credit_limit_cents: body.credit_limit_cents ?? null,
+      currency,
     })
     .select()
     .single();

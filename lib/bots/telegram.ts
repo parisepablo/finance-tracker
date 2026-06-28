@@ -180,18 +180,21 @@ export function verifyTelegramWebhookSecret(headerSecret: string | null): boolea
 export function formatChargePreview(options: {
   description: string;
   amountCents: number;
+  currency?: string;
   date: string;
   paymentMethodName?: string;
   categoryName?: string;
   isInstallment: boolean;
   totalInstallments?: number;
 }): string {
-  const amount = (options.amountCents / 100).toLocaleString("es-AR", {
+  const currency = options.currency ?? "ARS";
+  const locale = currency === "USD" ? "en-US" : "es-AR";
+  const amount = (options.amountCents / 100).toLocaleString(locale, {
     style: "currency",
-    currency: "ARS",
+    currency,
   });
 
-  const date = new Date(options.date).toLocaleDateString("es-AR");
+  const date = new Date(options.date).toLocaleDateString(locale);
 
   let text = `*${options.description}* — ${amount} el ${date}`;
 
@@ -206,8 +209,8 @@ export function formatChargePreview(options: {
   if (options.isInstallment && options.totalInstallments) {
     const installmentAmount = options.amountCents / options.totalInstallments / 100;
     text += `\n📅 ${options.totalInstallments} cuotas de ${installmentAmount.toLocaleString(
-      "es-AR",
-      { style: "currency", currency: "ARS" }
+      locale,
+      { style: "currency", currency }
     )}`;
   }
 

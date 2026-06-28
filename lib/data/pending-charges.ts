@@ -13,6 +13,7 @@ export interface CreatePendingChargeInput {
   rawInput?: string;
   description?: string;
   amountCents?: number;
+  currency?: "ARS" | "USD";
   date?: string;
   creditCardId?: string;
   paymentSourceId?: string;
@@ -42,6 +43,7 @@ export async function createPendingCharge(
       raw_input: input.rawInput ?? null,
       description: input.description ?? null,
       amount_cents: input.amountCents ?? null,
+      currency: input.currency ?? "ARS",
       date: input.date ?? null,
       credit_card_id: input.creditCardId ?? null,
       payment_source_id: input.paymentSourceId ?? null,
