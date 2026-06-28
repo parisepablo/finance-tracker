@@ -5,7 +5,11 @@ export async function proxy(request: NextRequest) {
   const { response, supabase } = await updateSession(request);
 
   const pathname = request.nextUrl.pathname;
-  const isPublic = pathname === "/" || pathname === "/login" || pathname.startsWith("/auth/");
+  const isPublic =
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname.startsWith("/auth/") ||
+    pathname.startsWith("/api/bots/");
 
   if (isPublic) {
     return response;
