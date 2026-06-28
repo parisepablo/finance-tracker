@@ -114,9 +114,10 @@ async function handleTextMessage(
 ) {
   const settings = await getUserSettingsByTelegramChatId(supabase, chatId.toString());
   if (!settings || !settings.telegram_chat_id) {
+    console.error(`Telegram chat ${chatId} not linked to any user`);
     await sendTelegramMessage(
       chatId,
-      "Tu cuenta no está vinculada. Escribí `/start CODIGO` con el código de la app."
+      "Tu cuenta no está vinculada. Escribí `/start CODIGO` con el código de la app.",
     );
     return;
   }
@@ -478,6 +479,7 @@ async function confirmPendingCharge(
 export async function POST(request: NextRequest) {
   const secretHeader = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
   if (!verifyTelegramWebhookSecret(secretHeader)) {
+    console.error("Telegram webhook rejected: invalid secret token");
     return NextResponse.json({ error: "Unauthorized" }, { status: 200 });
   }
 
@@ -485,8 +487,16 @@ export async function POST(request: NextRequest) {
   try {
     update = await request.json();
   } catch {
+    console.error("Telegram webhook rejected: invalid JSON body");
     return NextResponse.json({ error: "Invalid JSON" }, { status: 200 });
   }
+
+  console.log("Telegram webhook received:", {
+    update_id: update.update_id,
+    has_message: !!update.message,
+    has_callback: !!update.callback_query,
+    chat_id: update.message?.chat?.id ?? update.callback_query?.message?.chat?.id,
+  });
 
   const supabase = createServiceClient();
 
