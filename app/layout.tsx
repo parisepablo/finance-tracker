@@ -11,7 +11,8 @@ import { VisibilityProvider } from "@/components/visibility-provider";
 import { VisibilityToggle } from "@/components/visibility-toggle";
 import { MonthProvider } from "@/context/month-context";
 import { ConditionalMonthSelector } from "@/components/conditional-month-selector";
-import { Wallet } from "lucide-react";
+import { Wallet, Settings } from "lucide-react";
+import Link from "next/link";
 import { autoAdvanceCycles } from "@/lib/actions/billing-cycles";
 import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
@@ -93,6 +94,13 @@ export default async function RootLayout({
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <VisibilityToggle />
                       <AlertsBell />
+                      <Link
+                        href="/settings"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-[#18122B]/50 hover:text-zinc-100"
+                        aria-label="Settings"
+                      >
+                        <Settings className="h-5 w-5" />
+                      </Link>
                     </div>
                   </div>
                   {/* Desktop header with month selector */}

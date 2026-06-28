@@ -18,6 +18,10 @@ const navItems = [
   { href: "/finances", label: "Finances", icon: Wallet },
   { href: "/cards", label: "Cards & Wallets", icon: CreditCard },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
+];
+
+const desktopNavItems = [
+  ...navItems,
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -61,7 +65,7 @@ function MobileBottomNav() {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-[#18122B] bg-[#09070f]">
-      <div className="flex items-center justify-around px-2 pt-2 bottom-nav">
+      <div className="flex items-stretch px-2 pt-2 bottom-nav">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =
@@ -71,15 +75,15 @@ function MobileBottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-col items-center gap-0.5 py-1 px-3 min-w-[64px] transition-colors",
+                "relative flex flex-1 flex-col items-center justify-center gap-0.5 py-1 px-1 text-center transition-colors",
                 isActive ? "text-emerald-500" : "text-zinc-500"
               )}
             >
               {isActive && (
                 <span className="absolute -top-2 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-emerald-500" />
               )}
-              <Icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium leading-none">
+              <Icon className="h-5 w-5 shrink-0" />
+              <span className="text-[10px] font-medium leading-tight text-center">
                 {item.label}
               </span>
             </Link>
