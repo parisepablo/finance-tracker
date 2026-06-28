@@ -133,12 +133,12 @@ function findPaymentMethod(
     }
   }
 
-  // Keyword mappings
+  // Keyword mappings (Spanish + English synonyms)
   const keywordMappings: { keywords: string[]; creditCardName?: string; sourceType?: PaymentSource["type"]; sourceKeywords?: string[] }[] = [
     { keywords: ["visa", "mastercard", "master", "amex", "american express"], creditCardName: "visa" },
-    { keywords: ["transferencia", "transf", "debito", "debit"], sourceType: "digital", sourceKeywords: ["transferencia", "debito"] },
-    { keywords: ["efectivo", "cash"], sourceType: "cash", sourceKeywords: ["efectivo"] },
-    { keywords: ["mercado pago", "mercadopago", "mp"], sourceType: "digital", sourceKeywords: ["mercado pago"] },
+    { keywords: ["transferencia", "transfer", "transf", "debito", "debit"], sourceType: "digital", sourceKeywords: ["transferencia", "transfer", "debito", "debit"] },
+    { keywords: ["efectivo", "cash"], sourceType: "cash", sourceKeywords: ["efectivo", "cash"] },
+    { keywords: ["mercado pago", "mercadopago", "mp"], sourceType: "digital", sourceKeywords: ["mercado pago", "mercadopago", "mp"] },
     { keywords: ["uala"], sourceType: "digital", sourceKeywords: ["uala"] },
     { keywords: ["modo"], sourceType: "digital", sourceKeywords: ["modo"] },
   ];
