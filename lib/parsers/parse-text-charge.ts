@@ -69,8 +69,9 @@ function parseDate(text: string): string | null {
 }
 
 function parseAmount(text: string): number | null {
-  // Match numbers like 12000, 12.000, 12,000.50, 12000.50
-  const matches = text.match(/(\d{1,3}(?:[.,]\d{3})*|\d+)(?:[.,](\d{2}))?/g);
+  // Match numbers like 12000, 12.000, 12.000,50, 12000,50
+  // Use \d+ first so "12000" is not split into "12".
+  const matches = text.match(/(\d+(?:[.,]\d{3})*)(?:[.,](\d{2}))?/g);
   if (!matches) return null;
 
   // Prefer the largest number that looks like an amount (not a date or small number)
