@@ -61,6 +61,7 @@ export function QuickAddChargeSheet({
   const [isInstallment, setIsInstallment] = useState(false);
   const [totalInstallments, setTotalInstallments] = useState("");
   const [budgetCategoryId, setBudgetCategoryId] = useState("");
+  const [currency, setCurrency] = useState<"ARS" | "USD">("ARS");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [dateOpen, setDateOpen] = useState(false);
@@ -90,6 +91,7 @@ export function QuickAddChargeSheet({
     setIsInstallment(false);
     setTotalInstallments("");
     setBudgetCategoryId("");
+    setCurrency("ARS");
     setDateOpen(false);
 
     const allMethods: PaymentMethod[] = [
@@ -199,6 +201,7 @@ export function QuickAddChargeSheet({
     const payload: Record<string, unknown> = {
       description: description.trim(),
       total_amount_cents: Math.round(amountNum * 100),
+      currency,
       date: date!.toISOString().split("T")[0],
       is_installment: selectedMethod.type === "card" ? isInstallment : false,
       total_installments:
@@ -402,26 +405,42 @@ export function QuickAddChargeSheet({
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="quick-amount">
-                  Amount ({isSource ? "ARS" : (selectedMethod && cards.find((c) => c.id === selectedMethod.id)?.currency) ?? "ARS"})
-                </Label>
-                <Input
-                  id="quick-amount"
-                  type="number"
-                  inputMode="decimal"
-                  placeholder="0.00"
-                  value={totalAmount}
-                  className="font-mono no-spinner"
-                  onChange={(e) => {
-                    setTotalAmount(e.target.value);
-                    if (errors.totalAmount) setErrors((p) => ({ ...p, totalAmount: undefined }));
-                  }}
-                  aria-invalid={!!errors.totalAmount}
-                />
-                {errors.totalAmount && (
-                  <p className="text-xs text-rose-400">{errors.totalAmount}</p>
-                )}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="quick-amount">Amount</Label>
+                  <Input
+                    id="quick-amount"
+                    type="number"
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    value={totalAmount}
+                    className="font-mono no-spinner"
+                    onChange={(e) => {
+                      setTotalAmount(e.target.value);
+                      if (errors.totalAmount) setErrors((p) => ({ ...p, totalAmount: undefined }));
+                    }}
+                    aria-invalid={!!errors.totalAmount}
+                  />
+                  {errors.totalAmount && (
+                    <p className="text-xs text-rose-400">{errors.totalAmount}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="quick-currency">Currency</Label>
+                  <Select
+                    value={currency}
+                    onValueChange={(value) => setCurrency(value as "ARS" | "USD")}
+                  >
+                    <SelectTrigger id="quick-currency">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ARS">ARS</SelectItem>
+                      <SelectItem value="USD">USD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-1.5">

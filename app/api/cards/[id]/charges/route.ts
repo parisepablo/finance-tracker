@@ -110,7 +110,7 @@ export async function POST(
 
   const { data: card, error: cardError } = await supabase
     .from("credit_cards")
-    .select("id, currency")
+    .select("id")
     .eq("id", cardId)
     .eq("user_id", user.id)
     .single();
@@ -155,7 +155,7 @@ export async function POST(
       user_id: user.id,
       description: body.description.trim(),
       amount_cents: amount,
-      currency: card.currency ?? "ARS",
+      currency: body.currency === "USD" ? "USD" : "ARS",
       date: date.toISOString().split("T")[0],
       budget_category_id: body.budget_category_id ?? null,
       credit_card_id: cardId,

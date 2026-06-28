@@ -105,7 +105,7 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
                   <Wifi className="h-5 w-5 text-white/60 rotate-90" />
                 </div>
                 <span className="text-xs font-medium text-white/50 uppercase tracking-wider">
-                  {card.name} ({card.currency})
+                  {card.name}
                 </span>
               </div>
 

@@ -56,6 +56,7 @@ export function AddChargeForm({
   const [isInstallment, setIsInstallment] = useState(false);
   const [totalInstallments, setTotalInstallments] = useState("");
   const [budgetCategoryId, setBudgetCategoryId] = useState("");
+  const [currency, setCurrency] = useState<"ARS" | "USD">("ARS");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [dateOpen, setDateOpen] = useState(false);
@@ -70,6 +71,7 @@ export function AddChargeForm({
     setIsInstallment(false);
     setTotalInstallments("");
     setBudgetCategoryId("");
+    setCurrency("ARS");
     setDateOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -112,6 +114,7 @@ export function AddChargeForm({
     const payload: Record<string, unknown> = {
       description: description.trim(),
       total_amount_cents: Math.round(amountNum * 100),
+      currency,
       date: date!.toISOString().split("T")[0],
       is_installment: isInstallment,
       total_installments: isInstallment ? parseInt(totalInstallments, 10) : undefined,
@@ -189,24 +192,42 @@ export function AddChargeForm({
               )}
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="charge-amount">Total Amount ({card.currency})</Label>
-              <Input
-                id="charge-amount"
-                type="number"
-                inputMode="decimal"
-                value={totalAmount}
-                className="font-mono no-spinner"
-                onChange={(e) => {
-                  setTotalAmount(e.target.value);
-                  if (errors.totalAmount) setErrors((prev) => ({ ...prev, totalAmount: undefined }));
-                }}
-                placeholder="0.00"
-                aria-invalid={!!errors.totalAmount}
-              />
-              {errors.totalAmount && (
-                <p className="text-xs text-rose-400">{errors.totalAmount}</p>
-              )}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="charge-amount">Total Amount</Label>
+                <Input
+                  id="charge-amount"
+                  type="number"
+                  inputMode="decimal"
+                  value={totalAmount}
+                  className="font-mono no-spinner"
+                  onChange={(e) => {
+                    setTotalAmount(e.target.value);
+                    if (errors.totalAmount) setErrors((prev) => ({ ...prev, totalAmount: undefined }));
+                  }}
+                  placeholder="0.00"
+                  aria-invalid={!!errors.totalAmount}
+                />
+                {errors.totalAmount && (
+                  <p className="text-xs text-rose-400">{errors.totalAmount}</p>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="charge-currency">Currency</Label>
+                <Select
+                  value={currency}
+                  onValueChange={(value) => setCurrency(value as "ARS" | "USD")}
+                >
+                  <SelectTrigger id="charge-currency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ARS">ARS</SelectItem>
+                    <SelectItem value="USD">USD</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="grid gap-2">
