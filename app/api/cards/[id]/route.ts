@@ -89,7 +89,8 @@ export async function GET(
     total_installments?: number;
   }> = [];
 
-  let totalDue = 0;
+  let totalDueArs = 0;
+  let totalDueUsd = 0;
 
   for (const expense of fixedResult.data ?? []) {
     const monthly = getMonthlyEquivalent(expense.amount_cents, expense.billing_cycle);
@@ -105,7 +106,7 @@ export async function GET(
       date: expenseDate,
       purchase_date: expenseDate,
     });
-    totalDue += monthly;
+    totalDueArs += monthly;
   }
 
   for (const tx of transactionsResult.data ?? []) {
@@ -136,7 +137,11 @@ export async function GET(
         purchase_date: tx.date,
       });
     }
-    totalDue += tx.amount_cents;
+    if ((tx.currency ?? "ARS") === "USD") {
+      totalDueUsd += tx.amount_cents;
+    } else {
+      totalDueArs += tx.amount_cents;
+    }
   }
 
   // Sort chronologically by original purchase date, oldest to newest
@@ -144,7 +149,8 @@ export async function GET(
 
   return NextResponse.json({
     month: monthParam,
-    total_due_cents: totalDue,
+    total_due_ars_cents: totalDueArs,
+    total_due_usd_cents: totalDueUsd,
     breakdown,
   });
 }

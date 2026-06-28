@@ -30,7 +30,8 @@ interface MonthlySummaryItem {
 
 interface MonthlySummary {
   month: string;
-  total_due_cents: number;
+  total_due_ars_cents: number;
+  total_due_usd_cents: number;
   breakdown: MonthlySummaryItem[];
 }
 
@@ -141,11 +142,14 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
       setSummary((prev) => {
         if (!prev) return prev;
         const removed = prev.breakdown.find((item) => item.id === deleteChargeId);
+        const isUsd = removed?.currency === "USD";
         return {
           ...prev,
           breakdown: prev.breakdown.filter((item) => item.id !== deleteChargeId),
-          total_due_cents:
-            prev.total_due_cents - (removed?.amount_cents ?? 0),
+          total_due_ars_cents:
+            prev.total_due_ars_cents - (isUsd ? 0 : (removed?.amount_cents ?? 0)),
+          total_due_usd_cents:
+            prev.total_due_usd_cents - (isUsd ? (removed?.amount_cents ?? 0) : 0),
         };
       });
     } catch {
@@ -228,8 +232,13 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                 Total Due — {formatMonthLabel(month)}
               </span>
               <div className="text-3xl font-bold text-white tabular-nums font-mono">
-                <Amount value={summary.total_due_cents} className="font-mono" />
+                <Amount value={summary.total_due_ars_cents} className="font-mono" />
               </div>
+              {summary.total_due_usd_cents > 0 && (
+                <div className="text-sm text-zinc-500 tabular-nums font-mono">
+                  USD <Amount value={summary.total_due_usd_cents} currency="USD" className="font-mono" />
+                </div>
+              )}
             </div>
           </GlowCard>
 
@@ -315,6 +324,9 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                     </div>
                     <span className="shrink-0 ml-2 text-right font-semibold text-white tabular-nums font-mono">
                       <Amount value={item.amount_cents} currency={item.currency} className="font-mono" />
+                      {item.currency === "USD" && (
+                        <span className="ml-1 text-xs font-normal text-zinc-400">USD</span>
+                      )}
                     </span>
                   </div>
                 </div>
