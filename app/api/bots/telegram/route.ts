@@ -325,7 +325,10 @@ async function handleCallback(
   callbackQueryId: string,
   data: string
 ) {
-  const [action, idPart, token] = data.split(":");
+  const parts = data.split(":");
+  const action = parts[0];
+  const token = parts.length === 2 ? parts[1] : parts[parts.length - 1];
+  const idPart = parts.length === 3 ? parts[1] : undefined;
 
   const pending = token
     ? await getPendingChargeByCallbackToken(supabase, token)

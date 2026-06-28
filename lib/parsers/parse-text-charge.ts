@@ -108,20 +108,27 @@ function parseInstallments(text: string): { isInstallment: boolean; totalInstall
   return { isInstallment: false };
 }
 
+interface PaymentMethodMatch {
+  creditCardId?: string;
+  paymentSourceId?: string;
+  methodName?: string;
+  matchedKeyword?: string;
+}
+
 function findPaymentMethod(
   text: string,
   ctx: UserPaymentContext
-): { creditCardId?: string; paymentSourceId?: string; methodName?: string } | null {
+): PaymentMethodMatch | null {
   const normalized = normalize(text);
 
   // Direct card name/last four matches
   for (const card of ctx.cards) {
     const cardNameNorm = normalize(card.name);
     if (normalized.includes(cardNameNorm)) {
-      return { creditCardId: card.id, methodName: card.name };
+      return { creditCardId: card.id, methodName: card.name, matchedKeyword: cardNameNorm };
     }
     if (card.last_four && normalized.includes(card.last_four)) {
-      return { creditCardId: card.id, methodName: `${card.name} •••• ${card.last_four}` };
+      return { creditCardId: card.id, methodName: `${card.name} •••• ${card.last_four}`, matchedKeyword: card.last_four };
     }
   }
 
@@ -129,7 +136,7 @@ function findPaymentMethod(
   for (const source of ctx.paymentSources) {
     const sourceNameNorm = normalize(source.name);
     if (normalized.includes(sourceNameNorm)) {
-      return { paymentSourceId: source.id, methodName: source.name };
+      return { paymentSourceId: source.id, methodName: source.name, matchedKeyword: sourceNameNorm };
     }
   }
 
@@ -144,14 +151,13 @@ function findPaymentMethod(
   ];
 
   for (const mapping of keywordMappings) {
-    const matched = mapping.keywords.some((kw) => normalized.includes(kw));
-    if (!matched) continue;
+    const matchedKeyword = mapping.keywords.find((kw) => normalized.includes(kw));
+    if (!matchedKeyword) continue;
 
     if (mapping.creditCardName) {
-      // Find a card matching the keyword name
       const card = ctx.cards.find((c) => normalize(c.name).includes(mapping.creditCardName as string));
       if (card) {
-        return { creditCardId: card.id, methodName: card.name };
+        return { creditCardId: card.id, methodName: card.name, matchedKeyword };
       }
     }
 
@@ -162,7 +168,7 @@ function findPaymentMethod(
           mapping.sourceKeywords?.some((kw) => normalize(s.name).includes(kw))
       );
       if (source) {
-        return { paymentSourceId: source.id, methodName: source.name };
+        return { paymentSourceId: source.id, methodName: source.name, matchedKeyword };
       }
     }
   }
@@ -212,6 +218,7 @@ function buildDescription(
   text: string,
   amountCents: number,
   paymentMethodName?: string,
+  paymentMethodKeyword?: string,
   categoryName?: string
 ): string {
   let desc = text;
@@ -231,7 +238,12 @@ function buildDescription(
   desc = desc.replace(/\d{4}[-/]\d{1,2}[-/]\d{1,2}/g, " ");
   desc = desc.replace(/\d{1,2}[-/]\d{1,2}(?:[-/]\d{2,4})?/g, " ");
 
-  // Remove payment method name
+  // Remove payment method keyword (what the user typed, e.g. "transfer")
+  if (paymentMethodKeyword) {
+    desc = desc.replace(new RegExp(`\\b${normalize(paymentMethodKeyword)}\\b`, "gi"), " ");
+  }
+
+  // Remove payment method name (e.g. "Transfer")
   if (paymentMethodName) {
     const parts = paymentMethodName.split("••••")[0].trim();
     desc = desc.replace(new RegExp(`\\b${normalize(parts)}\\b`, "gi"), " ");
@@ -280,6 +292,7 @@ export function parseTextCharge(
     trimmed,
     amountCents,
     paymentMethod?.methodName,
+    paymentMethod?.matchedKeyword,
     category?.name
   );
 
