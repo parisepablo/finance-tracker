@@ -5,7 +5,11 @@ import { MonthSelector } from "./month-selector";
 
 export function ConditionalMonthSelector() {
   const pathname = usePathname();
-  if (pathname === "/cards" || pathname.startsWith("/cards/")) {
+  if (
+    pathname === "/cards" ||
+    pathname.startsWith("/cards/") ||
+    pathname === "/analytics"
+  ) {
     return null;
   }
   return <MonthSelector />;
