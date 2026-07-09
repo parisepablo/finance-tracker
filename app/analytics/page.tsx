@@ -115,20 +115,25 @@ export default async function AnalyticsPage() {
   const incomeSources = incomeResult.data ?? [];
   const fixedExpenses = fixedExpensesResult.data ?? [];
 
-  // Hide USD from analytics
-  const transactions = allTransactions.filter((tx) => tx.currency !== "USD");
+  // Hide USD from analytics and exclude future-dated transactions
+  const today = new Date().toISOString().split("T")[0];
+  const currentMonth = today.slice(0, 7);
+
+  const transactions = allTransactions.filter(
+    (tx) => tx.currency !== "USD" && tx.date <= today
+  );
   const creditCards = allCreditCards.filter((card) => card.currency !== "USD");
 
-  // Get all months from ARS transactions
+  // Get all months from ARS transactions, capped at current month
   const allMonths = new Set<string>();
   transactions.forEach((tx) => {
     const month = tx.date.slice(0, 7);
-    allMonths.add(month);
+    if (month <= currentMonth) {
+      allMonths.add(month);
+    }
   });
 
   // Also add current month if no transactions
-  const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   allMonths.add(currentMonth);
 
   const sortedMonths = Array.from(allMonths).sort();
