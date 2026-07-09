@@ -12,6 +12,7 @@ import {
   Legend,
 } from "recharts";
 import { CreditCard } from "@/lib/types";
+import { CHART_COLORS, getColor } from "./chart-utils";
 
 interface CardUtilizationData {
   month: string;
@@ -28,41 +29,39 @@ interface UtilizationChartProps {
 }
 
 export function UtilizationChart({ data, creditCards }: UtilizationChartProps) {
-  // Get all months
   const months = Array.from(new Set(data.map((d) => d.month))).sort();
-  
-  // Build chart data
+
   const chartData = months.map((month) => {
     const monthData: Record<string, number | string> = {
       label: new Date(`${month}-01`).toLocaleDateString("en-US", { month: "short", year: "numeric" }),
     };
 
     creditCards.forEach((card) => {
-      const cardData = data.find(
-        (d) => d.month === month && d.cardId === card.id
-      );
+      const cardData = data.find((d) => d.month === month && d.cardId === card.id);
       monthData[card.id] = cardData?.percentage ?? 0;
     });
 
     return monthData;
   });
 
-  // Colors for cards
-  const cardColors = ["#10b981", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
+  const hasData = data.some((d) => d.spentCents > 0);
+
+  if (!hasData) {
+    return (
+      <div className="h-64 flex items-center justify-center text-sm text-zinc-500">
+        No credit card spending data yet
+      </div>
+    );
+  }
 
   return (
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-          <XAxis
-            dataKey="label"
-            stroke="#71717a"
-            fontSize={12}
-            tickLine={false}
-          />
+          <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
+          <XAxis dataKey="label" stroke={CHART_COLORS.tick} fontSize={12} tickLine={false} />
           <YAxis
-            stroke="#71717a"
+            stroke={CHART_COLORS.tick}
             fontSize={12}
             tickLine={false}
             tickFormatter={(value) => `${value}%`}
@@ -72,18 +71,14 @@ export function UtilizationChart({ data, creditCards }: UtilizationChartProps) {
             content={({ active, payload, label }) => {
               if (active && payload && payload.length) {
                 return (
-                  <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg">
+                  <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg min-w-[160px]">
                     <p className="text-xs text-zinc-400 mb-1">{label}</p>
                     {payload.map((entry, index) => {
                       if (entry.value === 0) return null;
                       const dataKey = typeof entry.dataKey === "string" ? entry.dataKey : String(entry.dataKey);
                       const card = creditCards.find((c) => c.id === dataKey);
                       return (
-                        <p
-                          key={index}
-                          className="text-sm font-mono"
-                          style={{ color: entry.color }}
-                        >
+                        <p key={index} className="text-sm font-mono" style={{ color: entry.color }}>
                           {card?.name ?? dataKey}: {entry.value}%
                         </p>
                       );
@@ -94,9 +89,7 @@ export function UtilizationChart({ data, creditCards }: UtilizationChartProps) {
               return null;
             }}
           />
-          <Legend
-            wrapperStyle={{ fontSize: "12px", color: "#71717a" }}
-          />
+          <Legend wrapperStyle={{ fontSize: "12px", color: CHART_COLORS.tick }} />
           <ReferenceLine
             y={100}
             stroke="#f43f5e"
@@ -114,9 +107,9 @@ export function UtilizationChart({ data, creditCards }: UtilizationChartProps) {
               type="monotone"
               dataKey={card.id}
               name={card.name}
-              stroke={cardColors[index % cardColors.length]}
+              stroke={getColor(index)}
               strokeWidth={2}
-              dot={{ fill: cardColors[index % cardColors.length], strokeWidth: 0, r: 3 }}
+              dot={{ fill: getColor(index), strokeWidth: 0, r: 3 }}
             />
           ))}
         </LineChart>

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AnalyticsPageClient } from "@/components/analytics/AnalyticsPageClient";
 import { CreditCard, BudgetCategory } from "@/lib/types";
 import { getEffectiveIncomeForMonth, getEffectiveFixedExpensesForMonth } from "@/lib/effective-date";
+import { getMonthlyEquivalent } from "@/lib/utils";
 
 interface MonthlyData {
   month: string;
@@ -11,6 +12,8 @@ interface MonthlyData {
   cashCents: number;
   incomeCents: number;
   fixedExpenseCents: number;
+  savingsCents: number;
+  savingsRate: number | null;
 }
 
 interface CategoryMonthlyData {
@@ -39,6 +42,25 @@ interface PaymentTypeData {
   installmentAmount: number;
 }
 
+interface BudgetVsActualData {
+  categoryId: string;
+  categoryName: string;
+  categoryColor: string;
+  allocatedCents: number;
+  spentCents: number;
+}
+
+interface KpiData {
+  currentMonth: string;
+  currentMonthLabel: string;
+  totalIncomeCents: number;
+  totalSpentCents: number;
+  savingsCents: number;
+  savingsRate: number | null;
+  avgDailySpendCents: number;
+  topCategory: { name: string; color: string; spentCents: number } | null;
+}
+
 export default async function AnalyticsPage() {
   const supabase = await createClient();
 
@@ -65,7 +87,7 @@ export default async function AnalyticsPage() {
   ] = await Promise.all([
     supabase
       .from("transactions")
-      .select("*, credit_card:credit_cards(id, name, credit_limit_cents), budget_category:budget_categories(id, name, color)")
+      .select("*, credit_card:credit_cards(id, name, credit_limit_cents, currency), budget_category:budget_categories(id, name, color)")
       .eq("user_id", user.id)
       .order("date", { ascending: true }),
     supabase
@@ -87,16 +109,20 @@ export default async function AnalyticsPage() {
       .eq("user_id", user.id),
   ]);
 
-  const transactions = transactionsResult.data ?? [];
-  const creditCards = creditCardsResult.data ?? [];
+  const allTransactions = transactionsResult.data ?? [];
+  const allCreditCards = creditCardsResult.data ?? [];
   const budgetCategories = budgetCategoriesResult.data ?? [];
   const incomeSources = incomeResult.data ?? [];
   const fixedExpenses = fixedExpensesResult.data ?? [];
 
-  // Get all months from transactions
+  // Hide USD from analytics
+  const transactions = allTransactions.filter((tx) => tx.currency !== "USD");
+  const creditCards = allCreditCards.filter((card) => card.currency !== "USD");
+
+  // Get all months from ARS transactions
   const allMonths = new Set<string>();
   transactions.forEach((tx) => {
-    const month = tx.date.slice(0, 7); // YYYY-MM
+    const month = tx.date.slice(0, 7);
     allMonths.add(month);
   });
 
@@ -113,49 +139,41 @@ export default async function AnalyticsPage() {
     const creditCardTx = monthTransactions.filter((tx) => tx.credit_card_id);
     const cashTx = monthTransactions.filter((tx) => tx.payment_source_id);
 
-    // Calculate effective income and fixed expenses for this month
     const effectiveIncome = getEffectiveIncomeForMonth(incomeSources, month);
     const effectiveFixed = getEffectiveFixedExpensesForMonth(fixedExpenses, month);
 
     const monthIncome = effectiveIncome
-      .filter((inc) => inc.is_active)
-      .reduce((sum, inc) => {
-        if (inc.currency === "USD") {
-          // Approximate USD to ARS conversion (you might want to use a real rate)
-          return sum + inc.amount_cents * 100;
-        }
-        return sum + inc.amount_cents;
-      }, 0);
+      .filter((inc) => inc.is_active && inc.currency !== "USD")
+      .reduce((sum, inc) => sum + inc.amount_cents, 0);
 
     const monthFixed = effectiveFixed
       .filter((exp) => exp.is_active)
-      .reduce((sum, exp) => {
-        let monthly = exp.amount_cents;
-        if (exp.billing_cycle === "quarterly") monthly = Math.round(exp.amount_cents / 3);
-        if (exp.billing_cycle === "annual") monthly = Math.round(exp.amount_cents / 12);
-        return sum + monthly;
-      }, 0);
+      .reduce((sum, exp) => sum + getMonthlyEquivalent(exp.amount_cents, exp.billing_cycle), 0);
+
+    const totalSpent = monthTransactions.reduce((sum, tx) => sum + tx.amount_cents, 0);
+    const savings = monthIncome - totalSpent;
+    const savingsRate = monthIncome > 0 ? Math.round((savings / monthIncome) * 100) : null;
 
     return {
       month,
       label: new Date(`${month}-01`).toLocaleDateString("en-US", { month: "short", year: "numeric" }),
-      totalCents: monthTransactions.reduce((sum, tx) => sum + tx.amount_cents, 0),
+      totalCents: totalSpent,
       creditCardCents: creditCardTx.reduce((sum, tx) => sum + tx.amount_cents, 0),
       cashCents: cashTx.reduce((sum, tx) => sum + tx.amount_cents, 0),
       incomeCents: monthIncome,
       fixedExpenseCents: monthFixed,
+      savingsCents: savings,
+      savingsRate,
     };
   });
 
-  // Build category data
+  // Build category data (ARS only)
   const categoryData: CategoryMonthlyData[] = [];
   sortedMonths.forEach((month) => {
     const monthTransactions = transactions.filter((tx) => tx.date.startsWith(month));
-    
-    // Group by category
+
     const categoryMap = new Map<string, CategoryMonthlyData>();
-    
-    // Initialize with all categories (0 if no transactions)
+
     budgetCategories.forEach((cat) => {
       categoryMap.set(cat.id, {
         month,
@@ -167,8 +185,7 @@ export default async function AnalyticsPage() {
         cashCents: 0,
       });
     });
-    
-    // Also add "Uncategorized"
+
     categoryMap.set("uncategorized", {
       month,
       categoryId: "uncategorized",
@@ -199,7 +216,7 @@ export default async function AnalyticsPage() {
     });
   });
 
-  // Build payment type data
+  // Build payment type data (ARS only)
   const paymentTypeData: PaymentTypeData = {
     singleCount: 0,
     singleAmount: 0,
@@ -217,7 +234,7 @@ export default async function AnalyticsPage() {
     }
   });
 
-  // Build utilization data
+  // Build utilization data (ARS cards only)
   const utilizationData: CardUtilizationData[] = [];
   sortedMonths.forEach((month) => {
     creditCards.forEach((card) => {
@@ -241,12 +258,94 @@ export default async function AnalyticsPage() {
     });
   });
 
+  // Build budget vs actual data (ARS only, across all months)
+  const categorySpentTotal = new Map<string, number>();
+  const categoryAllocatedTotal = new Map<string, number>();
+
+  budgetCategories.forEach((cat) => {
+    categorySpentTotal.set(cat.id, 0);
+    categoryAllocatedTotal.set(cat.id, 0);
+  });
+  categorySpentTotal.set("uncategorized", 0);
+
+  transactions.forEach((tx) => {
+    const catId = tx.budget_category_id ?? "uncategorized";
+    categorySpentTotal.set(catId, (categorySpentTotal.get(catId) ?? 0) + tx.amount_cents);
+  });
+
+  sortedMonths.forEach((month) => {
+    const effectiveIncome = getEffectiveIncomeForMonth(incomeSources, month);
+    const effectiveFixed = getEffectiveFixedExpensesForMonth(fixedExpenses, month);
+
+    const monthIncome = effectiveIncome
+      .filter((inc) => inc.is_active && inc.currency !== "USD")
+      .reduce((sum, inc) => sum + inc.amount_cents, 0);
+
+    const monthFixed = effectiveFixed
+      .filter((exp) => exp.is_active)
+      .reduce((sum, exp) => sum + getMonthlyEquivalent(exp.amount_cents, exp.billing_cycle), 0);
+
+    const discretionaryPool = Math.max(0, monthIncome - monthFixed);
+
+    budgetCategories.forEach((cat) => {
+      const allocated = Math.round((discretionaryPool * cat.percentage) / 100);
+      categoryAllocatedTotal.set(cat.id, (categoryAllocatedTotal.get(cat.id) ?? 0) + allocated);
+    });
+  });
+
+  const budgetVsActualData: BudgetVsActualData[] = budgetCategories.map((cat) => ({
+    categoryId: cat.id,
+    categoryName: cat.name,
+    categoryColor: cat.color,
+    allocatedCents: categoryAllocatedTotal.get(cat.id) ?? 0,
+    spentCents: categorySpentTotal.get(cat.id) ?? 0,
+  }));
+
+  // Build KPIs for latest month with data
+  const latestMonth = monthlyData[monthlyData.length - 1];
+  const daysInLatestMonth = latestMonth
+    ? new Date(parseInt(latestMonth.month.split("-")[0]), parseInt(latestMonth.month.split("-")[1]), 0).getDate()
+    : 0;
+
+  const latestMonthCategoryMap = new Map<string, { name: string; color: string; spentCents: number }>();
+  budgetCategories.forEach((cat) => {
+    latestMonthCategoryMap.set(cat.id, { name: cat.name, color: cat.color, spentCents: 0 });
+  });
+  latestMonthCategoryMap.set("uncategorized", { name: "Uncategorized", color: "#71717a", spentCents: 0 });
+
+  const latestMonthTransactions = transactions.filter((tx) => tx.date.startsWith(latestMonth?.month ?? currentMonth));
+  latestMonthTransactions.forEach((tx) => {
+    const catId = tx.budget_category_id ?? "uncategorized";
+    const entry = latestMonthCategoryMap.get(catId);
+    if (entry) entry.spentCents += tx.amount_cents;
+  });
+
+  let topCategory: KpiData["topCategory"] = null;
+  latestMonthCategoryMap.forEach((value) => {
+    if (value.spentCents > 0 && (!topCategory || value.spentCents > topCategory.spentCents)) {
+      topCategory = value;
+    }
+  });
+
+  const kpiData: KpiData = {
+    currentMonth: latestMonth?.month ?? currentMonth,
+    currentMonthLabel: latestMonth?.label ?? new Date(`${currentMonth}-01`).toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+    totalIncomeCents: latestMonth?.incomeCents ?? 0,
+    totalSpentCents: latestMonth?.totalCents ?? 0,
+    savingsCents: latestMonth?.savingsCents ?? 0,
+    savingsRate: latestMonth?.savingsRate ?? null,
+    avgDailySpendCents: daysInLatestMonth > 0 ? Math.round((latestMonth?.totalCents ?? 0) / daysInLatestMonth) : 0,
+    topCategory,
+  };
+
   return (
     <AnalyticsPageClient
       monthlyData={monthlyData}
       categoryData={categoryData}
       paymentTypeData={paymentTypeData}
       utilizationData={utilizationData}
+      budgetVsActualData={budgetVsActualData}
+      kpiData={kpiData}
       budgetCategories={budgetCategories}
       creditCards={creditCards}
     />

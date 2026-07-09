@@ -1,7 +1,8 @@
 "use client";
 
 import {
-  LineChart,
+  ComposedChart,
+  Bar,
   Line,
   XAxis,
   YAxis,
@@ -9,8 +10,10 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  Area,
 } from "recharts";
 import { formatCurrency } from "@/lib/utils";
+import { CHART_COLORS } from "./chart-utils";
 
 interface MonthlyData {
   month: string;
@@ -20,6 +23,8 @@ interface MonthlyData {
   cashCents: number;
   incomeCents: number;
   fixedExpenseCents: number;
+  savingsCents: number;
+  savingsRate: number | null;
 }
 
 interface SpendingVsIncomeChartProps {
@@ -32,21 +37,27 @@ export function SpendingVsIncomeChart({ data }: SpendingVsIncomeChartProps) {
     income: d.incomeCents / 100,
     spending: d.totalCents / 100,
     fixed: d.fixedExpenseCents / 100,
+    savings: d.savingsCents / 100,
   }));
+
+  const hasData = data.some((d) => d.incomeCents > 0 || d.totalCents > 0);
+
+  if (!hasData) {
+    return (
+      <div className="h-64 flex items-center justify-center text-sm text-zinc-500">
+        No income or spending data yet
+      </div>
+    );
+  }
 
   return (
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-          <XAxis
-            dataKey="label"
-            stroke="#71717a"
-            fontSize={12}
-            tickLine={false}
-          />
+        <ComposedChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
+          <XAxis dataKey="label" stroke={CHART_COLORS.tick} fontSize={12} tickLine={false} />
           <YAxis
-            stroke="#71717a"
+            stroke={CHART_COLORS.tick}
             fontSize={12}
             tickLine={false}
             tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
@@ -55,51 +66,44 @@ export function SpendingVsIncomeChart({ data }: SpendingVsIncomeChartProps) {
             content={({ active, payload, label }) => {
               if (active && payload && payload.length) {
                 return (
-                  <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg">
+                  <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg min-w-[180px]">
                     <p className="text-xs text-zinc-400 mb-1">{label}</p>
-                    {payload.map((entry, index) => (
-                      <p
-                        key={index}
-                        className="text-sm font-mono"
-                        style={{ color: entry.color }}
-                      >
-                        {entry.name}: {formatCurrency(entry.value as number)}
-                      </p>
-                    ))}
+                    {payload.map((entry, index) => {
+                      if (entry.value === undefined || entry.value === 0) return null;
+                      return (
+                        <p key={index} className="text-sm font-mono" style={{ color: entry.color }}>
+                          {entry.name}: {formatCurrency(entry.value as number)}
+                        </p>
+                      );
+                    })}
                   </div>
                 );
               }
               return null;
             }}
           />
-          <Legend
-            wrapperStyle={{ fontSize: "12px", color: "#71717a" }}
-          />
+          <Legend wrapperStyle={{ fontSize: "12px", color: CHART_COLORS.tick }} />
+          <Bar dataKey="spending" name="Total Spending" fill={CHART_COLORS.spending} radius={[4, 4, 0, 0]} />
+          <Bar dataKey="fixed" name="Fixed Expenses" fill={CHART_COLORS.fixed} radius={[4, 4, 0, 0]} />
           <Line
             type="monotone"
             dataKey="income"
             name="Income"
-            stroke="#10b981"
-            strokeWidth={2}
-            dot={{ fill: "#10b981", strokeWidth: 0, r: 3 }}
+            stroke={CHART_COLORS.income}
+            strokeWidth={3}
+            dot={{ fill: CHART_COLORS.income, strokeWidth: 0, r: 4 }}
           />
-          <Line
+          <Area
             type="monotone"
-            dataKey="spending"
-            name="Total Spending"
-            stroke="#10b981"
+            dataKey="savings"
+            name="Savings / Deficit"
+            stroke={CHART_COLORS.savings}
+            fill={CHART_COLORS.savings}
+            fillOpacity={0.15}
             strokeWidth={2}
-            dot={{ fill: "#10b981", strokeWidth: 0, r: 3 }}
+            dot={false}
           />
-          <Line
-            type="monotone"
-            dataKey="fixed"
-            name="Fixed Expenses"
-            stroke="#f59e0b"
-            strokeWidth={2}
-            dot={{ fill: "#f59e0b", strokeWidth: 0, r: 3 }}
-          />
-        </LineChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );
