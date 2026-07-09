@@ -5,7 +5,9 @@ import {
   sumFixedExpenses,
   getDiscretionaryPool,
   getMonthRangeFromParam,
+  getCurrentMonth,
 } from "@/lib/utils";
+import { getEffectiveIncomeSources, getEffectiveFixedExpenses } from "@/lib/effective-date";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -13,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   const monthStr = monthParam && /^\d{4}-\d{2}$/.test(monthParam)
     ? monthParam
-    : undefined;
+    : getCurrentMonth();
 
   const { start, end } = getMonthRangeFromParam(monthStr);
 
@@ -30,8 +32,8 @@ export async function GET(request: NextRequest) {
 
   const [
     categoriesResult,
-    incomeResult,
-    expensesResult,
+    incomeSources,
+    expenses,
     transactionsResult,
   ] = await Promise.all([
     supabase
@@ -39,16 +41,8 @@ export async function GET(request: NextRequest) {
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
-    supabase
-      .from("income_sources")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("month", monthStr),
-    supabase
-      .from("fixed_expenses")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("month", monthStr),
+    getEffectiveIncomeSources(supabase, user.id, monthStr),
+    getEffectiveFixedExpenses(supabase, user.id, monthStr),
     supabase
       .from("transactions")
       .select("budget_category_id, amount_cents")
@@ -65,8 +59,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const income = sumIncomeSources(incomeResult.data ?? []);
-  const fixed = sumFixedExpenses(expensesResult.data ?? []);
+  const income = sumIncomeSources(incomeSources);
+  const fixed = sumFixedExpenses(expenses);
   const pool = getDiscretionaryPool(income, fixed);
 
   const spentByCategory: Record<string, number> = {};

@@ -17,10 +17,11 @@ import { haptics } from "@/lib/haptics";
 
 interface IncomeListProps {
   incomeSources: IncomeSource[];
+  currentMonth?: string;
   onRefresh: () => void;
 }
 
-export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
+export function IncomeList({ incomeSources, currentMonth, onRefresh }: IncomeListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -41,7 +42,10 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
     setError(null);
 
     try {
-      const res = await fetch(`/api/income/${confirmItem.id}`, { method: "DELETE" });
+      const deleteUrl = currentMonth
+        ? `/api/income/${confirmItem.id}?from_month=${encodeURIComponent(currentMonth)}`
+        : `/api/income/${confirmItem.id}`;
+      const res = await fetch(deleteUrl, { method: "DELETE" });
       const result = await res.json();
 
       if (!res.ok) {
@@ -112,7 +116,7 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
                       {source.currency}
                     </Badge>
                     <Badge variant="outline" className="text-[10px] font-mono">
-                      {source.month}
+                      {source.effective_from_month}
                     </Badge>
                   </div>
                   <p className="text-lg font-semibold text-white tabular-nums font-mono">
@@ -158,7 +162,11 @@ export function IncomeList({ incomeSources, onRefresh }: IncomeListProps) {
           onOpenChange={setConfirmOpen}
           onConfirm={handleDelete}
           title="Delete Income Source"
-          description="This will permanently delete"
+          description={
+            currentMonth
+              ? `This will delete from ${currentMonth} onward`
+              : "This will permanently delete"
+          }
           itemName={confirmItem?.name ?? ""}
           isLoading={!!deletingId}
         />

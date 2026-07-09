@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { AnalyticsPageClient } from "@/components/analytics/AnalyticsPageClient";
 import { CreditCard, BudgetCategory } from "@/lib/types";
+import { getEffectiveIncomeForMonth, getEffectiveFixedExpensesForMonth } from "@/lib/effective-date";
 
 interface MonthlyData {
   month: string;
@@ -78,11 +79,11 @@ export default async function AnalyticsPage() {
       .order("name", { ascending: true }),
     supabase
       .from("income_sources")
-      .select("id, name, amount_cents, currency, is_active, month")
+      .select("*")
       .eq("user_id", user.id),
     supabase
       .from("fixed_expenses")
-      .select("id, name, amount_cents, billing_cycle, is_active, month")
+      .select("*")
       .eq("user_id", user.id),
   ]);
 
@@ -106,29 +107,33 @@ export default async function AnalyticsPage() {
 
   const sortedMonths = Array.from(allMonths).sort();
 
-  // Calculate monthly fixed expenses equivalent
-  const monthlyFixedTotal = fixedExpenses.reduce((sum, exp) => {
-    let monthly = exp.amount_cents;
-    if (exp.billing_cycle === "quarterly") monthly = Math.round(exp.amount_cents / 3);
-    if (exp.billing_cycle === "annual") monthly = Math.round(exp.amount_cents / 12);
-    return sum + monthly;
-  }, 0);
-
   // Build monthly data
   const monthlyData: MonthlyData[] = sortedMonths.map((month) => {
     const monthTransactions = transactions.filter((tx) => tx.date.startsWith(month));
     const creditCardTx = monthTransactions.filter((tx) => tx.credit_card_id);
     const cashTx = monthTransactions.filter((tx) => tx.payment_source_id);
 
-    // Calculate actual income for this month
-    const monthIncome = incomeSources
-      .filter((inc) => inc.month === month && inc.is_active)
+    // Calculate effective income and fixed expenses for this month
+    const effectiveIncome = getEffectiveIncomeForMonth(incomeSources, month);
+    const effectiveFixed = getEffectiveFixedExpensesForMonth(fixedExpenses, month);
+
+    const monthIncome = effectiveIncome
+      .filter((inc) => inc.is_active)
       .reduce((sum, inc) => {
         if (inc.currency === "USD") {
           // Approximate USD to ARS conversion (you might want to use a real rate)
           return sum + inc.amount_cents * 100;
         }
         return sum + inc.amount_cents;
+      }, 0);
+
+    const monthFixed = effectiveFixed
+      .filter((exp) => exp.is_active)
+      .reduce((sum, exp) => {
+        let monthly = exp.amount_cents;
+        if (exp.billing_cycle === "quarterly") monthly = Math.round(exp.amount_cents / 3);
+        if (exp.billing_cycle === "annual") monthly = Math.round(exp.amount_cents / 12);
+        return sum + monthly;
       }, 0);
 
     return {
@@ -138,7 +143,7 @@ export default async function AnalyticsPage() {
       creditCardCents: creditCardTx.reduce((sum, tx) => sum + tx.amount_cents, 0),
       cashCents: cashTx.reduce((sum, tx) => sum + tx.amount_cents, 0),
       incomeCents: monthIncome,
-      fixedExpenseCents: monthlyFixedTotal,
+      fixedExpenseCents: monthFixed,
     };
   });
 

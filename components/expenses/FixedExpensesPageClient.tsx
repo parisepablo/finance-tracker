@@ -18,6 +18,7 @@ interface FixedExpensesPageClientProps {
   expenses: FixedExpense[];
   incomeSources: IncomeSource[];
   creditCards: CreditCard[];
+  currentMonth?: string;
   error: string | null;
 }
 
@@ -25,6 +26,7 @@ export function FixedExpensesPageClient({
   expenses,
   incomeSources,
   creditCards,
+  currentMonth,
   error,
 }: FixedExpensesPageClientProps) {
   const router = useRouter();
@@ -126,6 +128,7 @@ export function FixedExpensesPageClient({
         <FixedExpenseList
           expenses={expenses}
           creditCards={creditCards}
+          currentMonth={currentMonth}
           onRefresh={handleRefresh}
         />
       )}

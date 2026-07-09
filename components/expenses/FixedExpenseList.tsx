@@ -84,7 +84,10 @@ export function FixedExpenseList({
     setError(null);
 
     try {
-      const res = await fetch(`/api/expenses/${confirmItem.id}`, { method: "DELETE" });
+      const deleteUrl = currentMonth
+        ? `/api/expenses/${confirmItem.id}?from_month=${encodeURIComponent(currentMonth)}`
+        : `/api/expenses/${confirmItem.id}`;
+      const res = await fetch(deleteUrl, { method: "DELETE" });
       const result = await res.json();
 
       if (!res.ok) {
@@ -282,7 +285,7 @@ export function FixedExpenseList({
                               </span>
                             )}
                             <Badge variant="outline" className="text-[10px] font-mono">
-                              {expense.month}
+                              {expense.effective_from_month}
                             </Badge>
                             <Badge variant="outline" className="text-[10px]">
                               {cycleLabel}
@@ -377,7 +380,11 @@ export function FixedExpenseList({
         onOpenChange={setConfirmOpen}
         onConfirm={handleDelete}
         title="Delete Fixed Expense"
-        description="This will permanently delete"
+        description={
+          currentMonth
+            ? `This will delete from ${currentMonth} onward`
+            : "This will permanently delete"
+        }
         itemName={confirmItem?.name ?? ""}
         isLoading={!!deletingId}
       />

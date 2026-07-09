@@ -5,6 +5,7 @@ import {
   getDiscretionaryPool,
   getMonthRangeFromParam,
 } from "@/lib/utils";
+import { getEffectiveIncomeSources, getEffectiveFixedExpenses } from "@/lib/effective-date";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 import { LandingPage } from "@/components/marketing/LandingPage";
 
@@ -28,15 +29,15 @@ export default async function DashboardPage({
   const { start, end, monthStr, year, month } = getMonthRangeFromParam(monthParam);
 
   const [
-    incomeResult,
-    expensesResult,
+    incomeSources,
+    fixedExpenses,
     cardsResult,
     currentMonthTransactionsResult,
     paymentSourcesResult,
     billingCyclesResult,
   ] = await Promise.all([
-    supabase.from("income_sources").select("*").eq("user_id", user.id).eq("month", monthStr),
-    supabase.from("fixed_expenses").select("*").eq("user_id", user.id).eq("month", monthStr),
+    getEffectiveIncomeSources(supabase, user.id, monthStr),
+    getEffectiveFixedExpenses(supabase, user.id, monthStr),
     supabase
       .from("credit_cards")
       .select("*")
@@ -60,8 +61,6 @@ export default async function DashboardPage({
       .limit(50),
   ]);
 
-  const incomeSources = incomeResult.data ?? [];
-  const fixedExpenses = expensesResult.data ?? [];
   const creditCards = cardsResult.data ?? [];
   const currentMonthTransactions = currentMonthTransactionsResult.data ?? [];
   const paymentSources = paymentSourcesResult.data ?? [];

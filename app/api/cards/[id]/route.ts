@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getMonthlyEquivalent } from "@/lib/utils";
+import { getEffectiveFixedExpenses } from "@/lib/effective-date";
 
 export async function GET(
   request: NextRequest,
@@ -53,13 +54,10 @@ export async function GET(
     return NextResponse.json({ data: card });
   }
 
-  const [fixedResult, transactionsResult] = await Promise.all([
-    supabase
-      .from("fixed_expenses")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("credit_card_id", cardId)
-      .eq("is_active", true),
+  const effectiveMonth = monthParam ?? start.slice(0, 7);
+
+  const [fixedExpenses, transactionsResult] = await Promise.all([
+    getEffectiveFixedExpenses(supabase, user.id, effectiveMonth),
     supabase
       .from("transactions")
       .select("*")
@@ -70,9 +68,9 @@ export async function GET(
       .order("date", { ascending: true }),
   ]);
 
-  if (fixedResult.error || transactionsResult.error) {
+  if (transactionsResult.error) {
     return NextResponse.json(
-      { error: fixedResult.error?.message || transactionsResult.error?.message },
+      { error: transactionsResult.error.message },
       { status: 500 }
     );
   }
@@ -92,7 +90,7 @@ export async function GET(
   let totalDueArs = 0;
   let totalDueUsd = 0;
 
-  for (const expense of fixedResult.data ?? []) {
+  for (const expense of fixedExpenses.filter((e) => e.credit_card_id === cardId && e.is_active)) {
     const monthly = getMonthlyEquivalent(expense.amount_cents, expense.billing_cycle);
     const expenseDate = expense.due_day
       ? `${start.slice(0, 7)}-${String(expense.due_day).padStart(2, "0")}`

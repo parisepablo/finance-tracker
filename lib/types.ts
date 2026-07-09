@@ -1,17 +1,20 @@
 export interface IncomeSource {
   id: string;
   user_id: string;
+  series_id: string;
   name: string;
   amount_cents: number;
   currency: "ARS" | "USD";
   is_active: boolean;
-  month: string;
+  effective_from_month: string;
+  is_deleted: boolean;
   created_at: string;
 }
 
 export interface FixedExpense {
   id: string;
   user_id: string;
+  series_id: string;
   name: string;
   category: string;
   amount_cents: number;
@@ -22,7 +25,8 @@ export interface FixedExpense {
   credit_card_id: string | null;
   is_essential: boolean;
   is_active: boolean;
-  month: string;
+  effective_from_month: string;
+  is_deleted: boolean;
   created_at: string;
 }
 

@@ -57,7 +57,9 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
   const [currency, setCurrency] = useState<"ARS" | "USD">(
     income?.currency ?? "ARS"
   );
-  const [month, setMonth] = useState(income?.month ?? defaultMonth ?? getCurrentMonth());
+  const [effectiveFromMonth, setEffectiveFromMonth] = useState(
+    income?.effective_from_month ?? defaultMonth ?? getCurrentMonth()
+  );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -72,13 +74,13 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
       setAmount((income.amount_cents / 100).toString());
       setIsActive(income.is_active);
       setCurrency(income.currency);
-      setMonth(income.month);
+      setEffectiveFromMonth(income.effective_from_month);
     } else {
       setName("");
       setAmount("");
       setIsActive(true);
       setCurrency("ARS");
-      setMonth(defaultMonth ?? getCurrentMonth());
+      setEffectiveFromMonth(defaultMonth ?? getCurrentMonth());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -112,7 +114,7 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
       amount_cents: amountCents,
       currency,
       is_active: isActive,
-      month,
+      effective_from_month: effectiveFromMonth,
     };
 
     try {
@@ -143,6 +145,7 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
       setAmount("");
       setIsActive(true);
       setCurrency("ARS");
+      setEffectiveFromMonth(defaultMonth ?? getCurrentMonth());
       onSuccess();
     } catch {
       toast.error("Network error. Please try again.");
@@ -225,18 +228,18 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="month">Month</Label>
+              <Label htmlFor="effective_from_month">Effective from</Label>
               <Input
-                id="month"
+                id="effective_from_month"
                 type="month"
-                value={month}
+                value={effectiveFromMonth}
                 className="font-mono"
                 onChange={(e) => {
-                  setMonth(e.target.value);
+                  setEffectiveFromMonth(e.target.value);
                 }}
               />
               <p className="text-xs text-zinc-500">
-                This income applies to this month only.
+                This amount applies from this month onward unless changed again.
               </p>
             </div>
 

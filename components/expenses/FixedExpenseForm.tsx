@@ -88,8 +88,9 @@ export function FixedExpenseForm({
   );
   const [isEssential, setIsEssential] = useState(expense?.is_essential ?? true);
   const [isActive, setIsActive] = useState(expense?.is_active ?? true);
-  const [month, setMonth] = useState(expense?.month ?? defaultMonth ?? getCurrentMonth());
-  const [applyToFuture, setApplyToFuture] = useState(true);
+  const [effectiveFromMonth, setEffectiveFromMonth] = useState(
+    expense?.effective_from_month ?? defaultMonth ?? getCurrentMonth()
+  );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -116,8 +117,7 @@ export function FixedExpenseForm({
       setCreditCardId(expense.credit_card_id ?? "");
       setIsEssential(expense.is_essential);
       setIsActive(expense.is_active);
-      setMonth(expense.month);
-      setApplyToFuture(false);
+      setEffectiveFromMonth(expense.effective_from_month);
     } else {
       resetForm();
     }
@@ -167,8 +167,7 @@ export function FixedExpenseForm({
       payment_method: paymentMethod,
       is_essential: isEssential,
       is_active: isActive,
-      month,
-      apply_to_future_months: applyToFuture,
+      effective_from_month: effectiveFromMonth,
     };
 
     if (dueDayNum !== undefined) {
@@ -224,8 +223,7 @@ export function FixedExpenseForm({
     setCreditCardId("");
     setIsEssential(true);
     setIsActive(true);
-    setMonth(defaultMonth ?? getCurrentMonth());
-    setApplyToFuture(true);
+    setEffectiveFromMonth(defaultMonth ?? getCurrentMonth());
   }
 
   return (
@@ -394,56 +392,20 @@ export function FixedExpenseForm({
             )}
 
             <div className="grid gap-2">
-              <Label htmlFor="month">Month</Label>
+              <Label htmlFor="effective_from_month">Effective from</Label>
               <Input
-                id="month"
+                id="effective_from_month"
                 type="month"
-                value={month}
+                value={effectiveFromMonth}
                 className="font-mono"
                 onChange={(e) => {
-                  setMonth(e.target.value);
+                  setEffectiveFromMonth(e.target.value);
                 }}
               />
               <p className="text-xs text-zinc-500">
-                This expense applies to this month only.
+                This amount applies from this month onward unless changed again.
               </p>
             </div>
-
-            {!isEditing && (
-              <div className="flex items-start gap-3">
-                <Switch
-                  id="apply_to_future"
-                  checked={applyToFuture}
-                  onCheckedChange={setApplyToFuture}
-                />
-                <div className="grid gap-1 leading-none">
-                  <Label htmlFor="apply_to_future" className="cursor-pointer">
-                    Apply to all future months
-                  </Label>
-                  <p className="text-xs text-zinc-500">
-                    Auto-create this expense for upcoming months (5 years)
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {isEditing && (
-              <div className="flex items-start gap-3">
-                <Switch
-                  id="apply_to_future"
-                  checked={applyToFuture}
-                  onCheckedChange={setApplyToFuture}
-                />
-                <div className="grid gap-1 leading-none">
-                  <Label htmlFor="apply_to_future" className="cursor-pointer">
-                    Apply to future months from this one
-                  </Label>
-                  <p className="text-xs text-zinc-500">
-                    Update this and all future months with the same name
-                  </p>
-                </div>
-              </div>
-            )}
 
             <div className="flex items-start gap-3">
               <Switch

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentMonth } from "@/lib/utils";
+import { getEffectiveIncomeSources } from "@/lib/effective-date";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -20,16 +21,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data, error } = await supabase
-    .from("income_sources")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("month", month)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+  const data = await getEffectiveIncomeSources(supabase, user.id, month);
 
   return NextResponse.json({ data });
 }
@@ -79,8 +71,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const month = body.month && /^\d{4}-\d{2}$/.test(body.month)
-    ? body.month
+  const effectiveFromMonth = body.effective_from_month && /^\d{4}-\d{2}$/.test(body.effective_from_month)
+    ? body.effective_from_month
     : getCurrentMonth();
 
   const { data, error } = await supabase
@@ -91,7 +83,7 @@ export async function POST(request: NextRequest) {
       amount_cents: body.amount_cents,
       currency: body.currency ?? "ARS",
       is_active: body.is_active ?? true,
-      month,
+      effective_from_month: effectiveFromMonth,
     })
     .select()
     .single();
@@ -100,7 +92,7 @@ export async function POST(request: NextRequest) {
     // Handle unique constraint violation
     if (error.code === "23505") {
       return NextResponse.json(
-        { error: "An income source with this name already exists for this month" },
+        { error: "An income source with this name already has a version starting this month" },
         { status: 409 }
       );
     }

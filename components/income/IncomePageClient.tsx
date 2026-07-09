@@ -11,10 +11,11 @@ import { DollarSign } from "lucide-react";
 
 interface IncomePageClientProps {
   incomeSources: IncomeSource[];
+  currentMonth?: string;
   error: string | null;
 }
 
-export function IncomePageClient({ incomeSources, error }: IncomePageClientProps) {
+export function IncomePageClient({ incomeSources, currentMonth, error }: IncomePageClientProps) {
   const router = useRouter();
   const totalCents = sumIncomeSources(incomeSources);
   const activeCount = incomeSources.filter((s) => s.is_active).length;
@@ -58,7 +59,7 @@ export function IncomePageClient({ incomeSources, error }: IncomePageClientProps
           Error loading income sources: {error}
         </div>
       ) : (
-        <IncomeList incomeSources={incomeSources} onRefresh={handleRefresh} />
+        <IncomeList incomeSources={incomeSources} currentMonth={currentMonth} onRefresh={handleRefresh} />
       )}
     </div>
   );

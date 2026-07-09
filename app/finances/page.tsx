@@ -5,6 +5,7 @@ import {
   getDiscretionaryPool,
   getMonthRangeFromParam,
 } from "@/lib/utils";
+import { getEffectiveIncomeSources, getEffectiveFixedExpenses } from "@/lib/effective-date";
 import { FinancesPageClient } from "@/components/finances/FinancesPageClient";
 import { BudgetCategoryWithStats, Transaction, PaymentSource } from "@/lib/types";
 
@@ -32,8 +33,8 @@ export default async function FinancesPage({
   const { start, end, monthStr } = getMonthRangeFromParam(monthParam);
 
   const [
-    incomeResult,
-    expensesResult,
+    incomeSources,
+    expenses,
     categoriesResult,
     cardsResult,
     transactionsResult,
@@ -41,19 +42,9 @@ export default async function FinancesPage({
     txDetailResult,
     sourcesResult,
   ] = await Promise.all([
-    supabase
-      .from("income_sources")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("month", monthStr)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("fixed_expenses")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("month", monthStr)
-      .order("category", { ascending: true })
-      .order("name", { ascending: true }),
+    getEffectiveIncomeSources(supabase, user.id, monthStr),
+    getEffectiveFixedExpenses(supabase, user.id, monthStr),
+
     supabase
       .from("budget_categories")
       .select("*")
@@ -91,8 +82,6 @@ export default async function FinancesPage({
       .order("name", { ascending: true }),
   ]);
 
-  const incomeSources = incomeResult.data ?? [];
-  const expenses = expensesResult.data ?? [];
   const budgetCategories = categoriesResult.data ?? [];
   const creditCards = cardsResult.data ?? [];
   const transactions = transactionsResult.data ?? [];
@@ -130,9 +119,8 @@ export default async function FinancesPage({
   );
 
   const error =
-    incomeResult.error?.message ??
-    expensesResult.error?.message ??
     categoriesResult.error?.message ??
+    cardsResult.error?.message ??
     null;
 
   return (
