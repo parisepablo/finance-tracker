@@ -11,7 +11,7 @@ import { VisibilityProvider } from "@/components/visibility-provider";
 import { VisibilityToggle } from "@/components/visibility-toggle";
 import { MonthProvider } from "@/context/month-context";
 import { ConditionalMonthSelector } from "@/components/conditional-month-selector";
-import { Wallet, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import Link from "next/link";
 import { autoAdvanceCycles } from "@/lib/actions/billing-cycles";
 import { after } from "next/server";
@@ -37,8 +37,12 @@ export const metadata: Metadata = {
     title: "$cinco",
   },
   icons: {
-    apple: "/icon-192x192.png",
-    icon: "/favicon-32x32.png",
+    icon: [
+      { url: "/favicon.ico", type: "image/x-icon" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.ico",
   },
 };
 
