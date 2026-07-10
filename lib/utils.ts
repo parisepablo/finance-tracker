@@ -55,8 +55,6 @@ export function getCurrentMonth(): string {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
 }
 
-export const DEFAULT_EFFECTIVE_FROM_MONTH = "2000-01";
-
 export function getMonthRangeFromParam(monthParam?: string | null) {
   const monthStr = monthParam && /^\d{4}-\d{2}$/.test(monthParam)
     ? monthParam

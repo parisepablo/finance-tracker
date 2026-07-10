@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { getCurrentMonth, DEFAULT_EFFECTIVE_FROM_MONTH } from "@/lib/utils";
+import { getCurrentMonth } from "@/lib/utils";
 
 interface IncomeFormProps {
   income?: IncomeSource;
@@ -58,7 +58,7 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
     income?.currency ?? "ARS"
   );
   const [effectiveFromMonth, setEffectiveFromMonth] = useState(
-    income?.effective_from_month ?? defaultMonth ?? DEFAULT_EFFECTIVE_FROM_MONTH
+    income?.effective_from_month ?? defaultMonth ?? getCurrentMonth()
   );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -80,7 +80,7 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
       setAmount("");
       setIsActive(true);
       setCurrency("ARS");
-      setEffectiveFromMonth(defaultMonth ?? DEFAULT_EFFECTIVE_FROM_MONTH);
+      setEffectiveFromMonth(defaultMonth ?? getCurrentMonth());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -145,7 +145,7 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
       setAmount("");
       setIsActive(true);
       setCurrency("ARS");
-      setEffectiveFromMonth(defaultMonth ?? DEFAULT_EFFECTIVE_FROM_MONTH);
+      setEffectiveFromMonth(defaultMonth ?? getCurrentMonth());
       onSuccess();
     } catch {
       toast.error("Network error. Please try again.");

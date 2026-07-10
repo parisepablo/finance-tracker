@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { getCurrentMonth, DEFAULT_EFFECTIVE_FROM_MONTH } from "@/lib/utils";
+import { getCurrentMonth } from "@/lib/utils";
 
 interface FixedExpenseFormProps {
   expense?: FixedExpense;
@@ -89,7 +89,7 @@ export function FixedExpenseForm({
   const [isEssential, setIsEssential] = useState(expense?.is_essential ?? true);
   const [isActive, setIsActive] = useState(expense?.is_active ?? true);
   const [effectiveFromMonth, setEffectiveFromMonth] = useState(
-    expense?.effective_from_month ?? defaultMonth ?? DEFAULT_EFFECTIVE_FROM_MONTH
+    expense?.effective_from_month ?? defaultMonth ?? getCurrentMonth()
   );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -223,7 +223,7 @@ export function FixedExpenseForm({
     setCreditCardId("");
     setIsEssential(true);
     setIsActive(true);
-    setEffectiveFromMonth(defaultMonth ?? DEFAULT_EFFECTIVE_FROM_MONTH);
+    setEffectiveFromMonth(defaultMonth ?? getCurrentMonth());
   }
 
   return (
