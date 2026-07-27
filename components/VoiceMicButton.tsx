@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { parseVoiceCharge, VoiceChargeResult } from "@/lib/parse-voice-charge";
 
 interface SpeechRecognitionEvent extends Event {
@@ -58,9 +59,10 @@ declare global {
 interface VoiceMicButtonProps {
   categories: { id: string; name: string }[];
   onParsed: (result: Partial<VoiceChargeResult>) => void;
+  className?: string;
 }
 
-export function VoiceMicButton({ categories, onParsed }: VoiceMicButtonProps) {
+export function VoiceMicButton({ categories, onParsed, className }: VoiceMicButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
 
   const startRecording = useCallback(() => {
@@ -115,11 +117,12 @@ export function VoiceMicButton({ categories, onParsed }: VoiceMicButtonProps) {
       size="icon"
       onClick={startRecording}
       disabled={isRecording}
-      className={
+      className={cn(
         isRecording
           ? "animate-pulse text-rose-400"
-          : "text-zinc-400 hover:text-white"
-      }
+          : "text-zinc-400 hover:text-white",
+        className
+      )}
       aria-label={isRecording ? "Recording..." : "Voice input"}
     >
       {isRecording ? (

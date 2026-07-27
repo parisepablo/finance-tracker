@@ -266,7 +266,7 @@ export function QuickAddChargeSheet({
         className={cn(
           "bg-[#0f0c19]",
           isMobile
-            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-[#18122B]"
+            ? "h-[92vh] max-h-[92vh] rounded-t-2xl border-t border-[#18122B]"
             : "w-full max-w-sm border-l border-[#18122B]"
         )}
       >
@@ -279,7 +279,7 @@ export function QuickAddChargeSheet({
               </SheetDescription>
             </SheetHeader>
 
-            <div className="space-y-3 py-4">
+            <div className="space-y-4 py-5 md:space-y-3 md:py-4">
               {cards.map((card) => (
                 <button
                   key={card.id}
@@ -294,13 +294,13 @@ export function QuickAddChargeSheet({
                   }}
                   className="w-full flex items-center gap-3 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4 text-left transition-colors hover:bg-[#18122B]"
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600/20 to-violet-600/20">
-                    <CreditCardIcon className="h-5 w-5 text-emerald-400" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600/20 to-violet-600/20 md:h-10 md:w-10">
+                    <CreditCardIcon className="h-6 w-6 text-emerald-400 md:h-5 md:w-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-zinc-200">{card.name}</p>
+                    <p className="text-base font-medium text-zinc-200 md:text-sm">{card.name}</p>
                     {card.last_four && (
-                      <p className="text-xs text-zinc-500 font-mono">
+                      <p className="text-sm text-zinc-500 font-mono md:text-xs">
                         •••• {card.last_four}
                       </p>
                     )}
@@ -324,20 +324,20 @@ export function QuickAddChargeSheet({
                   className="w-full flex items-center gap-3 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4 text-left transition-colors hover:bg-[#18122B]"
                 >
                   <div
-                    className="flex h-10 w-10 items-center justify-center rounded-lg"
+                    className="flex h-12 w-12 items-center justify-center rounded-lg md:h-10 md:w-10"
                     style={{
                       background: `linear-gradient(135deg, ${source.color}22, ${source.color}11)`,
                     }}
                   >
                     {source.type === "cash" ? (
-                      <Banknote className="h-5 w-5" style={{ color: source.color }} />
+                      <Banknote className="h-6 w-6 md:h-5 md:w-5" style={{ color: source.color }} />
                     ) : (
-                      <Smartphone className="h-5 w-5" style={{ color: source.color }} />
+                      <Smartphone className="h-6 w-6 md:h-5 md:w-5" style={{ color: source.color }} />
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-zinc-200">{source.name}</p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-base font-medium text-zinc-200 md:text-sm">{source.name}</p>
+                    <p className="text-sm text-zinc-500 md:text-xs">
                       {source.type === "digital" ? "Digital wallet" : "Cash"}
                     </p>
                   </div>
@@ -373,18 +373,19 @@ export function QuickAddChargeSheet({
               </div>
             </SheetHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-4 px-3 py-4">
+            <form onSubmit={handleSubmit} className="space-y-5 px-4 py-5 md:space-y-4 md:px-3 md:py-4">
               {isSource && (
-                <div className="rounded-lg border border-[#18122B] bg-[#18122B]/50 px-3 py-2 text-sm text-zinc-300">
+                <div className="rounded-lg border border-[#18122B] bg-[#18122B]/50 px-3 py-2 text-base text-zinc-300 md:text-sm">
                   Payment source: <span className="font-medium text-white">{selectedMethod.name}</span>
                 </div>
               )}
 
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="quick-desc">Description</Label>
+                  <Label htmlFor="quick-desc" className="text-base md:text-sm">Description</Label>
                   <VoiceMicButton
                     categories={budgetCategories.map((c) => ({ id: c.id, name: c.name }))}
+                    className="h-10 w-10 md:h-9 md:w-9"
                     onParsed={(result) => {
                       if (result.description) setDescription(result.description);
                       if (result.totalAmount) setTotalAmount(result.totalAmount);
@@ -402,6 +403,7 @@ export function QuickAddChargeSheet({
                   autoFocus
                   placeholder="e.g. Groceries, Netflix"
                   value={description}
+                  className="h-12 text-base md:h-9 md:text-sm"
                   onChange={(e) => {
                     setDescription(e.target.value);
                     if (errors.description) setErrors((p) => ({ ...p, description: undefined }));
@@ -415,14 +417,14 @@ export function QuickAddChargeSheet({
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="quick-amount">Amount</Label>
+                  <Label htmlFor="quick-amount" className="text-base md:text-sm">Amount</Label>
                   <Input
                     id="quick-amount"
                     type="number"
                     inputMode="decimal"
                     placeholder="0.00"
                     value={totalAmount}
-                    className="font-mono no-spinner"
+                    className="h-12 text-base md:h-9 md:text-sm font-mono no-spinner"
                     onChange={(e) => {
                       setTotalAmount(e.target.value);
                       if (errors.totalAmount) setErrors((p) => ({ ...p, totalAmount: undefined }));
@@ -435,39 +437,40 @@ export function QuickAddChargeSheet({
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="quick-currency">Currency</Label>
+                  <Label htmlFor="quick-currency" className="text-base md:text-sm">Currency</Label>
                   <Select
                     value={currency}
                     onValueChange={(value) => setCurrency(value as "ARS" | "USD")}
                   >
-                    <SelectTrigger id="quick-currency">
+                    <SelectTrigger id="quick-currency" className="h-12 text-base md:h-9 md:text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ARS">ARS</SelectItem>
-                      <SelectItem value="USD">USD</SelectItem>
+                      <SelectItem value="ARS" className="h-12 text-base md:h-9 md:text-sm">ARS</SelectItem>
+                      <SelectItem value="USD" className="h-12 text-base md:h-9 md:text-sm">USD</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <Label>Date</Label>
+                <Label className="text-base md:text-sm">Date</Label>
                 <Popover modal={false} open={dateOpen} onOpenChange={setDateOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full justify-start text-left font-normal"
+                      className="h-12 w-full justify-start text-left text-base font-normal md:h-9 md:text-sm"
                       aria-invalid={!!errors.date}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      <CalendarIcon className="mr-2 h-5 w-5 md:h-4 md:w-4" />
                       <span className="font-mono">{date ? format(date, "PPP") : "Pick a date"}</span>
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-[calc(100vw-2rem)] max-w-sm p-0 md:w-auto">
                     <Calendar
                       mode="single"
                       selected={date}
+                      className="[--cell-size:2.75rem] text-base md:[--cell-size:2rem] md:text-sm"
                       onSelect={(d) => {
                         setDate(d);
                         if (d) setDateOpen(false);
@@ -482,20 +485,20 @@ export function QuickAddChargeSheet({
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="quick-budget">Budget Category</Label>
+                <Label htmlFor="quick-budget" className="text-base md:text-sm">Budget Category</Label>
                 <Select
                   value={budgetCategoryId || "none"}
                   onValueChange={(value) =>
                     setBudgetCategoryId(value === "none" ? "" : value)
                   }
                 >
-                  <SelectTrigger id="quick-budget" className="w-full">
+                  <SelectTrigger id="quick-budget" className="h-12 w-full text-base md:h-9 md:text-sm">
                     <SelectValue placeholder="Optional" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
+                  <SelectContent className="max-h-80">
+                    <SelectItem value="none" className="h-12 text-base md:h-9 md:text-sm">None</SelectItem>
                     {budgetCategories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
+                      <SelectItem key={cat.id} value={cat.id} className="h-12 text-base md:h-9 md:text-sm">
                         {cat.name}
                       </SelectItem>
                     ))}
@@ -511,21 +514,21 @@ export function QuickAddChargeSheet({
                       checked={isInstallment}
                       onCheckedChange={setIsInstallment}
                     />
-                    <Label htmlFor="quick-installment" className="cursor-pointer text-sm">
+                    <Label htmlFor="quick-installment" className="cursor-pointer text-base md:text-sm">
                       Installment purchase
                     </Label>
                   </div>
 
                   {isInstallment && (
                     <div className="space-y-1.5">
-                      <Label htmlFor="quick-installments">Installments</Label>
+                      <Label htmlFor="quick-installments" className="text-base md:text-sm">Installments</Label>
                       <Input
                         id="quick-installments"
                         type="text"
                         inputMode="numeric"
                         placeholder="e.g. 6"
                         value={totalInstallments}
-                        className="font-mono"
+                        className="h-12 text-base md:h-9 md:text-sm font-mono"
                         onChange={(e) => {
                           setTotalInstallments(e.target.value);
                           if (errors.totalInstallments) setErrors((p) => ({ ...p, totalInstallments: undefined }));
@@ -544,7 +547,7 @@ export function QuickAddChargeSheet({
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full"
+                  className="h-12 w-full text-base md:h-9 md:text-sm"
                 >
                   {loading ? "Adding…" : "Add charge"}
                 </Button>
