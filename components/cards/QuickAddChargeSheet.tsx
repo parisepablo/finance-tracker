@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -68,6 +68,11 @@ export function QuickAddChargeSheet({
 
   const [isMobile, setIsMobile] = useState(false);
 
+  const cardsRef = useRef(cards);
+  const paymentSourcesRef = useRef(paymentSources);
+  cardsRef.current = cards;
+  paymentSourcesRef.current = paymentSources;
+
   useEffect(() => {
     function check() {
       setIsMobile(window.innerWidth < 768);
@@ -95,14 +100,14 @@ export function QuickAddChargeSheet({
     setDateOpen(false);
 
     const allMethods: PaymentMethod[] = [
-      ...cards.map((c) => ({
+      ...cardsRef.current.map((c) => ({
         type: "card" as const,
         id: c.id,
         name: c.name,
         lastFour: c.last_four,
         color: undefined,
       })),
-      ...paymentSources.map((s) => ({
+      ...paymentSourcesRef.current.map((s) => ({
         type: "source" as const,
         id: s.id,
         name: s.name,
@@ -129,7 +134,7 @@ export function QuickAddChargeSheet({
       }
 
       if (defaultCardId) {
-        const card = cards.find((c) => c.id === defaultCardId);
+        const card = cardsRef.current.find((c) => c.id === defaultCardId);
         if (card) {
           setSelectedMethod({
             type: "card",
@@ -143,7 +148,7 @@ export function QuickAddChargeSheet({
       }
 
       if (defaultSourceId) {
-        const source = paymentSources.find((s) => s.id === defaultSourceId);
+        const source = paymentSourcesRef.current.find((s) => s.id === defaultSourceId);
         if (source) {
           setSelectedMethod({
             type: "source",
@@ -162,7 +167,10 @@ export function QuickAddChargeSheet({
     }
 
     applyDefaults();
-  }, [open, cards, paymentSources]);
+    // Only reset/initialize when the sheet opens/closes; cards and paymentSources
+    // are accessed via refs so parent re-fetches don't snap the user back to the picker.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   function validate(): boolean {
     const newErrors: FormErrors = {};
