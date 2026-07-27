@@ -495,13 +495,15 @@ export function QuickAddChargeSheet({
                   <SelectTrigger id="quick-budget" className="h-12 w-full text-base md:h-9 md:text-sm">
                     <SelectValue placeholder="Optional" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-80">
-                    <SelectItem value="none" className="h-12 text-base md:h-9 md:text-sm">None</SelectItem>
-                    {budgetCategories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id} className="h-12 text-base md:h-9 md:text-sm">
-                        {cat.name}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="max-h-80 bg-[#18122B] border-[#2a2345]">
+                    <SelectItem value="none" className="h-12 text-base hover:bg-[#231c3d] focus:bg-[#231c3d] md:h-9 md:text-sm">None</SelectItem>
+                    {[...budgetCategories]
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id} className="h-12 text-base hover:bg-[#231c3d] focus:bg-[#231c3d] md:h-9 md:text-sm">
+                          {cat.name}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </div>
