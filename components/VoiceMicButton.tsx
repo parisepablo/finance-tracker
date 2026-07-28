@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { parseVoiceCharge, VoiceChargeResult } from "@/lib/parse-voice-charge";
+import { UserPaymentContext } from "@/lib/parsers/parse-text-charge";
+import { BudgetCategory, CreditCard, PaymentSource } from "@/lib/types";
 
 interface SpeechRecognitionEvent extends Event {
   readonly results: SpeechRecognitionResultList;
@@ -58,18 +60,36 @@ declare global {
 
 interface VoiceMicButtonProps {
   categories: { id: string; name: string }[];
+  budgetCategories?: BudgetCategory[];
+  cards?: CreditCard[];
+  paymentSources?: PaymentSource[];
+  defaultCreditCardId?: string | null;
+  defaultPaymentSourceId?: string | null;
+  defaultBudgetCategoryId?: string | null;
+  defaultCurrency?: "ARS" | "USD";
   onParsed: (result: Partial<VoiceChargeResult>) => void;
   className?: string;
 }
 
-export function VoiceMicButton({ categories, onParsed, className }: VoiceMicButtonProps) {
+export function VoiceMicButton({
+  categories,
+  budgetCategories = [],
+  cards = [],
+  paymentSources = [],
+  defaultCreditCardId,
+  defaultPaymentSourceId,
+  defaultBudgetCategoryId,
+  defaultCurrency,
+  onParsed,
+  className,
+}: VoiceMicButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
 
   const startRecording = useCallback(() => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error("Voice input not available");
+      toast.error("Voice input is not supported on this browser. Try Chrome.");
       return;
     }
 
@@ -80,15 +100,55 @@ export function VoiceMicButton({ categories, onParsed, className }: VoiceMicButt
 
     recognition.onstart = () => setIsRecording(true);
     recognition.onend = () => setIsRecording(false);
-    recognition.onerror = () => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       setIsRecording(false);
-      toast.error("Voice input not available");
+      const messages: Record<string, string> = {
+        "not-allowed": "Microphone permission denied.",
+        "aborted": "Recording was cancelled.",
+        "audio-capture": "No microphone found.",
+        "network": "Network error during recording.",
+        "no-speech": "No speech detected. Try again.",
+        "service-not-allowed": "Voice service not allowed.",
+      };
+      toast.error(messages[event.error] || `Voice error: ${event.error}`);
     };
 
     recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const transcript = event.results[0][0].transcript;
+      setIsRecording(false);
+
+      const ctx: UserPaymentContext | undefined =
+        cards.length > 0 || paymentSources.length > 0
+          ? {
+              cards,
+              paymentSources,
+              budgetCategories,
+              defaultCreditCardId,
+              defaultPaymentSourceId,
+              defaultBudgetCategoryId,
+              defaultCurrency,
+            }
+          : undefined;
+
       try {
-        const result = await parseVoiceCharge(transcript, categories);
+        const { result, error, errorMessage } = await parseVoiceCharge(
+          transcript,
+          categories,
+          ctx
+        );
+
+        if (error) {
+          console.error("Voice parse error:", error, errorMessage);
+          // If we have a partial fallback result, still apply it and warn
+          if (Object.keys(result).length > 0) {
+            onParsed(result);
+            toast.success("Voice input parsed (with fallback)");
+            return;
+          }
+          toast.error(errorMessage || "Could not parse voice input");
+          return;
+        }
+
         onParsed(result);
         if (Object.keys(result).length > 0) {
           toast.success("Voice input processed");
@@ -101,7 +161,16 @@ export function VoiceMicButton({ categories, onParsed, className }: VoiceMicButt
     };
 
     recognition.start();
-  }, [categories, onParsed]);
+  }, [
+    categories,
+    cards,
+    paymentSources,
+    defaultCreditCardId,
+    defaultPaymentSourceId,
+    defaultBudgetCategoryId,
+    defaultCurrency,
+    onParsed,
+  ]);
 
   if (typeof window === "undefined") return null;
   if (
@@ -124,6 +193,7 @@ export function VoiceMicButton({ categories, onParsed, className }: VoiceMicButt
         className
       )}
       aria-label={isRecording ? "Recording..." : "Voice input"}
+      title={isRecording ? "Listening..." : "Tap to speak"}
     >
       {isRecording ? (
         <MicOff className="h-4 w-4" />

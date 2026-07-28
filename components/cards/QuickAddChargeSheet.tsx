@@ -44,6 +44,54 @@ interface FormErrors {
   totalInstallments?: string;
 }
 
+interface StoredChargePrefs {
+  budgetCategoryId?: string;
+  currency?: "ARS" | "USD";
+  paymentMethod?: { type: "card" | "source"; id: string };
+  frequent: { description: string; budgetCategoryId?: string }[];
+}
+
+const PREFS_KEY = "cinco-last-charge-prefs";
+
+function loadChargePrefs(): StoredChargePrefs | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    return raw ? (JSON.parse(raw) as StoredChargePrefs) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveChargePrefs(prefs: StoredChargePrefs) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+  } catch {
+    // ignore
+  }
+}
+
+function addFrequentCharge(
+  current: StoredChargePrefs | null,
+  description: string,
+  budgetCategoryId?: string
+): StoredChargePrefs {
+  const base = current ?? { frequent: [] };
+  const normalized = description.trim();
+  if (!normalized) return base;
+
+  const withoutDup = base.frequent.filter(
+    (f) => f.description.toLowerCase() !== normalized.toLowerCase()
+  );
+  const next = [{ description: normalized, budgetCategoryId }, ...withoutDup].slice(0, 8);
+
+  return {
+    ...base,
+    frequent: next,
+  };
+}
+
 export function QuickAddChargeSheet({
   open,
   onOpenChange,
@@ -65,6 +113,7 @@ export function QuickAddChargeSheet({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [dateOpen, setDateOpen] = useState(false);
+  const [frequentCharges, setFrequentCharges] = useState<{ description: string; budgetCategoryId?: string }[]>([]);
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -118,13 +167,22 @@ export function QuickAddChargeSheet({
 
     async function applyDefaults() {
       const { data: settings } = await getCurrentUserSettings();
+      const stored = loadChargePrefs();
+      setFrequentCharges(stored?.frequent ?? []);
 
       const defaultCardId = settings?.default_credit_card_id;
       const defaultSourceId = settings?.default_payment_source_id;
       const defaultCategoryId = settings?.default_budget_category_id;
 
-      if (defaultCategoryId) {
-        setBudgetCategoryId(defaultCategoryId);
+      // Apply last-used currency
+      if (stored?.currency) {
+        setCurrency(stored.currency);
+      }
+
+      // Prefer settings default category, fallback to last-used
+      const categoryId = defaultCategoryId ?? stored?.budgetCategoryId;
+      if (categoryId) {
+        setBudgetCategoryId(categoryId);
       }
 
       if (allMethods.length === 1) {
@@ -133,33 +191,64 @@ export function QuickAddChargeSheet({
         return;
       }
 
+      // Decide default payment method: settings > last-used > picker
+      const storedMethod = stored?.paymentMethod;
+      let method: PaymentMethod | null = null;
+
       if (defaultCardId) {
         const card = cardsRef.current.find((c) => c.id === defaultCardId);
         if (card) {
-          setSelectedMethod({
+          method = {
             type: "card",
             id: card.id,
             name: card.name,
             lastFour: card.last_four,
-          });
-          setStep("form");
-          return;
+          };
         }
       }
 
-      if (defaultSourceId) {
+      if (!method && defaultSourceId) {
         const source = paymentSourcesRef.current.find((s) => s.id === defaultSourceId);
         if (source) {
-          setSelectedMethod({
+          method = {
             type: "source",
             id: source.id,
             name: source.name,
             sourceType: source.type,
             color: source.color,
-          });
-          setStep("form");
-          return;
+          };
         }
+      }
+
+      if (!method && storedMethod?.type === "card") {
+        const card = cardsRef.current.find((c) => c.id === storedMethod.id);
+        if (card) {
+          method = {
+            type: "card",
+            id: card.id,
+            name: card.name,
+            lastFour: card.last_four,
+          };
+        }
+      }
+
+      if (!method && storedMethod?.type === "source") {
+        const source = paymentSourcesRef.current.find((s) => s.id === storedMethod.id);
+        if (source) {
+          method = {
+            type: "source",
+            id: source.id,
+            name: source.name,
+            sourceType: source.type,
+            color: source.color,
+          };
+        }
+      }
+
+      if (method) {
+        setSelectedMethod(method);
+        setStep("form");
+        return;
       }
 
       setStep("picker");
@@ -247,6 +336,21 @@ export function QuickAddChargeSheet({
 
       toast.success(`Charge "${payload.description}" added`);
       haptics.success();
+
+      // Remember preferences for next time
+      const currentPrefs = loadChargePrefs();
+      const nextPrefs = addFrequentCharge(
+        currentPrefs,
+        payload.description as string,
+        budgetCategoryId || undefined
+      );
+      nextPrefs.currency = currency;
+      nextPrefs.budgetCategoryId = budgetCategoryId || undefined;
+      if (selectedMethod) {
+        nextPrefs.paymentMethod = { type: selectedMethod.type, id: selectedMethod.id };
+      }
+      saveChargePrefs(nextPrefs);
+
       onOpenChange(false);
       onSuccess();
     } catch {
@@ -385,6 +489,11 @@ export function QuickAddChargeSheet({
                   <Label htmlFor="quick-desc" className="text-base md:text-sm">Description</Label>
                   <VoiceMicButton
                     categories={budgetCategories.map((c) => ({ id: c.id, name: c.name }))}
+                    budgetCategories={budgetCategories}
+                    cards={cards}
+                    paymentSources={paymentSources}
+                    defaultBudgetCategoryId={budgetCategoryId}
+                    defaultCurrency={currency}
                     className="h-10 w-10 md:h-9 md:w-9"
                     onParsed={(result) => {
                       if (result.description) setDescription(result.description);
@@ -412,6 +521,26 @@ export function QuickAddChargeSheet({
                 />
                 {errors.description && (
                   <p className="text-xs text-rose-400">{errors.description}</p>
+                )}
+                {frequentCharges.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {frequentCharges.map((charge) => (
+                      <button
+                        key={charge.description}
+                        type="button"
+                        onClick={() => {
+                          setDescription(charge.description);
+                          if (charge.budgetCategoryId) {
+                            setBudgetCategoryId(charge.budgetCategoryId);
+                          }
+                          if (errors.description) setErrors((p) => ({ ...p, description: undefined }));
+                        }}
+                        className="inline-flex items-center rounded-full border border-[#18122B] bg-[#18122B]/60 px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-[#18122B] hover:text-white"
+                      >
+                        {charge.description}
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
 

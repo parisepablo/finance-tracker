@@ -1,3 +1,6 @@
+import { parseTextCharge, UserPaymentContext } from "@/lib/parsers/parse-text-charge";
+import type { ParsedCharge } from "@/lib/types";
+
 export interface VoiceChargeResult {
   description?: string;
   totalAmount?: string;
@@ -7,13 +10,79 @@ export interface VoiceChargeResult {
   totalInstallments?: string;
 }
 
+export type VoiceParseError =
+  | "missing_key"
+  | "api_error"
+  | "no_transcript"
+  | "parse_error"
+  | "no_data";
+
+export interface ParseVoiceChargeResult {
+  result: Partial<VoiceChargeResult>;
+  error?: VoiceParseError;
+  errorMessage?: string;
+}
+
+function mapTextChargeResult(
+  parsed: ReturnType<typeof parseTextCharge>,
+  categories: { id: string; name: string }[]
+): Partial<VoiceChargeResult> {
+  if (parsed.status === "low_confidence") return {};
+
+  const charge: Partial<ParsedCharge> =
+    parsed.status === "missing_amount" ? parsed.partial ?? {} : parsed.charge;
+
+  const result: Partial<VoiceChargeResult> = {};
+
+  if (charge.description) {
+    result.description = charge.description;
+  }
+
+  if (charge.amount_cents && charge.amount_cents > 0) {
+    result.totalAmount = (charge.amount_cents / 100).toString();
+  }
+
+  if (charge.date) {
+    result.date = charge.date;
+  }
+
+  if (charge.budget_category_id) {
+    const matched = categories.find((c) => c.id === charge.budget_category_id);
+    if (matched) {
+      result.budgetCategoryId = matched.id;
+    }
+  }
+
+  if (charge.is_installment && charge.total_installments && charge.total_installments > 1) {
+    result.isInstallment = true;
+    result.totalInstallments = charge.total_installments.toString();
+  }
+
+  return result;
+}
+
 export async function parseVoiceCharge(
   transcript: string,
-  categories: { id: string; name: string }[]
-): Promise<Partial<VoiceChargeResult>> {
+  categories: { id: string; name: string }[],
+  ctx?: UserPaymentContext
+): Promise<ParseVoiceChargeResult> {
   const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
+  if (!transcript?.trim()) {
+    return { result: {}, error: "no_transcript", errorMessage: "No speech was detected." };
+  }
+
+  // If no API key or no context, fall back to local parser immediately.
   if (!apiKey) {
-    return {};
+    if (ctx) {
+      const fallback = parseTextCharge(transcript, ctx);
+      return { result: mapTextChargeResult(fallback, categories) };
+    }
+    return {
+      result: {},
+      error: "missing_key",
+      errorMessage: "Gemini API key is not configured.",
+    };
   }
 
   const categoryNames = categories.map((c) => c.name).join(", ");
@@ -38,7 +107,7 @@ Return ONLY the JSON object. Example:
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,21 +128,44 @@ Return ONLY the JSON object. Example:
     if (!res.ok) {
       const errText = await res.text().catch(() => "");
       console.error("Gemini API error:", res.status, errText);
-      return {};
+      // Fall back to local parser on API error
+      if (ctx) {
+        const fallback = parseTextCharge(transcript, ctx);
+        return { result: mapTextChargeResult(fallback, categories) };
+      }
+      return {
+        result: {},
+        error: "api_error",
+        errorMessage: `Gemini API returned ${res.status}.`,
+      };
     }
 
     const data = await res.json();
     const text =
       data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "";
     if (!text) {
-      return {};
+      if (ctx) {
+        const fallback = parseTextCharge(transcript, ctx);
+        return { result: mapTextChargeResult(fallback, categories) };
+      }
+      return {
+        result: {},
+        error: "no_data",
+        errorMessage: "The voice model returned an empty response.",
+      };
     }
 
+    // Strip markdown code fences and any trailing prose
     let jsonText = text;
-    if (jsonText.startsWith("```")) {
+    if (jsonText.includes("```")) {
       jsonText = jsonText
-        .replace(/```(?:json)?\s*/, "")
+        .replace(/```(?:json)?\s*/i, "")
         .replace(/```\s*$/, "");
+    }
+    // Extract first JSON object if the model added extra text
+    const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      jsonText = jsonMatch[0];
     }
 
     const parsed = JSON.parse(jsonText) as Record<string, unknown>;
@@ -117,8 +209,23 @@ Return ONLY the JSON object. Example:
       result.totalInstallments = installments.toString();
     }
 
-    return result;
-  } catch {
-    return {};
+    if (Object.keys(result).length === 0 && ctx) {
+      // Gemini returned JSON but no usable fields; try local parser
+      const fallback = parseTextCharge(transcript, ctx);
+      return { result: mapTextChargeResult(fallback, categories) };
+    }
+
+    return { result };
+  } catch (err) {
+    console.error("Voice parse error:", err);
+    if (ctx) {
+      const fallback = parseTextCharge(transcript, ctx);
+      return { result: mapTextChargeResult(fallback, categories) };
+    }
+    return {
+      result: {},
+      error: "parse_error",
+      errorMessage: "Could not understand the voice input.",
+    };
   }
 }
