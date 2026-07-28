@@ -5,12 +5,12 @@ import { MonthSelector } from "./month-selector";
 
 export function ConditionalMonthSelector() {
   const pathname = usePathname();
-  if (
-    pathname === "/cards" ||
-    pathname.startsWith("/cards/") ||
-    pathname === "/analytics"
-  ) {
-    return null;
+
+  // Only show the month selector on pages that actually consume the ?month param.
+  // Other pages (settings, cards, analytics, etc.) don't need it.
+  if (pathname === "/" || pathname === "/finances") {
+    return <MonthSelector />;
   }
-  return <MonthSelector />;
+
+  return null;
 }
