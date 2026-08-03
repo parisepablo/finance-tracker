@@ -7,6 +7,7 @@ import {
   Transaction,
   IncomeSource,
   ExpensePayment,
+  BillingCycle,
 } from "@/lib/types";
 import { formatCurrency, getMonthlyEquivalent } from "@/lib/utils";
 
@@ -25,16 +26,31 @@ export interface AlertContext {
   expensePayments: ExpensePayment[];
   budgetCategories: BudgetCategoryWithStats[];
   creditCards: CreditCard[];
+  billingCycles: BillingCycle[];
   transactions: Transaction[];
   currentMonth: string;
   today: Date;
 }
 
-function daysUntil(day: number, today: Date): number {
-  const todayDay = today.getDate();
-  if (day >= todayDay) return day - todayDay;
-  // If day has passed this month, treat as next month (not relevant for alerts)
-  return day + 30 - todayDay;
+function startOfDay(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function daysUntilDue(day: number, today: Date): number | null {
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+  const clampedDay = Math.min(day, lastDayOfMonth);
+
+  const due = new Date(year, month, clampedDay);
+  const diff = Math.floor(
+    (startOfDay(due).getTime() - startOfDay(today).getTime()) /
+      (1000 * 60 * 60 * 24)
+  );
+
+  return diff;
 }
 
 function isPaidThisMonth(
@@ -44,6 +60,26 @@ function isPaidThisMonth(
 ): boolean {
   return payments.some(
     (p) => p.fixed_expense_id === expenseId && p.paid_month === currentMonth
+  );
+}
+
+function getOpenCycle(
+  cardId: string,
+  cycles: BillingCycle[]
+): BillingCycle | undefined {
+  return cycles
+    .filter((c) => c.credit_card_id === cardId && c.status === "open")
+    .sort(
+      (a, b) =>
+        new Date(b.closing_date + "T00:00:00").getTime() -
+        new Date(a.closing_date + "T00:00:00").getTime()
+    )[0];
+}
+
+function daysBetween(a: Date, b: Date): number {
+  return Math.floor(
+    (startOfDay(a).getTime() - startOfDay(b).getTime()) /
+      (1000 * 60 * 60 * 24)
   );
 }
 
@@ -58,32 +94,31 @@ export const alertGenerators: Record<
       if (isPaidThisMonth(expense.id, ctx.expensePayments, ctx.currentMonth))
         continue;
 
-      const days = daysUntil(expense.due_day, ctx.today);
-      if (days >= 1 && days <= 5) {
-        const priority: AlertPriority =
-          days <= 2 ? "high" : "medium";
-        const monthly = getMonthlyEquivalent(
-          expense.amount_cents,
-          expense.billing_cycle
-        );
-        const dueDate = new Date(ctx.today);
-        dueDate.setDate(dueDate.getDate() + days);
-        const expiresAt = new Date(dueDate);
-        expiresAt.setDate(expiresAt.getDate() + 1);
+      const days = daysUntilDue(expense.due_day, ctx.today);
+      if (days === null || days < 1 || days > 5) continue;
 
-        alerts.push({
-          type: "DUE_DATE_UPCOMING",
-          title: `${expense.name} due in ${days} day${days === 1 ? "" : "s"}`,
-          message: `Your ${expense.name} of ${formatCurrency(monthly)} is due on the ${expense.due_day}th.`,
-          payload: {
-            fixed_expense_id: expense.id,
-            due_day: expense.due_day,
-            amount_cents: monthly,
-          },
-          priority,
-          expires_at: expiresAt,
-        });
-      }
+      const priority: AlertPriority = days <= 2 ? "high" : "medium";
+      const monthly = getMonthlyEquivalent(
+        expense.amount_cents,
+        expense.billing_cycle
+      );
+      const dueDate = new Date(ctx.today);
+      dueDate.setDate(dueDate.getDate() + days);
+      const expiresAt = new Date(dueDate);
+      expiresAt.setDate(expiresAt.getDate() + 1);
+
+      alerts.push({
+        type: "DUE_DATE_UPCOMING",
+        title: `${expense.name} due in ${days} day${days === 1 ? "" : "s"}`,
+        message: `Your ${expense.name} of ${formatCurrency(monthly)} is due on the ${expense.due_day}${getOrdinalSuffix(expense.due_day)}.`,
+        payload: {
+          fixed_expense_id: expense.id,
+          due_day: expense.due_day,
+          amount_cents: monthly,
+        },
+        priority,
+        expires_at: expiresAt,
+      });
     }
     return alerts;
   },
@@ -95,28 +130,28 @@ export const alertGenerators: Record<
       if (isPaidThisMonth(expense.id, ctx.expensePayments, ctx.currentMonth))
         continue;
 
-      const days = daysUntil(expense.due_day, ctx.today);
-      if (days === 0) {
-        const monthly = getMonthlyEquivalent(
-          expense.amount_cents,
-          expense.billing_cycle
-        );
-        const expiresAt = new Date(ctx.today);
-        expiresAt.setDate(expiresAt.getDate() + 1);
+      const days = daysUntilDue(expense.due_day, ctx.today);
+      if (days !== 0) continue;
 
-        alerts.push({
-          type: "DUE_DATE_TODAY",
-          title: `${expense.name} is due today`,
-          message: `Don't forget to pay ${expense.name} (${formatCurrency(monthly)}) today.`,
-          payload: {
-            fixed_expense_id: expense.id,
-            due_day: expense.due_day,
-            amount_cents: monthly,
-          },
-          priority: "critical",
-          expires_at: expiresAt,
-        });
-      }
+      const monthly = getMonthlyEquivalent(
+        expense.amount_cents,
+        expense.billing_cycle
+      );
+      const expiresAt = new Date(ctx.today);
+      expiresAt.setDate(expiresAt.getDate() + 1);
+
+      alerts.push({
+        type: "DUE_DATE_TODAY",
+        title: `${expense.name} is due today`,
+        message: `Don't forget to pay ${expense.name} (${formatCurrency(monthly)}) today.`,
+        payload: {
+          fixed_expense_id: expense.id,
+          due_day: expense.due_day,
+          amount_cents: monthly,
+        },
+        priority: "critical",
+        expires_at: expiresAt,
+      });
     }
     return alerts;
   },
@@ -127,8 +162,7 @@ export const alertGenerators: Record<
       if (cat.allocated_cents <= 0) continue;
       const pct = cat.spent_percentage;
       if (pct >= 80 && pct < 100) {
-        const priority: AlertPriority =
-          pct >= 90 ? "high" : "medium";
+        const priority: AlertPriority = pct >= 90 ? "high" : "medium";
         const lastDayOfMonth = new Date(
           ctx.today.getFullYear(),
           ctx.today.getMonth() + 1,
@@ -183,14 +217,68 @@ export const alertGenerators: Record<
   },
 
   CREDIT_CARD_CLOSING_SOON: (ctx) => {
-    // TODO: update to use billing_cycles table
     const alerts: AlertToCreate[] = [];
+    for (const card of ctx.creditCards) {
+      const cycle = getOpenCycle(card.id, ctx.billingCycles);
+      if (!cycle) continue;
+
+      const closingDate = new Date(cycle.closing_date + "T00:00:00");
+      const daysUntil = daysBetween(closingDate, ctx.today);
+
+      // Alert from 3 days before closing through closing day itself.
+      if (daysUntil < 0 || daysUntil > 3) continue;
+
+      const priority: AlertPriority = daysUntil <= 1 ? "high" : "medium";
+      const expiresAt = new Date(closingDate);
+      expiresAt.setDate(expiresAt.getDate() + 1);
+
+      alerts.push({
+        type: "CREDIT_CARD_CLOSING_SOON",
+        title: `${card.name} closing ${daysUntil === 0 ? "today" : `in ${daysUntil} day${daysUntil === 1 ? "" : "s"}`}`,
+        message: `Your ${card.name} billing cycle closes on ${formatDate(closingDate)}. Charges after that date will roll into next month's bill.`,
+        payload: {
+          credit_card_id: card.id,
+          billing_cycle_id: cycle.id,
+          closing_date: cycle.closing_date,
+        },
+        priority,
+        expires_at: expiresAt,
+      });
+    }
     return alerts;
   },
 
   CREDIT_CARD_PAYMENT_DUE: (ctx) => {
-    // TODO: update to use billing_cycles table
     const alerts: AlertToCreate[] = [];
+    for (const card of ctx.creditCards) {
+      const cycle = getOpenCycle(card.id, ctx.billingCycles);
+      if (!cycle) continue;
+
+      const dueDate = new Date(cycle.due_date + "T00:00:00");
+      const daysUntil = daysBetween(dueDate, ctx.today);
+
+      // Alert from 5 days before due date through due date.
+      // After due date we keep a critical alert for 3 more days while the
+      // cycle is still open, since we don't yet track payment status.
+      if (daysUntil < -3 || daysUntil > 5) continue;
+
+      const priority: AlertPriority = daysUntil <= 1 ? "critical" : "high";
+      const expiresAt = new Date(dueDate);
+      expiresAt.setDate(expiresAt.getDate() + 4);
+
+      alerts.push({
+        type: "CREDIT_CARD_PAYMENT_DUE",
+        title: `${card.name} payment ${daysUntil < 0 ? "overdue" : daysUntil === 0 ? "due today" : `due in ${daysUntil} day${daysUntil === 1 ? "" : "s"}`}`,
+        message: `Your ${card.name} bill is due on ${formatDate(dueDate)}. Make sure you have enough funds to cover it.`,
+        payload: {
+          credit_card_id: card.id,
+          billing_cycle_id: cycle.id,
+          due_date: cycle.due_date,
+        },
+        priority,
+        expires_at: expiresAt,
+      });
+    }
     return alerts;
   },
 
@@ -267,3 +355,24 @@ export const alertGenerators: Record<
     return [];
   },
 };
+
+function getOrdinalSuffix(day: number): string {
+  if (day >= 11 && day <= 13) return "th";
+  switch (day % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}

@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Bell } from "lucide-react";
 import { AlertsSheet } from "./AlertsSheet";
 import { cn } from "@/lib/utils";
+
+const GENERATE_COOLDOWN_MS = 30_000;
 
 export function AlertsBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasCritical, setHasCritical] = useState(false);
   const [open, setOpen] = useState(false);
+  const lastGeneratedAt = useRef<number>(0);
 
   const fetchCount = useCallback(async () => {
     try {
@@ -23,17 +26,34 @@ export function AlertsBell() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchCount();
+  const generateAndFetch = useCallback(async () => {
+    const now = Date.now();
+    if (now - lastGeneratedAt.current < GENERATE_COOLDOWN_MS) {
+      await fetchCount();
+      return;
+    }
+
+    lastGeneratedAt.current = now;
+    try {
+      await fetch("/api/alerts/generate", { method: "POST" });
+    } catch {
+      // generation failure should not block count fetch
+    } finally {
+      await fetchCount();
+    }
   }, [fetchCount]);
 
   useEffect(() => {
+    generateAndFetch();
+  }, [generateAndFetch]);
+
+  useEffect(() => {
     function handleNavChange() {
-      fetchCount();
+      generateAndFetch();
     }
     window.addEventListener("navigation-change", handleNavChange);
     return () => window.removeEventListener("navigation-change", handleNavChange);
-  }, [fetchCount]);
+  }, [generateAndFetch]);
 
   return (
     <>

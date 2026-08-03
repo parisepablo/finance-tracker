@@ -85,11 +85,21 @@ export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
     }
   }
 
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleRead();
+    }
+  }
+
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={handleRead}
+      onKeyDown={handleKeyDown}
       className={cn(
-        "group relative flex w-full items-start gap-3 rounded-lg border border-[#18122B] border-l-4 p-3 text-left transition-colors",
+        "group relative flex w-full items-start gap-3 rounded-lg border border-[#18122B] border-l-4 p-3 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50",
         isUnread
           ? ["opacity-100", config.border, config.bg, "hover:bg-[#18122B]/50"]
           : ["opacity-55", config.borderRead, "hover:bg-[#18122B]/30"]
@@ -130,12 +140,13 @@ export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
       </div>
 
       <button
+        type="button"
         onClick={handleDismiss}
         className="shrink-0 rounded-md p-1 text-zinc-600 hover:text-zinc-300 hover:bg-[#18122B] transition-colors"
         aria-label="Dismiss"
       >
         <X className="h-3.5 w-3.5" />
       </button>
-    </button>
+    </div>
   );
 }

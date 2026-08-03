@@ -74,7 +74,7 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
       setAmount((income.amount_cents / 100).toString());
       setIsActive(income.is_active);
       setCurrency(income.currency);
-      setEffectiveFromMonth(income.effective_from_month);
+      setEffectiveFromMonth(defaultMonth ?? income.effective_from_month);
     } else {
       setName("");
       setAmount("");

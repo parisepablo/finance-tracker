@@ -128,6 +128,7 @@ export interface Alert {
   is_read: boolean;
   priority: AlertPriority;
   created_at: string;
+  updated_at: string;
   expires_at: string | null;
 }
 

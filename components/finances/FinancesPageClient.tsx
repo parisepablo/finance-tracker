@@ -14,6 +14,7 @@ import { BudgetCategoryForm } from "@/components/budgets/BudgetCategoryForm";
 import { BudgetDonut } from "@/components/budgets/BudgetDonut";
 import { AllocationBar } from "@/components/budgets/AllocationBar";
 import { BudgetBreakdownSheet } from "@/components/budgets/BudgetBreakdownSheet";
+import { MonthlyReview } from "@/components/finances/MonthlyReview";
 import { Button } from "@/components/ui/button";
 import { GlowCard } from "@/components/ui/glow-card";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
@@ -133,6 +134,14 @@ export function FinancesPageClient({
           Error loading data: {error}
         </div>
       )}
+
+      <MonthlyReview
+        incomeSources={incomeSources}
+        expenses={expenses}
+        creditCards={creditCards}
+        currentMonth={currentMonth}
+        onRefresh={handleRefresh}
+      />
 
       {/* Summary flow bar */}
       <GlowCard color="emerald">

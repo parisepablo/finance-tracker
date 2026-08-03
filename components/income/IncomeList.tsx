@@ -130,6 +130,7 @@ export function IncomeList({ incomeSources, currentMonth, onRefresh }: IncomeLis
                 <div className="hidden md:flex items-center gap-1">
                   <IncomeForm
                     income={source}
+                    defaultMonth={currentMonth}
                     onSuccess={onRefresh}
                     open={editingItem?.id === source.id}
                     onOpenChange={(open) => {

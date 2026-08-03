@@ -2,14 +2,20 @@ import { alertGenerators, AlertToCreate } from "@/lib/alerts";
 import {
   IncomeSource,
   FixedExpense,
+  BudgetCategory,
   BudgetCategoryWithStats,
   CreditCard,
   Transaction,
   ExpensePayment,
+  BillingCycle,
   Alert,
 } from "@/lib/types";
-import { getCurrentMonth } from "@/lib/utils";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  getEffectiveIncomeSources,
+  getEffectiveFixedExpenses,
+  type SupabaseClient,
+} from "@/lib/effective-date";
+import { getCurrentMonth, getMonthlyEquivalent } from "@/lib/utils";
 
 interface FinancialData {
   incomeSources: IncomeSource[];
@@ -17,6 +23,7 @@ interface FinancialData {
   expensePayments: ExpensePayment[];
   budgetCategories: BudgetCategoryWithStats[];
   creditCards: CreditCard[];
+  billingCycles: BillingCycle[];
   transactions: Transaction[];
 }
 
@@ -25,109 +32,94 @@ async function fetchFinancialData(
   userId: string,
   currentMonth: string
 ): Promise<FinancialData> {
-  const startOfMonth = `${currentMonth}-01`;
-  const [year, month] = currentMonth.split("-").map(Number);
-  const lastDay = new Date(year, month, 0).getDate();
-  const endOfMonth = `${currentMonth}-${String(lastDay).padStart(2, "0")}`;
+  const { start, end } = getMonthRange(currentMonth);
 
   const [
-    incomeResult,
-    expensesResult,
+    incomeSources,
+    fixedExpenses,
     paymentsResult,
     budgetsResult,
     cardsResult,
     transactionsResult,
   ] = await Promise.all([
-    supabase
-      .from("income_sources")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("month", currentMonth)
-      .eq("is_active", true),
-    supabase
-      .from("fixed_expenses")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("month", currentMonth)
-      .eq("is_active", true),
+    getEffectiveIncomeSources(supabase, userId, currentMonth),
+    getEffectiveFixedExpenses(supabase, userId, currentMonth),
     supabase
       .from("expense_payments")
       .select("*")
       .eq("user_id", userId)
       .eq("paid_month", currentMonth),
-    supabase
-      .from("budget_categories")
-      .select("*")
-      .eq("user_id", userId),
-    supabase
-      .from("credit_cards")
-      .select("*")
-      .eq("user_id", userId),
+    supabase.from("budget_categories").select("*").eq("user_id", userId),
+    supabase.from("credit_cards").select("*").eq("user_id", userId),
     supabase
       .from("transactions")
       .select("*")
       .eq("user_id", userId)
-      .gte("date", startOfMonth)
-      .lte("date", endOfMonth),
+      .gte("date", start)
+      .lte("date", end),
   ]);
 
-  // Fetch budget spending stats
-  const budgetCategories: BudgetCategoryWithStats[] = [];
-  for (const cat of budgetsResult.data ?? []) {
-    const { data: spentData } = await supabase
-      .from("transactions")
-      .select("amount_cents")
-      .eq("user_id", userId)
-      .eq("budget_category_id", cat.id)
-      .gte("date", startOfMonth)
-      .lte("date", endOfMonth);
+  const cardIds = (cardsResult.data ?? []).map((c: CreditCard) => c.id);
 
-    const spent_cents = (spentData ?? []).reduce(
-      (sum, t) => sum + (t.amount_cents ?? 0),
-      0
-    );
+  const cyclesResult =
+    cardIds.length > 0
+      ? await supabase
+          .from("billing_cycles")
+          .select("*")
+          .in("credit_card_id", cardIds)
+      : { data: [] };
 
-    // Get discretionary pool for allocation
-    const totalIncome = (incomeResult.data ?? []).reduce(
-      (sum, s) => sum + s.amount_cents,
-      0
-    );
-    const totalFixed = (expensesResult.data ?? []).reduce(
-      (sum, e) => {
-        const monthly =
-          e.billing_cycle === "monthly"
-            ? e.amount_cents
-            : e.billing_cycle === "quarterly"
-              ? Math.round(e.amount_cents / 3)
-              : Math.round(e.amount_cents / 12);
-        return sum + monthly;
-      },
-      0
-    );
-    const discretionary = Math.max(0, totalIncome - totalFixed);
-    const allocated_cents = Math.round(
-      (discretionary * cat.percentage) / 100
-    );
+  const totalIncome = incomeSources.reduce((sum, s) => sum + s.amount_cents, 0);
+  const totalFixed = fixedExpenses.reduce(
+    (sum, e) => sum + getMonthlyEquivalent(e.amount_cents, e.billing_cycle),
+    0
+  );
+  const discretionary = Math.max(0, totalIncome - totalFixed);
 
-    budgetCategories.push({
-      ...cat,
-      allocated_cents,
-      spent_cents,
-      remaining_cents: Math.max(0, allocated_cents - spent_cents),
-      spent_percentage:
-        allocated_cents > 0
-          ? Math.round((spent_cents / allocated_cents) * 100)
-          : 0,
-    });
+  // Sum transactions by budget category in memory to avoid N+1 queries.
+  const spentByCategory = new Map<string, number>();
+  for (const t of transactionsResult.data ?? []) {
+    if (!t.budget_category_id) continue;
+    const current = spentByCategory.get(t.budget_category_id) ?? 0;
+    spentByCategory.set(t.budget_category_id, current + (t.amount_cents ?? 0));
   }
 
+  const budgetCategories: BudgetCategoryWithStats[] = (budgetsResult.data ?? []).map(
+    (cat: BudgetCategory) => {
+      const spent_cents = spentByCategory.get(cat.id) ?? 0;
+      const allocated_cents = Math.round((discretionary * cat.percentage) / 100);
+      const spent_percentage =
+        allocated_cents > 0
+          ? Math.round((spent_cents / allocated_cents) * 100)
+          : 0;
+
+      return {
+        ...cat,
+        allocated_cents,
+        spent_cents,
+        remaining_cents: Math.max(0, allocated_cents - spent_cents),
+        spent_percentage,
+      };
+    }
+  );
+
   return {
-    incomeSources: incomeResult.data ?? [],
-    fixedExpenses: expensesResult.data ?? [],
+    incomeSources,
+    fixedExpenses,
     expensePayments: paymentsResult.data ?? [],
     budgetCategories,
     creditCards: cardsResult.data ?? [],
+    billingCycles: cyclesResult.data ?? [],
     transactions: transactionsResult.data ?? [],
+  };
+}
+
+function getMonthRange(monthStr: string) {
+  const [year, month] = monthStr.split("-").map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+  return {
+    start: `${monthStr}-01`,
+    end: `${monthStr}-${String(lastDay).padStart(2, "0")}`,
   };
 }
 
@@ -135,7 +127,6 @@ function getPayloadKey(
   type: string,
   payload: Record<string, unknown>
 ): string {
-  // Extract the key identifying fields from payload for deduplication
   const keyFields: Record<string, string[]> = {
     DUE_DATE_UPCOMING: ["fixed_expense_id"],
     DUE_DATE_TODAY: ["fixed_expense_id"],
@@ -150,6 +141,18 @@ function getPayloadKey(
   const fields = keyFields[type] ?? [];
   const values = fields.map((f) => String(payload[f] ?? "")).join("-");
   return `${type}:${values}`;
+}
+
+function sanitizePayload(
+  payload: Record<string, unknown>
+): Record<string, unknown> {
+  const cleaned: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(payload)) {
+    if (value !== undefined) {
+      cleaned[key] = value;
+    }
+  }
+  return cleaned;
 }
 
 export async function generateAlerts(
@@ -173,13 +176,14 @@ export async function generateAlerts(
     generated.push(...generator(ctx));
   }
 
+  // Clean up expired alerts first
+  await supabase
+    .from("alerts")
+    .delete()
+    .lt("expires_at", today.toISOString())
+    .eq("user_id", userId);
+
   if (generated.length === 0) {
-    // Still clean up expired alerts
-    await supabase
-      .from("alerts")
-      .delete()
-      .lt("expires_at", today.toISOString())
-      .eq("user_id", userId);
     return 0;
   }
 
@@ -191,9 +195,7 @@ export async function generateAlerts(
     .eq("is_read", false);
 
   const existingKeys = new Set(
-    (existingAlerts ?? []).map((a: Alert) =>
-      getPayloadKey(a.type, a.payload)
-    )
+    (existingAlerts ?? []).map((a: Alert) => getPayloadKey(a.type, a.payload))
   );
 
   // Filter out duplicates
@@ -207,26 +209,17 @@ export async function generateAlerts(
       type: a.type,
       title: a.title,
       message: a.message,
-      payload: a.payload,
+      payload: sanitizePayload(a.payload),
       priority: a.priority,
       expires_at: a.expires_at?.toISOString() ?? null,
     }));
 
-    const { error: insertError } = await supabase
-      .from("alerts")
-      .insert(rows);
+    const { error: insertError } = await supabase.from("alerts").insert(rows);
 
     if (insertError) {
       console.error("Failed to insert alerts:", insertError.message);
     }
   }
-
-  // Clean up expired alerts
-  await supabase
-    .from("alerts")
-    .delete()
-    .lt("expires_at", today.toISOString())
-    .eq("user_id", userId);
 
   return newAlerts.length;
 }

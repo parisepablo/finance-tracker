@@ -47,7 +47,6 @@ interface FormErrors {
 interface StoredChargePrefs {
   budgetCategoryId?: string;
   currency?: "ARS" | "USD";
-  paymentMethod?: { type: "card" | "source"; id: string };
   frequent: { description: string; budgetCategoryId?: string }[];
 }
 
@@ -170,8 +169,6 @@ export function QuickAddChargeSheet({
       const stored = loadChargePrefs();
       setFrequentCharges(stored?.frequent ?? []);
 
-      const defaultCardId = settings?.default_credit_card_id;
-      const defaultSourceId = settings?.default_payment_source_id;
       const defaultCategoryId = settings?.default_budget_category_id;
 
       // Apply last-used currency
@@ -185,68 +182,10 @@ export function QuickAddChargeSheet({
         setBudgetCategoryId(categoryId);
       }
 
+      // Only auto-select when there is a single payment method; otherwise let the
+      // user pick manually so the default/last-used method does not redirect them.
       if (allMethods.length === 1) {
         setSelectedMethod(allMethods[0]);
-        setStep("form");
-        return;
-      }
-
-      // Decide default payment method: settings > last-used > picker
-      const storedMethod = stored?.paymentMethod;
-      let method: PaymentMethod | null = null;
-
-      if (defaultCardId) {
-        const card = cardsRef.current.find((c) => c.id === defaultCardId);
-        if (card) {
-          method = {
-            type: "card",
-            id: card.id,
-            name: card.name,
-            lastFour: card.last_four,
-          };
-        }
-      }
-
-      if (!method && defaultSourceId) {
-        const source = paymentSourcesRef.current.find((s) => s.id === defaultSourceId);
-        if (source) {
-          method = {
-            type: "source",
-            id: source.id,
-            name: source.name,
-            sourceType: source.type,
-            color: source.color,
-          };
-        }
-      }
-
-      if (!method && storedMethod?.type === "card") {
-        const card = cardsRef.current.find((c) => c.id === storedMethod.id);
-        if (card) {
-          method = {
-            type: "card",
-            id: card.id,
-            name: card.name,
-            lastFour: card.last_four,
-          };
-        }
-      }
-
-      if (!method && storedMethod?.type === "source") {
-        const source = paymentSourcesRef.current.find((s) => s.id === storedMethod.id);
-        if (source) {
-          method = {
-            type: "source",
-            id: source.id,
-            name: source.name,
-            sourceType: source.type,
-            color: source.color,
-          };
-        }
-      }
-
-      if (method) {
-        setSelectedMethod(method);
         setStep("form");
         return;
       }
@@ -346,9 +285,6 @@ export function QuickAddChargeSheet({
       );
       nextPrefs.currency = currency;
       nextPrefs.budgetCategoryId = budgetCategoryId || undefined;
-      if (selectedMethod) {
-        nextPrefs.paymentMethod = { type: selectedMethod.type, id: selectedMethod.id };
-      }
       saveChargePrefs(nextPrefs);
 
       onOpenChange(false);
@@ -368,7 +304,7 @@ export function QuickAddChargeSheet({
       <SheetContent
         side={side}
         className={cn(
-          "bg-[#0f0c19]",
+          "flex flex-col overflow-hidden bg-[#0f0c19]",
           isMobile
             ? "h-[92vh] max-h-[92vh] rounded-t-2xl border-t border-[#18122B]"
             : "w-full max-w-sm border-l border-[#18122B]"
@@ -383,7 +319,7 @@ export function QuickAddChargeSheet({
               </SheetDescription>
             </SheetHeader>
 
-            <div className="space-y-4 py-5 md:space-y-3 md:py-4">
+            <div className="flex-1 overflow-y-auto space-y-4 py-5 md:space-y-3 md:py-4">
               {cards.map((card) => (
                 <button
                   key={card.id}
@@ -477,7 +413,7 @@ export function QuickAddChargeSheet({
               </div>
             </SheetHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-5 px-4 py-5 md:space-y-4 md:px-3 md:py-4">
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-5 px-4 py-5 md:space-y-4 md:px-3 md:py-4">
               {isSource && (
                 <div className="rounded-lg border border-[#18122B] bg-[#18122B]/50 px-3 py-2 text-base text-zinc-300 md:text-sm">
                   Payment source: <span className="font-medium text-white">{selectedMethod.name}</span>

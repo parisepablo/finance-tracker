@@ -117,7 +117,7 @@ export function FixedExpenseForm({
       setCreditCardId(expense.credit_card_id ?? "");
       setIsEssential(expense.is_essential);
       setIsActive(expense.is_active);
-      setEffectiveFromMonth(expense.effective_from_month);
+      setEffectiveFromMonth(defaultMonth ?? expense.effective_from_month);
     } else {
       resetForm();
     }

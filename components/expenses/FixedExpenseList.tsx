@@ -304,6 +304,7 @@ export function FixedExpenseList({
                           <FixedExpenseForm
                             expense={expense}
                             creditCards={creditCards}
+                            defaultMonth={currentMonth}
                             onSuccess={onRefresh}
                             open={editingItem?.id === expense.id}
                             onOpenChange={(open) => {
