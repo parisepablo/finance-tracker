@@ -72,13 +72,13 @@ export function PaymentSourceList({
 
   if (paymentSources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#2a2148] p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2a2148]">
           <Smartphone className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
           <p className="font-medium text-zinc-300">No payment sources yet</p>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-zinc-400">
             Add a digital wallet or cash source to track spending.
           </p>
         </div>
@@ -129,7 +129,7 @@ export function PaymentSourceList({
                 </div>
               ) : (
                 <div
-                  className="relative overflow-hidden rounded-2xl p-5 border border-[#18122B]"
+                  className="relative overflow-hidden rounded-2xl p-5 border border-[#2a2148]"
                   style={{
                     background: `linear-gradient(135deg, ${source.color}22, ${source.color}11)`,
                     boxShadow: `0 0 40px ${source.color}15, 0 20px 40px rgba(0,0,0,0.4)`,
@@ -140,7 +140,7 @@ export function PaymentSourceList({
                       <div className="flex items-center gap-2">
                         <Icon className="h-5 w-5 text-white/70" />
                       </div>
-                      <span className="text-xs font-medium text-white/50 uppercase tracking-wider">
+                      <span className="text-xs font-medium text-white/70 uppercase tracking-wider">
                         Digital wallet
                       </span>
                     </div>
@@ -160,7 +160,7 @@ export function PaymentSourceList({
                   budgetCategories={budgetCategories}
                   onSuccess={onRefresh}
                   trigger={
-                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#18122B]">
+                    <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#2a2148]">
                       + Charge
                     </Button>
                   }
@@ -172,7 +172,7 @@ export function PaymentSourceList({
                     setDetailSource(source);
                     setDetailKey((k) => k + 1);
                   }}
-                  className="text-zinc-400 hover:text-white hover:bg-[#18122B]"
+                  className="text-zinc-400 hover:text-white hover:bg-[#2a2148]"
                 >
                   <Eye className="h-4 w-4 mr-1" />
                   History
@@ -181,7 +181,7 @@ export function PaymentSourceList({
                   source={source}
                   onSuccess={onRefresh}
                   trigger={
-                    <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]">
+                    <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-white hover:bg-[#2a2148]">
                       <Pencil className="h-4 w-4" />
                     </Button>
                   }
@@ -191,7 +191,7 @@ export function PaymentSourceList({
                   size="icon"
                   aria-label="Delete"
                   onClick={() => openDeleteDialog(source)}
-                  className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
+                  className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -218,10 +218,10 @@ export function PaymentSourceList({
           <SheetContent
             side={isMobile ? "bottom" : "right"}
             className={cn(
-              "bg-[#0f0c19]",
+              "bg-[#191231]",
               isMobile
-                ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-[#18122B]"
-                : "w-full max-w-sm border-l border-[#18122B]"
+                ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-[#2a2148]"
+                : "w-full max-w-sm border-l border-[#2a2148]"
             )}
           >
             {detailSource && (

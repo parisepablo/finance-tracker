@@ -124,7 +124,7 @@ export function FinancesPageClient({
       <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} />
       <div>
         <h1 className="text-2xl font-semibold text-white">Finances</h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-zinc-400">
           Manage your income, fixed expenses, and budget allocation
         </p>
       </div>
@@ -153,7 +153,7 @@ export function FinancesPageClient({
                 <Banknote className="h-5 w-5 text-emerald-400" />
               </div>
               <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                <p className="text-xs font-medium uppercase tracking-widest text-zinc-400">
                   Total Income
                 </p>
                 <p className="text-xl font-bold text-white tabular-nums font-mono">
@@ -176,20 +176,20 @@ export function FinancesPageClient({
                 <Receipt className="h-5 w-5 text-rose-400" />
               </div>
               <div>
-                <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                <p className="text-xs font-medium uppercase tracking-widest text-zinc-400">
                   Fixed Expenses
                 </p>
                 <p className="text-xl font-bold text-white tabular-nums font-mono">
                   <Amount value={totalFixedCents} className="font-mono" />
                 </p>
                 {totalIncomeCents > 0 && (
-                  <p className="text-xs text-zinc-500 font-mono">{fixedPercentage}% of income</p>
+                  <p className="text-xs text-zinc-400 font-mono">{fixedPercentage}% of income</p>
                 )}
                 <div className="mt-1 space-y-0.5">
-                  <p className="text-[10px] text-zinc-400 font-mono">
+                  <p className="text-xs text-zinc-400 font-mono">
                     Essential: <Amount value={expenses.filter((e) => e.is_essential).reduce((s, e) => s + getMonthlyEquivalent(e.amount_cents, e.billing_cycle), 0)} className="font-mono" />
                   </p>
-                  <p className="text-[10px] text-zinc-400 font-mono">
+                  <p className="text-xs text-zinc-400 font-mono">
                     Optional: <Amount value={expenses.filter((e) => !e.is_essential).reduce((s, e) => s + getMonthlyEquivalent(e.amount_cents, e.billing_cycle), 0)} className="font-mono" />
                   </p>
                 </div>
@@ -242,7 +242,7 @@ export function FinancesPageClient({
             <div className="flex items-center gap-3">
               <Banknote className="h-4 w-4 text-emerald-400" />
               <span className="text-zinc-200">Income Sources</span>
-              <span className="rounded-full bg-[#18122B] px-2 py-0.5 text-xs text-zinc-400 font-mono">
+              <span className="rounded-full bg-[#2a2148] px-2 py-0.5 text-xs text-zinc-400 font-mono">
                 {incomeSources.length}
               </span>
             </div>
@@ -263,7 +263,7 @@ export function FinancesPageClient({
             <div className="flex items-center gap-3">
               <Receipt className="h-4 w-4 text-rose-400" />
               <span className="text-zinc-200">Fixed Expenses</span>
-              <span className="rounded-full bg-[#18122B] px-2 py-0.5 text-xs text-zinc-400 font-mono">
+              <span className="rounded-full bg-[#2a2148] px-2 py-0.5 text-xs text-zinc-400 font-mono">
                 {expenses.length}
               </span>
             </div>
@@ -290,7 +290,7 @@ export function FinancesPageClient({
             <div className="flex items-center gap-3">
               <PieChart className="h-4 w-4 text-emerald-400" />
               <span className="text-zinc-200">Budget Categories</span>
-              <span className="rounded-full bg-[#18122B] px-2 py-0.5 text-xs text-zinc-400 font-mono">
+              <span className="rounded-full bg-[#2a2148] px-2 py-0.5 text-xs text-zinc-400 font-mono">
                 {categories.length}
               </span>
             </div>
@@ -299,7 +299,7 @@ export function FinancesPageClient({
             <div className="space-y-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
                     Allocation (<span className="font-mono">{totalPercentage}%</span>)
                   </h3>
                   <AllocationBar categories={categories} />
@@ -329,11 +329,11 @@ export function FinancesPageClient({
               )}
 
               {categories.length === 0 ? (
-                <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#18122B] p-8 text-center">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#18122B]">
+                <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#2a2148] p-8 text-center">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2a2148]">
                     <PieChart className="h-5 w-5 text-zinc-600" />
                   </div>
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-sm text-zinc-400">
                     No budget categories yet.
                   </p>
                 </div>

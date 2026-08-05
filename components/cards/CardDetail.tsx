@@ -176,7 +176,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                 setMonth((m) => prevMonth(m));
               }
             }}
-            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]"
+            className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-white hover:bg-[#2a2148]"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -187,7 +187,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                   {cycleRange?.label ?? "—"}
                 </span>
                 {cycleOffset === 0 && (
-                  <span className="text-[10px] text-emerald-400">Current</span>
+                  <span className="text-xs text-emerald-400">Current</span>
                 )}
               </>
             ) : (
@@ -207,7 +207,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
               }
             }}
             disabled={hasCycles ? cycleOffset === 0 : false}
-            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B] disabled:opacity-30 disabled:hover:bg-transparent"
+            className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-white hover:bg-[#2a2148] disabled:opacity-30 disabled:hover:bg-transparent"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -215,7 +215,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
       </div>
 
       {loading && (
-        <div className="text-sm text-zinc-500">Loading...</div>
+        <div className="text-sm text-zinc-400">Loading...</div>
       )}
 
       {error && (
@@ -235,7 +235,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                 <Amount value={summary.total_due_ars_cents} className="font-mono" />
               </div>
               {summary.total_due_usd_cents > 0 && (
-                <div className="text-sm text-zinc-500 tabular-nums font-mono">
+                <div className="text-sm text-zinc-400 tabular-nums font-mono">
                   USD <Amount value={summary.total_due_usd_cents} currency="USD" className="font-mono" />
                 </div>
               )}
@@ -246,7 +246,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
             <button
               type="button"
               onClick={() => setShowCharges((s) => !s)}
-              className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-[#18122B] bg-[#0f0c19] px-4 py-2.5 text-sm text-zinc-400 hover:text-zinc-200 hover:bg-[#18122B] transition-colors"
+              className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-[#2a2148] bg-[#191231] px-4 py-2.5 text-sm text-zinc-400 hover:text-zinc-200 hover:bg-[#2a2148] transition-colors"
             >
               {showCharges ? (
                 <>
@@ -264,7 +264,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
           )}
 
           {summary.breakdown.length === 0 && (
-            <div className="rounded-xl border border-dashed border-[#18122B] p-6 text-center text-sm text-zinc-500">
+            <div className="rounded-xl border border-dashed border-[#2a2148] p-6 text-center text-sm text-zinc-400">
               No charges for this month.
             </div>
           )}
@@ -281,18 +281,18 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                   setDeleteChargeId(item.id);
                 }}
               >
-                <div className="group flex flex-col gap-1 rounded-xl border border-[#18122B] bg-[#0f0c19] p-3 hover:bg-[#0f0c19]/70 transition-all duration-300 relative overflow-hidden">
+                <div className="group flex flex-col gap-1 rounded-xl border border-[#2a2148] bg-[#191231] p-3 hover:bg-[#191231]/70 transition-all duration-300 relative overflow-hidden">
                   <div className="absolute inset-y-0 left-0 w-0.5 bg-emerald-500/50 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
                   {/* Title line */}
                   <div className="flex items-center gap-2 pl-1">
                     {item.type === "fixed" && (
-                      <Receipt className="h-4 w-4 shrink-0 text-zinc-500" />
+                      <Receipt className="h-4 w-4 shrink-0 text-zinc-400" />
                     )}
                     {item.type === "installment" && (
-                      <Package className="h-4 w-4 shrink-0 text-zinc-500" />
+                      <Package className="h-4 w-4 shrink-0 text-zinc-400" />
                     )}
                     {item.type === "single" && (
-                      <Zap className="h-4 w-4 shrink-0 text-zinc-500" />
+                      <Zap className="h-4 w-4 shrink-0 text-zinc-400" />
                     )}
                     <p className="text-sm font-medium text-zinc-200 break-words">
                       {item.type === "fixed"
@@ -305,7 +305,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                     <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
                       <Badge
                         variant="outline"
-                        className={`text-[10px] ${item.type === "installment" ? "hidden sm:inline-flex" : ""}`}
+                        className={`text-xs ${item.type === "installment" ? "hidden sm:inline-flex" : ""}`}
                       >
                         {item.type === "fixed"
                           ? "Fixed Expense"
@@ -316,7 +316,7 @@ export function CardDetail({ card, budgetCategories, cycles, refreshTrigger = 0 
                       {item.type === "installment" &&
                         item.current_installment !== undefined &&
                         item.total_installments !== undefined && (
-                          <span className="text-xs text-zinc-500 font-mono">
+                          <span className="text-xs text-zinc-400 font-mono">
                             {item.current_installment} of{" "}
                             {item.total_installments}
                           </span>

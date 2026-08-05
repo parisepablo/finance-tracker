@@ -301,7 +301,7 @@ export function FixedExpenseForm({
               {errors.amount && (
                 <p className="text-xs text-rose-400">{errors.amount}</p>
               )}
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-zinc-400">
                 Enter the full amount for the selected billing cycle.
               </p>
             </div>
@@ -402,7 +402,7 @@ export function FixedExpenseForm({
                   setEffectiveFromMonth(e.target.value);
                 }}
               />
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-zinc-400">
                 This amount applies from this month onward unless changed again.
               </p>
             </div>
@@ -417,7 +417,7 @@ export function FixedExpenseForm({
                 <Label htmlFor="is_essential" className="cursor-pointer">
                   Essential expense
                 </Label>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-zinc-400">
                   Required monthly payment (rent, utilities, insurance)
                 </p>
               </div>

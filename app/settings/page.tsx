@@ -151,7 +151,7 @@ export default function SettingsPage() {
     <div className="p-4 md:p-8 max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold text-white">Settings</h1>
 
-      <Card className="border-[#18122B] bg-[#0f0c19]">
+      <Card className="border-[#2a2148] bg-[#191231]">
         <CardHeader>
           <CardTitle className="text-white">Telegram Bot</CardTitle>
           <CardDescription className="text-zinc-400">
@@ -164,12 +164,12 @@ export default function SettingsPage() {
               <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
                 Telegram linked {settings.telegram_username && `(@${settings.telegram_username})`}
               </div>
-              <div className="rounded-lg border border-[#18122B] bg-[#18122B]/50 px-4 py-3">
-                <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Email forwarding address</p>
+              <div className="rounded-lg border border-[#2a2148] bg-[#2a2148]/50 px-4 py-3">
+                <p className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Email forwarding address</p>
                 <p className="text-sm font-mono text-white break-all">
                   {formatEmailAlias(settings.email_alias)}
                 </p>
-                <p className="text-xs text-zinc-500 mt-1">
+                <p className="text-xs text-zinc-400 mt-1">
                   Forward MercadoPago and Visa/BNA receipts to this address.
                 </p>
               </div>
@@ -189,12 +189,12 @@ export default function SettingsPage() {
               </p>
 
               {settings?.telegram_link_code ? (
-                <div className="rounded-lg border border-[#18122B] bg-[#18122B]/50 px-4 py-3">
-                  <p className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Your code</p>
+                <div className="rounded-lg border border-[#2a2148] bg-[#2a2148]/50 px-4 py-3">
+                  <p className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Your code</p>
                   <p className="text-2xl font-mono font-semibold text-white tracking-widest">
                     {settings.telegram_link_code}
                   </p>
-                  <p className="text-xs text-zinc-500 mt-1">
+                  <p className="text-xs text-zinc-400 mt-1">
                     Expires in 10 minutes
                   </p>
                 </div>
@@ -212,7 +212,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card className="border-[#18122B] bg-[#0f0c19]">
+      <Card className="border-[#2a2148] bg-[#191231]">
         <CardHeader>
           <CardTitle className="text-white">Quick-add defaults</CardTitle>
           <CardDescription className="text-zinc-400">

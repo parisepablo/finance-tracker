@@ -135,7 +135,7 @@ export function AddPaymentSourceChargeForm({
       <DialogTrigger asChild>
         {trigger ?? <Button>+ Charge</Button>}
       </DialogTrigger>
-      <DialogContent className="bg-[#0f0c19] border-[#18122B]">
+      <DialogContent className="bg-[#191231] border-[#2a2148]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Add Charge to {source.name}</DialogTitle>
@@ -145,7 +145,7 @@ export function AddPaymentSourceChargeForm({
           </DialogHeader>
 
           <div className="grid gap-4 px-3 py-4">
-            <div className="rounded-lg border border-[#18122B] bg-[#18122B]/50 px-3 py-2 text-sm text-zinc-300">
+            <div className="rounded-lg border border-[#2a2148] bg-[#2a2148]/50 px-3 py-2 text-sm text-zinc-300">
               Payment source: <span className="font-medium text-white">{source.name}</span>
             </div>
 

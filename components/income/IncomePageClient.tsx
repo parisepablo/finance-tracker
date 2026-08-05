@@ -29,7 +29,7 @@ export function IncomePageClient({ incomeSources, currentMonth, error }: IncomeP
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-white">Income</h1>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-zinc-400">
             Track your monthly income sources
           </p>
         </div>
@@ -39,7 +39,7 @@ export function IncomePageClient({ incomeSources, currentMonth, error }: IncomeP
       <GlowCard color="emerald">
         <div className="p-5 space-y-2">
           <div className="flex flex-row items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+            <span className="text-xs font-medium uppercase tracking-widest text-zinc-400">
               Total Monthly Income
             </span>
             <DollarSign className="h-4 w-4 text-zinc-600" />
@@ -47,7 +47,7 @@ export function IncomePageClient({ incomeSources, currentMonth, error }: IncomeP
           <div className="text-2xl font-bold text-white tabular-nums font-mono">
             <Amount value={totalCents} className="font-mono" />
           </div>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 mt-1">
             From <span className="font-mono">{activeCount}</span> active source
             {activeCount === 1 ? "" : "s"}
           </p>

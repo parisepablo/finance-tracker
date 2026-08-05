@@ -10,8 +10,8 @@ export const CHART_COLORS = {
   installment: "#06b6d4",
   grid: "#27272a",
   tick: "#71717a",
-  tooltipBg: "#18122B",
-  tooltipBorder: "#231c3d",
+  tooltipBg: "#2a2148",
+  tooltipBorder: "#372d5e",
   palette: [
     "#10b981", // emerald
     "#06b6d4", // cyan

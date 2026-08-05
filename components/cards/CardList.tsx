@@ -67,13 +67,13 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
 
   if (cards.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#2a2148] p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2a2148]">
           <CreditCardIcon className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
           <p className="font-medium text-zinc-300">No credit cards yet</p>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-zinc-400">
             Add your first credit card to track charges.
           </p>
         </div>
@@ -98,13 +98,13 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
         return (
         <div key={card.id} className="space-y-0 md:max-w-sm md:mx-auto">
           {/* Credit card visual */}
-          <div className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-emerald-900 via-violet-900 to-zinc-900 border border-[#18122B] shadow-xl shadow-black/40" style={{ boxShadow: '0 0 40px rgba(16, 185, 129,0.09), 0 20px 40px rgba(0,0,0,0.4)' }}>
+          <div className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-emerald-900 via-violet-900 to-zinc-900 border border-[#2a2148] shadow-xl shadow-black/40" style={{ boxShadow: '0 0 40px rgba(16, 185, 129,0.09), 0 20px 40px rgba(0,0,0,0.4)' }}>
             <div className="relative z-10 flex flex-col gap-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
                   <Wifi className="h-5 w-5 text-white/60 rotate-90" />
                 </div>
-                <span className="text-xs font-medium text-white/50 uppercase tracking-wider">
+                <span className="text-xs font-medium text-white/70 uppercase tracking-wider">
                   {card.name}
                 </span>
               </div>
@@ -123,7 +123,7 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
 
               <div className="flex items-end justify-between">
                 <div className="space-y-0.5">
-                  <p className="text-[10px] uppercase tracking-wider text-white/40">Limit</p>
+                  <p className="text-xs uppercase tracking-wider text-white/60">Limit</p>
                   <p className="text-sm font-semibold text-white tabular-nums font-mono">
                     {card.credit_limit_cents !== null
                       ? <Amount value={card.credit_limit_cents} currency={card.currency} className="font-mono" />
@@ -132,12 +132,12 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
                 </div>
                 {cycleRange && (
                   <div className="flex flex-col items-end gap-0.5">
-                    <p className="text-[10px] uppercase tracking-wider text-white/40">Cycle</p>
+                    <p className="text-xs uppercase tracking-wider text-white/60">Cycle</p>
                     <p className="text-xs font-medium text-white/70 font-mono">
                       {cycleRange.label}
                     </p>
                     {openCycle && (
-                      <p className="text-[10px] text-white/50">
+                      <p className="text-xs text-white/70">
                         Due {formatDateShort(openCycle.due_date)}
                       </p>
                     )}
@@ -158,7 +158,7 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
                 onRefresh();
               }}
               trigger={
-                <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#18122B]">
+                <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#2a2148]">
                   + Charge
                 </Button>
               }
@@ -168,7 +168,7 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
               cycles={cardCycles}
               onSuccess={onRefresh}
               trigger={
-                <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]">
+                <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-white hover:bg-[#2a2148]">
                   <Pencil className="h-4 w-4" />
                 </Button>
               }
@@ -179,7 +179,7 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
               aria-label="Delete"
               disabled={deletingId === card.id}
               onClick={() => openDeleteDialog(card)}
-              className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
+              className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10"
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -190,14 +190,14 @@ export function CardList({ cards, budgetCategories, cycles, onRefresh }: CardLis
               onClick={() =>
                 setExpandedId(expandedId === card.id ? null : card.id)
               }
-              className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]"
+              className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-white hover:bg-[#2a2148]"
             >
               <Eye className="h-4 w-4" />
             </Button>
           </div>
 
           {expandedId === card.id && (
-            <div className="mt-3 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
+            <div className="mt-3 rounded-xl border border-[#2a2148] bg-[#191231] p-4">
               <CardDetail card={card} budgetCategories={budgetCategories} cycles={cardCycles} refreshTrigger={detailRefreshKey} />
             </div>
           )}

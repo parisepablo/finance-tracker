@@ -116,7 +116,7 @@ export function LandingPage() {
         </FadeIn>
 
         <FadeIn delay={0.3}>
-          <p className="mt-6 text-sm text-zinc-500 text-balance max-w-md">
+          <p className="mt-6 text-sm text-zinc-400 text-balance max-w-md">
             A personal finance tracker built to manage income, fixed expenses, variable budgets,
             credit cards, and spending analytics — all in one dark, distraction-free dashboard.
           </p>
@@ -167,9 +167,9 @@ export function LandingPage() {
         <FadeIn delay={0.1}>
           <Badge
             variant="outline"
-            className="text-xs px-4 py-2 border-[#231c3d] text-zinc-400 bg-[#0f0c19]/50"
+            className="text-xs px-4 py-2 border-[#372d5e] text-zinc-400 bg-[#191231]/50"
           >
-            <Lock className="h-3 w-3 mr-1.5 text-zinc-500" />
+            <Lock className="h-3 w-3 mr-1.5 text-zinc-400" />
             This is a personal project — not open for public sign-up
           </Badge>
         </FadeIn>
@@ -179,7 +179,7 @@ export function LandingPage() {
       <footer className="relative z-10 border-t border-violet-500/10 px-6 py-8">
         <FadeIn delay={0.1}>
           <div className="flex flex-col items-center justify-center gap-3 text-center">
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-zinc-400">
               $cinco — a personal finance tracker. Built as a personal project.
             </p>
             <a

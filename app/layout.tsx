@@ -90,7 +90,7 @@ export default async function RootLayout({
                 <Sidebar />
                 <main className="flex-1 flex flex-col pb-24 md:pb-0 relative">
                   {/* Mobile header */}
-                  <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-[#18122B] bg-[#09070f] overflow-hidden">
+                  <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-[#2a2148] bg-[#09070f] overflow-hidden">
                     <div className="flex items-center gap-2 min-w-0">
                       <img src="/favicon-32x32.png" alt="$cinco" className="h-7 w-7 shrink-0 rounded-lg" />
                       <span className="text-sm font-semibold truncate"><span className="text-white">Cinco</span><span className="text-emerald-400"> pal peso</span></span>
@@ -100,7 +100,7 @@ export default async function RootLayout({
                       <AlertsBell />
                       <Link
                         href="/settings"
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-[#18122B]/50 hover:text-zinc-100"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-[#2a2148]/50 hover:text-zinc-100"
                         aria-label="Settings"
                       >
                         <Settings className="h-5 w-5" />
@@ -108,7 +108,7 @@ export default async function RootLayout({
                     </div>
                   </div>
                   {/* Desktop header with month selector */}
-                  <div className="hidden md:flex items-center justify-between px-6 py-3 border-b border-[#18122B] bg-[#09070f]/80 backdrop-blur-sm sticky top-0 z-30">
+                  <div className="hidden md:flex items-center justify-between px-6 py-3 border-b border-[#2a2148] bg-[#09070f]/80 backdrop-blur-sm sticky top-0 z-30">
                     <div className="flex items-center gap-2 min-w-0 w-48">
                       <img src="/favicon-32x32.png" alt="$cinco" className="h-7 w-7 shrink-0 rounded-lg" />
                       <span className="text-sm font-semibold truncate"><span className="text-white">Cinco</span><span className="text-emerald-400"> pal peso</span></span>
@@ -122,7 +122,7 @@ export default async function RootLayout({
                     </div>
                   </div>
                   {/* Mobile month selector */}
-                  <div className="md:hidden flex items-center justify-center py-2 border-b border-[#18122B]/50 bg-[#09070f]/80 backdrop-blur-sm sticky top-0 z-30">
+                  <div className="md:hidden flex items-center justify-center py-2 border-b border-[#2a2148]/50 bg-[#09070f]/80 backdrop-blur-sm sticky top-0 z-30">
                     <Suspense fallback={null}>
                       <ConditionalMonthSelector />
                     </Suspense>
@@ -139,7 +139,7 @@ export default async function RootLayout({
                   position="bottom-right"
                   toastOptions={{
                     style: {
-                      background: "#18181b",
+                      background: "#191231",
                       border: "1px solid rgba(255,255,255,0.06)",
                       color: "#fafafa",
                     },
@@ -155,7 +155,7 @@ export default async function RootLayout({
               position="bottom-right"
               toastOptions={{
                 style: {
-                  background: "#18181b",
+                  background: "#191231",
                   border: "1px solid rgba(255,255,255,0.06)",
                   color: "#fafafa",
                 },

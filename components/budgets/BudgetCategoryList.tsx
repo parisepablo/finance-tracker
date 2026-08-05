@@ -80,13 +80,13 @@ export function BudgetCategoryList({
 
   if (categories.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#2a2148] p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2a2148]">
           <PieChart className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
           <p className="font-medium text-zinc-300">No budget categories yet</p>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-zinc-400">
             Add your first category to start tracking your variable spending.
           </p>
         </div>
@@ -130,7 +130,7 @@ export function BudgetCategoryList({
                     style={{ backgroundColor: cat.color, boxShadow: `0 0 8px ${cat.color}26` }}
                   />
                   <span className="font-medium text-zinc-200">{cat.name}</span>
-                  <span className="text-sm text-zinc-500 font-mono">
+                  <span className="text-sm text-zinc-400 font-mono">
                     {cat.percentage}%
                   </span>
                 </div>
@@ -139,7 +139,7 @@ export function BudgetCategoryList({
                     <DropdownMenuTrigger asChild>
                       <button
                         aria-label="Opciones"
-                        className="p-1.5 rounded-md text-zinc-500 hover:text-white hover:bg-[#18122B] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                        className="p-1.5 rounded-md text-zinc-400 hover:text-white hover:bg-[#2a2148] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                       >
                         <MoreVertical className="h-4 w-4" />
                       </button>
@@ -170,15 +170,15 @@ export function BudgetCategoryList({
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <span className="text-zinc-500 font-mono">
+                <span className="text-zinc-400 font-mono">
                   Allocated: <Amount value={cat.allocated_cents} className="font-mono" />
                 </span>
-                <span className="text-zinc-500 font-mono">
+                <span className="text-zinc-400 font-mono">
                   {cat.spent_percentage}% spent
                 </span>
               </div>
 
-              <div className="h-2 w-full overflow-hidden rounded-full bg-[#18122B]">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-[#2a2148]">
                 <div
                   className="h-full rounded-full progress-shimmer animate-progress"
                   style={{
@@ -195,7 +195,7 @@ export function BudgetCategoryList({
                   className={
                     cat.remaining_cents < 0
                       ? "text-rose-400 font-mono"
-                      : "text-zinc-500 font-mono"
+                      : "text-zinc-400 font-mono"
                   }
                 >
                   Remaining: <Amount value={cat.remaining_cents} className="font-mono" />

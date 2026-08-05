@@ -143,78 +143,78 @@ export function DashboardClient({
 
       <div>
         <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
-        <p className="text-sm text-zinc-500">Your monthly financial picture</p>
+        <p className="text-sm text-zinc-400">Your monthly financial picture</p>
       </div>
 
       {/* Section 1 — Top grid (4 metric cards) */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
         {/* Monthly income */}
-        <div className="rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
-          <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 mb-1">
+        <div className="rounded-xl border border-[#2a2148] bg-[#191231] p-4">
+          <p className="text-xs font-medium uppercase tracking-widest text-zinc-400 mb-1">
             Monthly income
           </p>
-          <p className="text-xl font-bold text-white tabular-nums font-mono">
+          <p className="text-2xl font-bold text-white tabular-nums font-mono">
             <AnimatedAmount cents={totalIncomeCents} />
           </p>
-          <p className="text-[10px] text-zinc-500 mt-1">Total monthly income</p>
+          <p className="text-xs text-zinc-400 mt-1">Total monthly income</p>
         </div>
 
         {/* Fixed expenses */}
-        <div className="rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
-          <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 mb-1">
+        <div className="rounded-xl border border-[#2a2148] bg-[#191231] p-4">
+          <p className="text-xs font-medium uppercase tracking-widest text-zinc-400 mb-1">
             Fixed expenses
           </p>
-          <p className="text-xl font-bold text-rose-400 tabular-nums font-mono">
+          <p className="text-2xl font-bold text-rose-400 tabular-nums font-mono">
             <AnimatedAmount cents={-totalFixedCents} />
           </p>
           <div className="space-y-0.5 mt-1">
-            <p className="text-[10px] text-zinc-500 font-mono">
+            <p className="text-xs text-zinc-400 font-mono">
               Essential: <Amount value={essentialFixedCents} className="font-mono" />
             </p>
-            <p className="text-[10px] text-zinc-500 font-mono">
+            <p className="text-xs text-zinc-400 font-mono">
               Optional: <Amount value={optionalFixedCents} className="font-mono" />
             </p>
           </div>
         </div>
 
         {/* CC payment due */}
-        <div className="rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
+        <div className="rounded-xl border border-[#2a2148] bg-[#191231] p-4">
           <div className="flex items-center gap-1.5 mb-1">
-            <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500">
+            <p className="text-xs font-medium uppercase tracking-widest text-zinc-400">
               CC payment due
             </p>
-            <Badge variant="outline" className="text-[9px] px-1 py-0 text-zinc-500 border-[#231c3d]">
+            <Badge variant="outline" className="text-xs px-1 py-0 text-zinc-400 border-[#372d5e]">
               {prevMonthName}
             </Badge>
           </div>
-          <p className="text-xl font-bold text-rose-400 tabular-nums font-mono">
+          <p className="text-2xl font-bold text-rose-400 tabular-nums font-mono">
             <AnimatedAmount cents={-ccPaymentDueCents} />
           </p>
-          <p className="text-[10px] text-zinc-500 mt-1">Previous cycle payment</p>
+          <p className="text-xs text-zinc-400 mt-1">Previous cycle payment</p>
         </div>
 
         {/* Discretionary pool */}
-        <div className="rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
-          <p className="text-[10px] font-medium uppercase tracking-widest text-zinc-500 mb-1">
+        <div className="rounded-xl border border-[#2a2148] bg-[#191231] p-4">
+          <p className="text-xs font-medium uppercase tracking-widest text-zinc-400 mb-1">
             Discretionary pool
           </p>
-          <p className="text-xl font-bold text-white tabular-nums font-mono">
+          <p className="text-2xl font-bold text-white tabular-nums font-mono">
             <AnimatedAmount cents={finalPoolCents} />
           </p>
-          <p className="text-[10px] text-zinc-500 mt-1">Available after obligations</p>
+          <p className="text-xs text-zinc-400 mt-1">Available after obligations</p>
         </div>
       </div>
 
       {/* Section 2 — Spending this month */}
       <div className="space-y-3">
         <div>
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
             Spending this month
           </h2>
-          <p className="text-[10px] text-zinc-500">by payment method</p>
+          <p className="text-xs text-zinc-400">by payment method</p>
         </div>
 
-        <div className="rounded-xl border border-[#18122B] bg-[#0f0c19]/50 p-4 space-y-3">
+        <div className="rounded-xl border border-[#2a2148] bg-[#191231]/50 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-zinc-400">Credit Card</span>
             <span className="text-sm font-medium text-white tabular-nums font-mono">
@@ -233,7 +233,7 @@ export function DashboardClient({
               <Amount value={cashSpendingCents} className="font-mono" />
             </span>
           </div>
-          <div className="border-t border-[#18122B] pt-2 flex items-center justify-between">
+          <div className="border-t border-[#2a2148] pt-2 flex items-center justify-between">
             <span className="text-sm font-medium text-zinc-300">Total spent</span>
             <span className="text-sm font-bold text-white tabular-nums font-mono">
               <Amount value={totalSpentCents} className="font-mono" />
@@ -276,15 +276,15 @@ export function DashboardClient({
 
       {/* Due Soon section */}
       <div className="space-y-3">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
           Due Soon
         </h2>
         {upcomingExpenses.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#18122B] p-8 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#18122B]">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-[#2a2148] p-8 text-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2a2148]">
               <CalendarDays className="h-5 w-5 text-zinc-600" />
             </div>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-zinc-400">
               No fixed expenses due in the next 7 days.
             </p>
           </div>
@@ -294,19 +294,19 @@ export function DashboardClient({
             {unpaidExpenses.map((exp) => (
               <div
                 key={exp.id}
-                className="group flex flex-col gap-2 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="group flex flex-col gap-2 rounded-xl border border-[#2a2148] bg-[#191231] p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#18122B]">
-                    <CalendarDays className="h-4 w-4 text-zinc-500" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#2a2148]">
+                    <CalendarDays className="h-4 w-4 text-zinc-400" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-zinc-200">{exp.name}</p>
-                    <div className="flex items-center gap-2 text-xs text-zinc-500">
-                      <Badge variant="outline" className="text-[10px]">
+                    <div className="flex items-center gap-2 text-xs text-zinc-400">
+                      <Badge variant="outline" className="text-xs">
                         {exp.category}
                       </Badge>
-                      <Badge variant="outline" className="text-[10px]">
+                      <Badge variant="outline" className="text-xs">
                         {exp.billingCycle === "monthly"
                           ? "Monthly"
                           : exp.billingCycle === "quarterly"
@@ -321,7 +321,7 @@ export function DashboardClient({
                     <p className="font-semibold text-white tabular-nums font-mono">
                       <Amount value={exp.amountCents} className="font-mono" />
                     </p>
-                    <p className="text-xs text-zinc-500 font-mono">
+                    <p className="text-xs text-zinc-400 font-mono">
                       Due in {exp.daysUntilDue} day
                       {exp.daysUntilDue === 1 ? "" : "s"}
                     </p>
@@ -329,7 +329,7 @@ export function DashboardClient({
                   <button
                     onClick={() => togglePaid(exp.id, true)}
                     disabled={togglingId === exp.id}
-                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[#231c3d] bg-[#0f0c19] text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[#372d5e] bg-[#191231] text-zinc-400 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
                     aria-label="Mark as paid"
                   >
                     <Check className="h-4 w-4" />
@@ -340,10 +340,10 @@ export function DashboardClient({
 
             {/* Paid this month collapsible */}
             {paidExpenses.length > 0 && (
-              <div className="rounded-xl border border-[#18122B] bg-[#0f0c19] overflow-hidden">
+              <div className="rounded-xl border border-[#2a2148] bg-[#191231] overflow-hidden">
                 <button
                   onClick={() => setShowPaid((v) => !v)}
-                  className="flex w-full items-center justify-between px-4 py-3 text-sm text-zinc-400 hover:bg-[#18122B]/40 transition-colors"
+                  className="flex w-full items-center justify-between px-4 py-3 text-sm text-zinc-400 hover:bg-[#2a2148]/40 transition-colors"
                 >
                   <span className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-emerald-400" />
@@ -360,25 +360,25 @@ export function DashboardClient({
                     {paidExpenses.map((exp) => (
                       <div
                         key={exp.id}
-                        className="flex items-center justify-between rounded-lg bg-[#18122B] px-3 py-2"
+                        className="flex items-center justify-between rounded-lg bg-[#2a2148] px-3 py-2"
                       >
                         <div className="flex items-center gap-3">
                           <Check className="h-4 w-4 text-emerald-400" />
                           <span className="text-sm text-zinc-400 line-through">
                             {exp.name}
                           </span>
-                          <Badge variant="outline" className="text-[10px]">
+                          <Badge variant="outline" className="text-xs">
                             {exp.category}
                           </Badge>
                         </div>
                         <div className="flex w-full items-center justify-between sm:w-auto sm:justify-start sm:gap-3">
-                          <span className="text-xs text-zinc-500 font-mono line-through">
+                          <span className="text-xs text-zinc-400 font-mono line-through">
                             <Amount value={exp.amountCents} className="font-mono line-through" />
                           </span>
                           <button
                             onClick={() => togglePaid(exp.id, false)}
                             disabled={togglingId === exp.id}
-                            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[#231c3d] bg-[#0f0c19] text-zinc-500 hover:border-rose-500/50 hover:text-rose-400 transition-colors"
+                            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[#372d5e] bg-[#191231] text-zinc-400 hover:border-rose-500/50 hover:text-rose-400 transition-colors"
                             aria-label="Unmark as paid"
                           >
                             <span className="text-xs">×</span>

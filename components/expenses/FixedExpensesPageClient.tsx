@@ -47,7 +47,7 @@ export function FixedExpensesPageClient({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-white">Fixed Expenses</h1>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-zinc-400">
             Manage your recurring costs
           </p>
         </div>
@@ -71,7 +71,7 @@ export function FixedExpensesPageClient({
         <GlowCard color="emerald">
           <div className="p-5 space-y-2">
             <div className="flex flex-row items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+              <span className="text-xs font-medium uppercase tracking-widest text-zinc-400">
                 Total Fixed / Month
               </span>
               <Wallet className="h-4 w-4 text-zinc-600" />
@@ -79,7 +79,7 @@ export function FixedExpensesPageClient({
             <div className="text-2xl font-bold text-white tabular-nums font-mono">
               <Amount value={totalFixed} className="font-mono" />
             </div>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-zinc-400 mt-1">
               Monthly equivalent of all active expenses
             </p>
           </div>
@@ -88,7 +88,7 @@ export function FixedExpensesPageClient({
         <GlowCard color="emerald">
           <div className="p-5 space-y-2">
             <div className="flex flex-row items-center justify-between">
-              <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+              <span className="text-xs font-medium uppercase tracking-widest text-zinc-400">
                 % of Income
               </span>
               <Percent className="h-4 w-4 text-zinc-600" />
@@ -96,7 +96,7 @@ export function FixedExpensesPageClient({
             <div className="text-2xl font-bold text-white tabular-nums font-mono">
               {fixedPercentage}%
             </div>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-zinc-400 mt-1">
               Of total monthly income
             </p>
           </div>
@@ -113,7 +113,7 @@ export function FixedExpensesPageClient({
             <div className="text-2xl font-bold text-white tabular-nums font-mono">
               <Amount value={discretionaryPool} className="font-mono" />
             </div>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-zinc-400 mt-1">
               Income left after fixed expenses
             </p>
           </div>

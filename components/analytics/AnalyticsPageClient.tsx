@@ -99,7 +99,7 @@ export function AnalyticsPageClient({
 
       <div className="relative z-10">
         <h1 className="text-2xl font-semibold text-white">Analytics</h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-zinc-400">
           Track your ARS spending patterns over time
         </p>
       </div>
@@ -107,39 +107,39 @@ export function AnalyticsPageClient({
       <KpiCards data={kpiData} />
 
       {!hasTransactions && (
-        <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-8 text-center">
+        <div className="relative z-10 rounded-xl border border-[#2a2148] bg-[#191231] p-8 text-center">
           <p className="text-zinc-400">No ARS transactions yet. Add some charges to see analytics.</p>
         </div>
       )}
 
       {/* Monthly Spending Trend */}
-      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
+      <div className="relative z-10 rounded-xl border border-[#2a2148] bg-[#191231] p-4">
         <h2 className="text-sm font-medium text-zinc-200 mb-4">Monthly Spending Trend</h2>
         <MonthlySpendingChart data={monthlyData} />
       </div>
 
       {/* Spending vs Income */}
-      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
+      <div className="relative z-10 rounded-xl border border-[#2a2148] bg-[#191231] p-4">
         <h2 className="text-sm font-medium text-zinc-200 mb-4">Spending vs Income</h2>
         <SpendingVsIncomeChart data={monthlyData} />
       </div>
 
       {/* Budget vs Actual */}
-      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
+      <div className="relative z-10 rounded-xl border border-[#2a2148] bg-[#191231] p-4">
         <h2 className="text-sm font-medium text-zinc-200 mb-4">Budget vs Actual</h2>
         <BudgetVsActualChart data={budgetVsActualData} />
       </div>
 
       {/* Spending by Category */}
-      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
+      <div className="relative z-10 rounded-xl border border-[#2a2148] bg-[#191231] p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-medium text-zinc-200">Spending by Category</h2>
-          <div className="flex items-center gap-1 bg-[#18122B] rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-[#2a2148] rounded-lg p-1">
             <button
               onClick={() => setCategoryFilter("all")}
               className={`px-3 py-1 text-xs rounded-md transition-colors ${
                 categoryFilter === "all"
-                  ? "bg-[#231c3d] text-white"
+                  ? "bg-[#372d5e] text-white"
                   : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
@@ -149,7 +149,7 @@ export function AnalyticsPageClient({
               onClick={() => setCategoryFilter("credit")}
               className={`px-3 py-1 text-xs rounded-md transition-colors ${
                 categoryFilter === "credit"
-                  ? "bg-[#231c3d] text-white"
+                  ? "bg-[#372d5e] text-white"
                   : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
@@ -159,7 +159,7 @@ export function AnalyticsPageClient({
               onClick={() => setCategoryFilter("cash")}
               className={`px-3 py-1 text-xs rounded-md transition-colors ${
                 categoryFilter === "cash"
-                  ? "bg-[#231c3d] text-white"
+                  ? "bg-[#372d5e] text-white"
                   : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
@@ -175,13 +175,13 @@ export function AnalyticsPageClient({
       </div>
 
       {/* Payment Type Distribution */}
-      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
+      <div className="relative z-10 rounded-xl border border-[#2a2148] bg-[#191231] p-4">
         <h2 className="text-sm font-medium text-zinc-200 mb-4">Payment Type Distribution</h2>
         <PaymentTypeChart data={paymentTypeData} />
       </div>
 
       {/* Credit Card Utilization */}
-      <div className="relative z-10 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
+      <div className="relative z-10 rounded-xl border border-[#2a2148] bg-[#191231] p-4">
         <h2 className="text-sm font-medium text-zinc-200 mb-4">Credit Card Utilization</h2>
         <UtilizationChart data={utilizationData} creditCards={creditCards} />
       </div>

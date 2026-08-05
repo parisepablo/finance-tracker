@@ -99,22 +99,22 @@ export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
       onClick={handleRead}
       onKeyDown={handleKeyDown}
       className={cn(
-        "group relative flex w-full items-start gap-3 rounded-lg border border-[#18122B] border-l-4 p-3 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50",
+        "group relative flex w-full items-start gap-3 rounded-lg border border-[#2a2148] border-l-4 p-3 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50",
         isUnread
-          ? ["opacity-100", config.border, config.bg, "hover:bg-[#18122B]/50"]
-          : ["opacity-55", config.borderRead, "hover:bg-[#18122B]/30"]
+          ? ["opacity-100", config.border, config.bg, "hover:bg-[#2a2148]/50"]
+          : ["opacity-55", config.borderRead, "hover:bg-[#2a2148]/30"]
       )}
     >
       {isUnread && (
         <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-indigo-500" />
       )}
       {!isUnread && (
-        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#231c3d]" />
+        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#372d5e]" />
       )}
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-zinc-500">{typeIcons[alert.type]}</span>
+          <span className="text-zinc-400">{typeIcons[alert.type]}</span>
           <p
             className={cn(
               "text-sm",
@@ -127,7 +127,7 @@ export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
         <p
           className={cn(
             "mt-0.5 leading-relaxed",
-            isUnread ? "text-sm text-zinc-400" : "text-sm text-zinc-500"
+            isUnread ? "text-sm text-zinc-400" : "text-sm text-zinc-400"
           )}
         >
           {alert.message}
@@ -142,7 +142,7 @@ export function AlertItem({ alert, onRead, onDismiss }: AlertItemProps) {
       <button
         type="button"
         onClick={handleDismiss}
-        className="shrink-0 rounded-md p-1 text-zinc-600 hover:text-zinc-300 hover:bg-[#18122B] transition-colors"
+        className="shrink-0 rounded-md p-1 text-zinc-600 hover:text-zinc-300 hover:bg-[#2a2148] transition-colors"
         aria-label="Dismiss"
       >
         <X className="h-3.5 w-3.5" />

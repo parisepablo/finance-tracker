@@ -69,7 +69,7 @@ export function GlowCard({
         className
       )}
       style={{
-        background: `linear-gradient(#18181b, #18181b) padding-box, linear-gradient(135deg, ${colors.from}, transparent 50%, ${colors.to}) border-box`,
+        background: `linear-gradient(#191231, #191231) padding-box, linear-gradient(135deg, ${colors.from}, transparent 50%, ${colors.to}) border-box`,
         border: "1px solid transparent",
         boxShadow: "none",
         transition: "all 0.3s ease, transform 0.2s ease",

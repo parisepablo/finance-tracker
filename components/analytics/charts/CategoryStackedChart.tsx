@@ -73,7 +73,7 @@ export function CategoryStackedChart({
 
   if (!hasData) {
     return (
-      <div className="h-64 flex items-center justify-center text-sm text-zinc-500">
+      <div className="h-64 flex items-center justify-center text-sm text-zinc-400">
         No category data for this filter
       </div>
     );
@@ -96,7 +96,7 @@ export function CategoryStackedChart({
               if (active && payload && payload.length) {
                 const total = payload.reduce((sum, entry) => sum + (entry.value as number), 0);
                 return (
-                  <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg min-w-[180px]">
+                  <div className="bg-[#2a2148] border border-[#372d5e] rounded-lg p-2 shadow-lg min-w-[180px]">
                     <p className="text-xs text-zinc-400 mb-1">{label}</p>
                     <p className="text-sm text-white font-mono mb-1">Total: {formatCurrency(total)}</p>
                     {payload.map((entry, index) => {

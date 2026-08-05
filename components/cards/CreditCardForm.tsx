@@ -354,7 +354,7 @@ export function CreditCardForm({ card, cycles, onSuccess, trigger, open: control
                   {errors.dueDate && (
                     <p className="text-xs text-rose-400">{errors.dueDate}</p>
                   )}
-                  <p className="text-[10px] text-zinc-500">
+                  <p className="text-xs text-zinc-400">
                     Auto-calculated as 9 weekdays after closing
                   </p>
                 </div>

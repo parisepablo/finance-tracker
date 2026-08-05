@@ -56,7 +56,7 @@ export function CardsPageClient({
 
       <div className="relative z-10">
         <h1 className="text-2xl font-semibold text-white">Cards &amp; Wallets</h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-zinc-400">
           Track cards, wallets and charges
         </p>
       </div>
@@ -70,7 +70,7 @@ export function CardsPageClient({
       {/* Credit Cards section */}
       <div className="relative z-10 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
             Credit Cards
           </h2>
           <CreditCardForm onSuccess={handleRefresh} />
@@ -94,13 +94,13 @@ export function CardsPageClient({
           />
           )
         ) : (
-          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
+          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#2a2148] p-10 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2a2148]">
               <CreditCardIcon className="h-6 w-6 text-zinc-600" />
             </div>
             <div className="space-y-1">
               <p className="font-medium text-zinc-300">No cards yet</p>
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-zinc-400">
                 Add your first card to track charges.
               </p>
             </div>
@@ -112,7 +112,7 @@ export function CardsPageClient({
       {/* Payment Sources section */}
       <div className="relative z-10 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
             Other payment methods
           </h2>
           <PaymentSourceForm onSuccess={handleRefresh} />
@@ -124,13 +124,13 @@ export function CardsPageClient({
             onRefresh={handleRefresh}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
+          <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#2a2148] p-10 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2a2148]">
               <Smartphone className="h-6 w-6 text-zinc-600" />
             </div>
             <div className="space-y-1">
               <p className="font-medium text-zinc-300">No payment sources yet</p>
-              <p className="text-sm text-zinc-500">
+              <p className="text-sm text-zinc-400">
                 Add a digital wallet or cash source to track spending.
               </p>
             </div>
@@ -166,7 +166,7 @@ function SingleCardView({
       {/* Card visual */}
       <div className="space-y-0 md:max-w-sm md:mx-auto">
         <div
-          className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-emerald-900 via-violet-900 to-zinc-900 border border-[#18122B]"
+          className="shine-card relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-emerald-900 via-violet-900 to-zinc-900 border border-[#2a2148]"
           style={{
             boxShadow:
               "0 0 40px rgba(16, 185, 129,0.09), 0 20px 40px rgba(0,0,0,0.4)",
@@ -177,7 +177,7 @@ function SingleCardView({
               <div className="flex items-center gap-2">
                 <Wifi className="h-5 w-5 text-white/60 rotate-90" />
               </div>
-              <span className="text-xs font-medium text-white/50 uppercase tracking-wider">
+              <span className="text-xs font-medium text-white/70 uppercase tracking-wider">
                 {card.name}
               </span>
             </div>
@@ -196,7 +196,7 @@ function SingleCardView({
 
             <div className="flex items-end justify-between">
               <div className="space-y-0.5">
-                <p className="text-[10px] uppercase tracking-wider text-white/40">Limit</p>
+                <p className="text-xs uppercase tracking-wider text-white/60">Limit</p>
                 <p className="text-sm font-semibold text-white tabular-nums font-mono">
                   {card.credit_limit_cents !== null
                     ? <Amount value={card.credit_limit_cents} className="font-mono" />
@@ -205,12 +205,12 @@ function SingleCardView({
               </div>
               {cycleRange && (
                 <div className="flex flex-col items-end gap-0.5">
-                  <p className="text-[10px] uppercase tracking-wider text-white/40">Cycle</p>
+                  <p className="text-xs uppercase tracking-wider text-white/60">Cycle</p>
                   <p className="text-xs font-medium text-white/70 font-mono">
                     {cycleRange.label}
                   </p>
                   {openCycle && (
-                    <p className="text-[10px] text-white/50">
+                    <p className="text-xs text-white/70">
                       Due {formatDateShort(openCycle.due_date)}
                     </p>
                   )}
@@ -230,7 +230,7 @@ function SingleCardView({
               onRefresh();
             }}
             trigger={
-              <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#18122B]">
+              <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#2a2148]">
                 + Charge
               </Button>
             }
@@ -240,7 +240,7 @@ function SingleCardView({
             cycles={cardCycles}
             onSuccess={onRefresh}
             trigger={
-              <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]">
+              <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-white hover:bg-[#2a2148]">
                 <Pencil className="h-4 w-4" />
               </Button>
             }
@@ -249,7 +249,7 @@ function SingleCardView({
       </div>
 
       {/* Auto-opened detail */}
-      <div className="rounded-xl border border-[#18122B] bg-[#0f0c19] p-4">
+      <div className="rounded-xl border border-[#2a2148] bg-[#191231] p-4">
         <CardDetail card={card} budgetCategories={budgetCategories} cycles={cardCycles} refreshTrigger={detailRefreshKey} />
       </div>
     </div>

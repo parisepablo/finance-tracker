@@ -231,10 +231,10 @@ export function EditChargeSheet({
       <SheetContent
         side={side}
         className={cn(
-          "bg-[#0f0c19]",
+          "bg-[#191231]",
           isMobile
-            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-[#18122B]"
-            : "w-full max-w-sm border-l border-[#18122B]"
+            ? "h-auto max-h-[85vh] rounded-t-2xl border-t border-[#2a2148]"
+            : "w-full max-w-sm border-l border-[#2a2148]"
         )}
       >
         <SheetHeader className="pb-2">
@@ -245,7 +245,7 @@ export function EditChargeSheet({
         </SheetHeader>
 
         {loading ? (
-          <div className="py-8 text-center text-sm text-zinc-500">
+          <div className="py-8 text-center text-sm text-zinc-400">
             Loading...
           </div>
         ) : (

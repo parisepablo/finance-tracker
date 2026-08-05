@@ -51,7 +51,7 @@ export function MonthlySpendingChart({ data }: MonthlySpendingChartProps) {
 
   if (!hasData) {
     return (
-      <div className="h-64 flex items-center justify-center text-sm text-zinc-500">
+      <div className="h-64 flex items-center justify-center text-sm text-zinc-400">
         No spending data yet
       </div>
     );
@@ -90,7 +90,7 @@ export function MonthlySpendingChart({ data }: MonthlySpendingChartProps) {
               content={({ active, payload, label }) => {
                 if (active && payload && payload.length) {
                   return (
-                    <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg min-w-[160px]">
+                    <div className="bg-[#2a2148] border border-[#372d5e] rounded-lg p-2 shadow-lg min-w-[160px]">
                       <p className="text-xs text-zinc-400 mb-1">{label}</p>
                       {payload.map((entry, index) => {
                         if (!entry.value || entry.value === 0) return null;

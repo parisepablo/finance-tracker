@@ -304,10 +304,10 @@ export function QuickAddChargeSheet({
       <SheetContent
         side={side}
         className={cn(
-          "flex flex-col overflow-hidden bg-[#0f0c19]",
+          "flex flex-col overflow-hidden bg-[#191231]",
           isMobile
-            ? "h-[92vh] max-h-[92vh] rounded-t-2xl border-t border-[#18122B]"
-            : "w-full max-w-sm border-l border-[#18122B]"
+            ? "h-[92vh] max-h-[92vh] rounded-t-2xl border-t border-[#2a2148]"
+            : "w-full max-w-sm border-l border-[#2a2148]"
         )}
       >
         {step === "picker" && (
@@ -332,7 +332,7 @@ export function QuickAddChargeSheet({
                     });
                     setStep("form");
                   }}
-                  className="w-full flex items-center gap-3 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4 text-left transition-colors hover:bg-[#18122B]"
+                  className="w-full flex items-center gap-3 rounded-xl border border-[#2a2148] bg-[#191231] p-4 text-left transition-colors hover:bg-[#2a2148]"
                 >
                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-600/20 to-violet-600/20 md:h-10 md:w-10">
                     <CreditCardIcon className="h-6 w-6 text-emerald-400 md:h-5 md:w-5" />
@@ -340,7 +340,7 @@ export function QuickAddChargeSheet({
                   <div>
                     <p className="text-base font-medium text-zinc-200 md:text-sm">{card.name}</p>
                     {card.last_four && (
-                      <p className="text-sm text-zinc-500 font-mono md:text-xs">
+                      <p className="text-sm text-zinc-400 font-mono md:text-xs">
                         •••• {card.last_four}
                       </p>
                     )}
@@ -361,7 +361,7 @@ export function QuickAddChargeSheet({
                     });
                     setStep("form");
                   }}
-                  className="w-full flex items-center gap-3 rounded-xl border border-[#18122B] bg-[#0f0c19] p-4 text-left transition-colors hover:bg-[#18122B]"
+                  className="w-full flex items-center gap-3 rounded-xl border border-[#2a2148] bg-[#191231] p-4 text-left transition-colors hover:bg-[#2a2148]"
                 >
                   <div
                     className="flex h-12 w-12 items-center justify-center rounded-lg md:h-10 md:w-10"
@@ -377,7 +377,7 @@ export function QuickAddChargeSheet({
                   </div>
                   <div>
                     <p className="text-base font-medium text-zinc-200 md:text-sm">{source.name}</p>
-                    <p className="text-sm text-zinc-500 md:text-xs">
+                    <p className="text-sm text-zinc-400 md:text-xs">
                       {source.type === "digital" ? "Digital wallet" : "Cash"}
                     </p>
                   </div>
@@ -398,7 +398,7 @@ export function QuickAddChargeSheet({
                     setStep("picker");
                     setSelectedMethod(null);
                   }}
-                  className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-[#18122B]"
+                  className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-[#2a2148]"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -415,7 +415,7 @@ export function QuickAddChargeSheet({
 
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-5 px-4 py-5 md:space-y-4 md:px-3 md:py-4">
               {isSource && (
-                <div className="rounded-lg border border-[#18122B] bg-[#18122B]/50 px-3 py-2 text-base text-zinc-300 md:text-sm">
+                <div className="rounded-lg border border-[#2a2148] bg-[#2a2148]/50 px-3 py-2 text-base text-zinc-300 md:text-sm">
                   Payment source: <span className="font-medium text-white">{selectedMethod.name}</span>
                 </div>
               )}
@@ -471,7 +471,7 @@ export function QuickAddChargeSheet({
                           }
                           if (errors.description) setErrors((p) => ({ ...p, description: undefined }));
                         }}
-                        className="inline-flex items-center rounded-full border border-[#18122B] bg-[#18122B]/60 px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-[#18122B] hover:text-white"
+                        className="inline-flex items-center rounded-full border border-[#2a2148] bg-[#2a2148]/60 px-3 py-1.5 text-sm text-zinc-300 transition-colors hover:bg-[#2a2148] hover:text-white"
                       >
                         {charge.description}
                       </button>
@@ -560,12 +560,12 @@ export function QuickAddChargeSheet({
                   <SelectTrigger id="quick-budget" className="h-12 w-full text-base md:h-9 md:text-sm">
                     <SelectValue placeholder="Optional" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-80 bg-[#18122B] border-[#2a2345]">
-                    <SelectItem value="none" className="h-12 text-base hover:bg-[#231c3d] focus:bg-[#231c3d] md:h-9 md:text-sm">None</SelectItem>
+                  <SelectContent className="max-h-80 bg-[#2a2148] border-[#372d5e]">
+                    <SelectItem value="none" className="h-12 text-base hover:bg-[#372d5e] focus:bg-[#372d5e] md:h-9 md:text-sm">None</SelectItem>
                     {[...budgetCategories]
                       .sort((a, b) => a.name.localeCompare(b.name))
                       .map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id} className="h-12 text-base hover:bg-[#231c3d] focus:bg-[#231c3d] md:h-9 md:text-sm">
+                        <SelectItem key={cat.id} value={cat.id} className="h-12 text-base hover:bg-[#372d5e] focus:bg-[#372d5e] md:h-9 md:text-sm">
                           {cat.name}
                         </SelectItem>
                       ))}

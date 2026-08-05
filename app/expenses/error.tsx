@@ -22,7 +22,7 @@ export default function Error({
       </div>
       <div className="space-y-1">
         <h2 className="text-lg font-semibold text-white">Something went wrong</h2>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-zinc-400">
           We couldn&apos;t load your expenses. Please try again.
         </p>
       </div>

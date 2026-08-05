@@ -157,13 +157,13 @@ export function FixedExpenseList({
 
   if (expenses.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#2a2148] p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2a2148]">
           <Receipt className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
           <p className="font-medium text-zinc-300">No fixed expenses yet</p>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-zinc-400">
             Add your first fixed expense to get started.
           </p>
         </div>
@@ -218,7 +218,7 @@ export function FixedExpenseList({
 
           return (
             <div key={category}>
-              <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-zinc-500">
+              <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-widest text-zinc-400">
                 {categoryIcons[category] ?? <CircleDot className="h-4 w-4" />}
                 <span>{category}</span>
               </div>
@@ -271,27 +271,27 @@ export function FixedExpenseList({
                               {expense.is_active ? "Active" : "Paused"}
                             </Badge>
                             {isPaid && (
-                              <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">
+                              <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs">
                                 <Check className="mr-1 h-3 w-3" />
                                 Paid
                               </Badge>
                             )}
                           </div>
-                           <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+                           <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-400">
                             {expense.due_day && (
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
                                 Due day <span className="font-mono">{expense.due_day}</span>
                               </span>
                             )}
-                            <Badge variant="outline" className="text-[10px] font-mono">
+                            <Badge variant="outline" className="text-xs font-mono">
                               {expense.effective_from_month}
                             </Badge>
-                            <Badge variant="outline" className="text-[10px]">
+                            <Badge variant="outline" className="text-xs">
                               {cycleLabel}
                             </Badge>
                             {expense.payment_method === "credit_card" && (
-                              <Badge variant="outline" className="text-[10px]">
+                              <Badge variant="outline" className="text-xs">
                                 Credit Card
                               </Badge>
                             )}
@@ -315,7 +315,7 @@ export function FixedExpenseList({
                                 variant="ghost"
                                 size="icon"
                                 aria-label="Edit"
-                                className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]"
+                                className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-white hover:bg-[#2a2148]"
                               >
                                 <Pencil className="h-4 w-4" />
                               </Button>
@@ -327,7 +327,7 @@ export function FixedExpenseList({
                             aria-label="Delete"
                             disabled={deletingId === expense.id}
                             onClick={() => openDeleteDialog(expense)}
-                            className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
+                            className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -335,10 +335,10 @@ export function FixedExpenseList({
                         <div className="text-right">
                           <p className="text-lg font-semibold text-white tabular-nums font-mono">
                             {expense.is_estimated && (
-                              <span className="text-zinc-500">~ </span>
+                              <span className="text-zinc-400">~ </span>
                             )}
                             <Amount value={monthlyCents} className="font-mono" />
-                            <span className="ml-1 text-sm font-normal text-zinc-500 font-sans">
+                            <span className="ml-1 text-sm font-normal text-zinc-400 font-sans">
                               / mo
                             </span>
                           </p>
@@ -358,7 +358,7 @@ export function FixedExpenseList({
                             className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-colors ${
                               isPaid
                                 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:border-emerald-500/50"
-                                : "border-[#231c3d] bg-[#0f0c19] text-zinc-500 hover:border-emerald-500/50 hover:text-emerald-400"
+                                : "border-[#372d5e] bg-[#191231] text-zinc-400 hover:border-emerald-500/50 hover:text-emerald-400"
                             }`}
                             aria-label={isPaid ? "Unmark as paid" : "Mark as paid"}
                           >

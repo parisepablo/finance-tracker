@@ -135,13 +135,13 @@ export function PaymentSourceForm({ source, onSuccess, trigger }: PaymentSourceF
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
-          <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#18122B]">
+          <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white hover:bg-[#2a2148]">
             <Plus className="h-4 w-4 mr-1" />
             {isEditing ? "Edit" : "Add source"}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="bg-[#0f0c19] border-[#18122B]">
+      <DialogContent className="bg-[#191231] border-[#2a2148]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>

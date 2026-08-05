@@ -129,11 +129,11 @@ export function PaymentSourceDetail({
       </div>
 
       {loading && (
-        <div className="text-sm text-zinc-500">Loading...</div>
+        <div className="text-sm text-zinc-400">Loading...</div>
       )}
 
       {transactions.length === 0 && !loading && (
-        <div className="rounded-xl border border-dashed border-[#18122B] p-6 text-center text-sm text-zinc-500">
+        <div className="rounded-xl border border-dashed border-[#2a2148] p-6 text-center text-sm text-zinc-400">
           No charges for this payment source yet.
         </div>
       )}
@@ -152,14 +152,14 @@ export function PaymentSourceDetail({
                   setDeleteChargeId(item.id);
                 }}
               >
-                <div className="group flex flex-col gap-1 rounded-xl border border-[#18122B] bg-[#0f0c19] p-3 hover:bg-[#0f0c19]/70 transition-all duration-300 relative overflow-hidden">
+                <div className="group flex flex-col gap-1 rounded-xl border border-[#2a2148] bg-[#191231] p-3 hover:bg-[#191231]/70 transition-all duration-300 relative overflow-hidden">
                   <div className="absolute inset-y-0 left-0 w-0.5 bg-emerald-500/50 scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-top" />
                   {/* Title line */}
                   <div className="flex items-center gap-2 pl-1">
                     {isInstallment ? (
-                      <Package className="h-4 w-4 shrink-0 text-zinc-500" />
+                      <Package className="h-4 w-4 shrink-0 text-zinc-400" />
                     ) : (
-                      <Zap className="h-4 w-4 shrink-0 text-zinc-500" />
+                      <Zap className="h-4 w-4 shrink-0 text-zinc-400" />
                     )}
                     <p className="text-sm font-medium text-zinc-200 break-words">
                       {item.description}
@@ -170,17 +170,17 @@ export function PaymentSourceDetail({
                     <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
                       <Badge
                         variant="outline"
-                        className="text-[10px]"
+                        className="text-xs"
                       >
                         {isInstallment ? "Installment" : "One-time"}
                       </Badge>
                       {isInstallment && (
-                        <span className="text-xs text-zinc-500 font-mono">
+                        <span className="text-xs text-zinc-400 font-mono">
                           {item.current_installment} of {item.total_installments}
                         </span>
                       )}
                       {item.budget_category_id && (
-                        <span className="text-xs text-zinc-500">
+                        <span className="text-xs text-zinc-400">
                           {budgetCategories.find((c) => c.id === item.budget_category_id)?.name ?? ""}
                         </span>
                       )}

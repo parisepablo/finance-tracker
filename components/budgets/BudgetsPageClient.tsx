@@ -43,7 +43,7 @@ export function BudgetsPageClient({
       <div className="flex items-center justify-between relative z-10">
         <div>
           <h1 className="text-2xl font-semibold text-white">Variable Budgets</h1>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-zinc-400">
             Allocate your discretionary pool
           </p>
         </div>
@@ -86,14 +86,14 @@ export function BudgetsPageClient({
           <div className="text-2xl font-bold text-white tabular-nums font-mono">
             <Amount value={discretionaryPoolCents} className="font-mono" />
           </div>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-400 mt-1">
             Income left after fixed expenses
           </p>
         </div>
       </GlowCard>
 
       <div className="space-y-2 relative z-10">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-500">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
           Allocation (<span className="font-mono">{totalPercentage}%</span>)
         </h2>
         <AllocationBar categories={categories} />

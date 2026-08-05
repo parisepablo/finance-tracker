@@ -73,12 +73,12 @@ export function MonthSelector() {
         variant="ghost"
         size="icon"
         onClick={prevMonth}
-        className="h-6 w-6 text-zinc-500 hover:text-zinc-300 hover:bg-[#18122B]/50"
+        className="h-6 w-6 text-zinc-400 hover:text-zinc-300 hover:bg-[#2a2148]/50"
         aria-label="Previous month"
       >
         <ChevronLeft className="h-3 w-3" />
       </Button>
-      <span className="min-w-[80px] text-center text-xs font-normal capitalize text-zinc-500 select-none">
+      <span className="min-w-[80px] text-center text-xs font-normal capitalize text-zinc-400 select-none">
         {formatMonthLabel(selectedMonth)}
       </span>
       <Button
@@ -86,7 +86,7 @@ export function MonthSelector() {
         size="icon"
         onClick={nextMonth}
         disabled={isCurrentMonth}
-        className="h-6 w-6 text-zinc-500 hover:text-zinc-300 hover:bg-[#18122B]/50 disabled:opacity-30 disabled:hover:bg-transparent"
+        className="h-6 w-6 text-zinc-400 hover:text-zinc-300 hover:bg-[#2a2148]/50 disabled:opacity-30 disabled:hover:bg-transparent"
         aria-label="Next month"
       >
         <ChevronRight className="h-3 w-3" />

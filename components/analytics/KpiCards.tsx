@@ -27,20 +27,20 @@ export function KpiCards({ data }: KpiCardsProps) {
       <GlowCard color="emerald">
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">Total Spent</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-zinc-400">Total Spent</span>
             <Wallet className="h-4 w-4 text-emerald-500/70" />
           </div>
           <div className="text-xl font-bold text-white tabular-nums font-mono">
             <Amount value={data.totalSpentCents} className="font-mono" />
           </div>
-          <p className="text-xs text-zinc-500">{data.currentMonthLabel}</p>
+          <p className="text-xs text-zinc-400">{data.currentMonthLabel}</p>
         </div>
       </GlowCard>
 
       <GlowCard color={isPositive ? "emerald" : "rose"}>
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">Savings</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-zinc-400">Savings</span>
             {isPositive ? (
               <TrendingUp className="h-4 w-4 text-emerald-500/70" />
             ) : (
@@ -50,7 +50,7 @@ export function KpiCards({ data }: KpiCardsProps) {
           <div className="text-xl font-bold text-white tabular-nums font-mono">
             <Amount value={Math.abs(data.savingsCents)} className="font-mono" />
           </div>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-zinc-400">
             {data.savingsRate !== null ? `${data.savingsRate}% of income` : "No income recorded"}
           </p>
         </div>
@@ -59,31 +59,31 @@ export function KpiCards({ data }: KpiCardsProps) {
       <GlowCard color="emerald">
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">Avg Daily Spend</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-zinc-400">Avg Daily Spend</span>
             <Calendar className="h-4 w-4 text-emerald-500/70" />
           </div>
           <div className="text-xl font-bold text-white tabular-nums font-mono">
             <Amount value={data.avgDailySpendCents} className="font-mono" />
           </div>
-          <p className="text-xs text-zinc-500">Per day in {data.currentMonthLabel}</p>
+          <p className="text-xs text-zinc-400">Per day in {data.currentMonthLabel}</p>
         </div>
       </GlowCard>
 
       <GlowCard color="emerald">
         <div className="p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium uppercase tracking-widest text-zinc-500">Top Category</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-zinc-400">Top Category</span>
             <PieChart className="h-4 w-4 text-emerald-500/70" />
           </div>
           {data.topCategory ? (
             <>
               <div className="text-xl font-bold text-white truncate">{data.topCategory.name}</div>
-              <p className="text-xs text-zinc-500 font-mono">
+              <p className="text-xs text-zinc-400 font-mono">
                 <Amount value={data.topCategory.spentCents} className="font-mono" />
               </p>
             </>
           ) : (
-            <p className="text-sm text-zinc-500">No spending yet</p>
+            <p className="text-sm text-zinc-400">No spending yet</p>
           )}
         </div>
       </GlowCard>

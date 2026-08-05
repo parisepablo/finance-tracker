@@ -55,7 +55,7 @@ export function BudgetDonut({
         </div>
       </div>
       <span className="text-xs text-zinc-400 text-center">{name}</span>
-      <span className="text-xs text-zinc-500 font-mono">
+      <span className="text-xs text-zinc-400 font-mono">
         <Amount value={spentCents} className="font-mono" /> / <Amount value={allocatedCents} className="font-mono" />
       </span>
     </div>

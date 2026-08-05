@@ -238,7 +238,7 @@ export function IncomeForm({ income, onSuccess, trigger, open: controlledOpen, o
                   setEffectiveFromMonth(e.target.value);
                 }}
               />
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-zinc-400">
                 This amount applies from this month onward unless changed again.
               </p>
             </div>

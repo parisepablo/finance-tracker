@@ -35,7 +35,7 @@ export function PaymentTypeChart({ data }: PaymentTypeChartProps) {
 
   if (total === 0) {
     return (
-      <div className="h-48 flex items-center justify-center text-sm text-zinc-500">
+      <div className="h-48 flex items-center justify-center text-sm text-zinc-400">
         No payment data yet
       </div>
     );
@@ -66,7 +66,7 @@ export function PaymentTypeChart({ data }: PaymentTypeChartProps) {
                   const entry = payload[0];
                   const item = entry.payload as (typeof chartData)[0];
                   return (
-                    <div className="bg-[#18122B] border border-[#231c3d] rounded-lg p-2 shadow-lg">
+                    <div className="bg-[#2a2148] border border-[#372d5e] rounded-lg p-2 shadow-lg">
                       <p className="text-sm font-medium" style={{ color: item.color }}>
                         {item.name}
                       </p>
@@ -94,7 +94,7 @@ export function PaymentTypeChart({ data }: PaymentTypeChartProps) {
                 <span className="text-sm text-white font-mono">
                   {formatCurrency(entry.value)} ({percentage}%)
                 </span>
-                <span className="text-[10px] text-zinc-500">{entry.count} transactions</span>
+                <span className="text-xs text-zinc-400">{entry.count} transactions</span>
               </div>
             </div>
           );

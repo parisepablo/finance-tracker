@@ -187,19 +187,19 @@ export function MonthlyReview({
               const item = { type: "income" as const, id: source.id };
               const busy = busyItem?.type === item.type && busyItem.id === item.id;
               return (
-                <div key={source.id} className="rounded-xl border border-[#2a2345] bg-[#0f0c19]/70 p-4">
+                <div key={source.id} className="rounded-xl border border-[#372d5e] bg-[#191231]/70 p-4">
                   <div className="flex items-start gap-3">
                     <Banknote className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium text-zinc-200">{source.name}</span>
-                        <span className="rounded-full bg-[#18122B] px-2 py-0.5 text-[10px] text-zinc-400">
+                        <span className="rounded-full bg-[#2a2148] px-2 py-0.5 text-xs text-zinc-400">
                           Since {formatShortMonth(source.effective_from_month)}
                         </span>
                       </div>
                       <p className="mt-1 font-mono text-sm text-white">
                         <Amount value={source.amount_cents} currency={source.currency} />
-                        <span className="ml-1 text-xs text-zinc-500">/ month</span>
+                        <span className="ml-1 text-xs text-zinc-400">/ month</span>
                       </p>
                     </div>
                   </div>
@@ -222,19 +222,19 @@ export function MonthlyReview({
               const item = { type: "expense" as const, id: expense.id };
               const busy = busyItem?.type === item.type && busyItem.id === item.id;
               return (
-                <div key={expense.id} className="rounded-xl border border-[#2a2345] bg-[#0f0c19]/70 p-4">
+                <div key={expense.id} className="rounded-xl border border-[#372d5e] bg-[#191231]/70 p-4">
                   <div className="flex items-start gap-3">
                     <Receipt className="mt-0.5 h-4 w-4 shrink-0 text-rose-400" />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium text-zinc-200">{expense.name}</span>
-                        <span className="rounded-full bg-[#18122B] px-2 py-0.5 text-[10px] text-zinc-400">
+                        <span className="rounded-full bg-[#2a2148] px-2 py-0.5 text-xs text-zinc-400">
                           Since {formatShortMonth(expense.effective_from_month)}
                         </span>
                       </div>
                       <p className="mt-1 font-mono text-sm text-white">
                         <Amount value={getMonthlyEquivalent(expense.amount_cents, expense.billing_cycle)} />
-                        <span className="ml-1 text-xs text-zinc-500">/ month</span>
+                        <span className="ml-1 text-xs text-zinc-400">/ month</span>
                       </p>
                     </div>
                   </div>
@@ -253,7 +253,7 @@ export function MonthlyReview({
               );
             })}
           </div>
-          <div className="mt-4 flex items-center gap-2 text-xs text-zinc-500">
+          <div className="mt-4 flex items-center gap-2 text-xs text-zinc-400">
             <ArrowRight className="h-3.5 w-3.5" />
             Keeping an item creates a current-month version without changing previous months.
           </div>

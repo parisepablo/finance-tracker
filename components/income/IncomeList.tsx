@@ -69,13 +69,13 @@ export function IncomeList({ incomeSources, currentMonth, onRefresh }: IncomeLis
 
   if (incomeSources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#18122B] p-10 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#18122B]">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-[#2a2148] p-10 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2a2148]">
           <Banknote className="h-6 w-6 text-zinc-600" />
         </div>
         <div className="space-y-1">
           <p className="font-medium text-zinc-300">No income sources yet</p>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-zinc-400">
             Add your first income source to get started.
           </p>
         </div>
@@ -112,16 +112,16 @@ export function IncomeList({ incomeSources, currentMonth, onRefresh }: IncomeLis
                     <Badge variant={source.is_active ? "default" : "secondary"}>
                       {source.is_active ? "Active" : "Inactive"}
                     </Badge>
-                    <Badge variant="outline" className="text-[10px]">
+                    <Badge variant="outline" className="text-xs">
                       {source.currency}
                     </Badge>
-                    <Badge variant="outline" className="text-[10px] font-mono">
+                    <Badge variant="outline" className="text-xs font-mono">
                       {source.effective_from_month}
                     </Badge>
                   </div>
                   <p className="text-lg font-semibold text-white tabular-nums font-mono">
                     <Amount value={source.amount_cents} currency={source.currency} className="font-mono" />
-                    <span className="ml-1 text-sm font-normal text-zinc-500 font-sans">
+                    <span className="ml-1 text-sm font-normal text-zinc-400 font-sans">
                       / month
                     </span>
                   </p>
@@ -137,7 +137,7 @@ export function IncomeList({ incomeSources, currentMonth, onRefresh }: IncomeLis
                       if (!open) setEditingItem(null);
                     }}
                     trigger={
-                      <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-white hover:bg-[#18122B]">
+                      <Button variant="ghost" size="icon" aria-label="Edit" className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-white hover:bg-[#2a2148]">
                         <Pencil className="h-4 w-4" />
                       </Button>
                     }
@@ -148,7 +148,7 @@ export function IncomeList({ incomeSources, currentMonth, onRefresh }: IncomeLis
                     aria-label="Delete"
                     disabled={deletingId === source.id}
                     onClick={() => openDeleteDialog(source)}
-                    className="min-h-[44px] min-w-[44px] text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10"
+                    className="min-h-[44px] min-w-[44px] text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
