@@ -203,15 +203,15 @@ export function MonthlyReview({
                       </p>
                     </div>
                   </div>
-                  <div className="mt-3 flex flex-wrap justify-end gap-2">
-                    <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => updateItem(item, false)} className="text-zinc-400 hover:text-rose-300">
-                      <X className="mr-1.5 h-3.5 w-3.5" /> Stop
+                  <div className="mt-3 flex flex-wrap justify-end gap-1">
+                    <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => updateItem(item, false)} className="px-2 text-zinc-400 hover:text-rose-300">
+                      <X className="mr-1 h-3.5 w-3.5" /> Stop
                     </Button>
-                    <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => setEditingIncome(source)} className="text-zinc-400 hover:text-white">
-                      <Pencil className="mr-1.5 h-3.5 w-3.5" /> Change
+                    <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => setEditingIncome(source)} className="px-2 text-zinc-400 hover:text-white">
+                      <Pencil className="mr-1 h-3.5 w-3.5" /> Change
                     </Button>
-                    <Button type="button" size="sm" disabled={busy} onClick={() => updateItem(item, true)}>
-                      <Check className="mr-1.5 h-3.5 w-3.5" /> Keep
+                    <Button type="button" size="sm" disabled={busy} onClick={() => updateItem(item, true)} className="px-2">
+                      <Check className="mr-1 h-3.5 w-3.5" /> Keep
                     </Button>
                   </div>
                 </div>
@@ -238,15 +238,15 @@ export function MonthlyReview({
                       </p>
                     </div>
                   </div>
-                  <div className="mt-3 flex flex-wrap justify-end gap-2">
-                    <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => updateItem(item, false)} className="text-zinc-400 hover:text-rose-300">
-                      <X className="mr-1.5 h-3.5 w-3.5" /> Stop
+                  <div className="mt-3 flex flex-wrap justify-end gap-1">
+                    <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => updateItem(item, false)} className="px-2 text-zinc-400 hover:text-rose-300">
+                      <X className="mr-1 h-3.5 w-3.5" /> Stop
                     </Button>
-                    <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => setEditingExpense(expense)} className="text-zinc-400 hover:text-white">
-                      <Pencil className="mr-1.5 h-3.5 w-3.5" /> Change
+                    <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => setEditingExpense(expense)} className="px-2 text-zinc-400 hover:text-white">
+                      <Pencil className="mr-1 h-3.5 w-3.5" /> Change
                     </Button>
-                    <Button type="button" size="sm" disabled={busy} onClick={() => updateItem(item, true)}>
-                      <Check className="mr-1.5 h-3.5 w-3.5" /> Keep
+                    <Button type="button" size="sm" disabled={busy} onClick={() => updateItem(item, true)} className="px-2">
+                      <Check className="mr-1 h-3.5 w-3.5" /> Keep
                     </Button>
                   </div>
                 </div>

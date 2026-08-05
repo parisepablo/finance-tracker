@@ -120,7 +120,7 @@ export function AlertsSheet({ open, onOpenChange }: AlertsSheetProps) {
         )}
       >
         <SheetHeader className="pb-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pr-9">
             <SheetTitle>Notifications</SheetTitle>
             {unreadCount > 0 && !loading && (
               <Button
